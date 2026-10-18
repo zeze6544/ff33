@@ -19,10 +19,11 @@ type CartContextValue = {
   count: number
   subtotal: number
   isOpen: boolean
+  slip: string | null
   openCart: () => void
   closeCart: () => void
   toggleCart: () => void
-  addItem: (productId: string, quantity?: number) => void
+  addItem: (productId: string, quantity?: number, label?: string) => void
   removeItem: (productId: string) => void
   setQuantity: (productId: string, quantity: number) => void
   clear: () => void
@@ -55,6 +56,7 @@ function loadItems(): CartItem[] {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => loadItems())
   const [isOpen, setIsOpen] = useState(false)
+  const [slip, setSlip] = useState<string | null>(null)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
@@ -69,7 +71,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [isOpen])
 
-  const addItem = useCallback((productId: string, quantity = 1) => {
+  const addItem = useCallback((productId: string, quantity = 1, label?: string) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.productId === productId)
       if (existing) {
@@ -82,6 +84,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return [...prev, { productId, quantity }]
     })
     setIsOpen(true)
+    if (label) {
+      setSlip(label)
+      window.setTimeout(() => setSlip(null), 2400)
+    }
   }, [])
 
   const removeItem = useCallback((productId: string) => {
@@ -128,6 +134,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     count,
     subtotal,
     isOpen,
+    slip,
     openCart: () => setIsOpen(true),
     closeCart: () => setIsOpen(false),
     toggleCart: () => setIsOpen((v) => !v),
