@@ -76,9 +76,9 @@ function meshTexture(light: boolean, fine: boolean) {
 
 function boardTexture(intel: boolean) {
   return paint(512, 640, (g) => {
-    g.fillStyle = '#121614'
+    g.fillStyle = '#1a2420'
     g.fillRect(0, 0, 512, 640)
-    g.strokeStyle = intel ? '#3a3418' : '#1c3a2c'
+    g.strokeStyle = intel ? '#6a5a28' : '#2f6a48'
     g.lineWidth = 1.2
     for (let i = 0; i < 24; i++) {
       g.beginPath()
@@ -452,6 +452,14 @@ function Shell({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
         <boxGeometry args={[0.01, box.h - 0.02, box.d - 0.02]} />
         <meshStandardMaterial color={look.light ? '#d9d3c8' : '#14181c'} roughness={0.7} metalness={0.15} />
       </mesh>
+      <mesh position={[0, 0, -box.d / 2 + 0.01]}>
+        <boxGeometry args={[box.w - 0.028, box.h - 0.04, 0.004]} />
+        <meshStandardMaterial color={look.light ? '#e7e1d6' : '#0e1216'} roughness={0.88} />
+      </mesh>
+      <mesh position={[0, box.h / 2 - 0.014, 0]}>
+        <boxGeometry args={[box.w - 0.03, 0.004, box.d - 0.08]} />
+        <meshStandardMaterial color={look.light ? '#e4ddd2' : '#101418'} roughness={0.86} />
+      </mesh>
       {([-1, 1] as const).map((side) => (
         <mesh key={side} position={[side * (box.w / 2 - 0.01), 0, box.d / 2 - 0.008]} {...onCase}>
           <boxGeometry args={[0.014, box.h, 0.016]} />
@@ -526,6 +534,12 @@ function Graphics({
         <mesh key={y} position={[0.001, y, -length / 2 + 0.006]}>
           <boxGeometry args={[0.004, 0.012, 0.002]} />
           <meshStandardMaterial color="#0c0e10" roughness={0.7} />
+        </mesh>
+      ))}
+      {Array.from({ length: 4 }, (_, i) => (
+        <mesh key={i} position={[0.01, 0.054, -length * 0.32 + i * length * 0.2]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.0032, 0.0032, 0.003, 8]} />
+          <meshStandardMaterial color="#aeb6be" metalness={0.82} roughness={0.24} />
         </mesh>
       ))}
       <mesh position={[style.thick * 0.46, 0.038, 0.01]}>
@@ -704,15 +718,25 @@ function Memory({ look, box, onPick }: { look: Look; box: Chassis; onPick: Retur
   )
 }
 
-function Tube({ from, to }: { from: [number, number, number]; to: [number, number, number] }) {
+function Tube({
+  from,
+  to,
+  radius = 0.0065,
+  bend = 0.03,
+}: {
+  from: [number, number, number]
+  to: [number, number, number]
+  radius?: number
+  bend?: number
+}) {
   const geom = useMemo(() => {
     const curve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(...from),
-      new THREE.Vector3((from[0] + to[0]) / 2 + 0.03, (from[1] + to[1]) / 2, (from[2] + to[2]) / 2),
+      new THREE.Vector3((from[0] + to[0]) / 2 + bend, (from[1] + to[1]) / 2, (from[2] + to[2]) / 2),
       new THREE.Vector3(...to),
     ])
-    return new THREE.TubeGeometry(curve, 20, 0.0065, 10, false)
-  }, [from, to])
+    return new THREE.TubeGeometry(curve, 20, radius, 10, false)
+  }, [from, to, radius, bend])
   return (
     <mesh geometry={geom}>
       <meshBasicMaterial color="#2a2622" />
@@ -757,20 +781,52 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         <meshStandardMaterial color={look.drives === 2 ? '#9aa8b4' : '#6a7580'} metalness={0.6} roughness={0.35} />
       </mesh>
       <group position={[0, -box.h / 2 + 0.05, 0]} {...pick('psu')}>
-        <RoundedBox args={[box.w - 0.04, 0.07, box.d * 0.72]} radius={0.003}>
-          <meshStandardMaterial color="#12161a" metalness={0.35} roughness={0.55} />
+        <RoundedBox args={[box.w - 0.04, 0.07, box.d * 0.72]} radius={0.004}>
+          <meshStandardMaterial color="#101418" metalness={0.4} roughness={0.5} />
         </RoundedBox>
+        <mesh position={[0, 0.036, box.d * 0.08]}>
+          <boxGeometry args={[0.05, 0.004, 0.03]} />
+          <meshStandardMaterial color="#07080a" roughness={0.9} />
+        </mesh>
       </group>
-      {Array.from({ length: Math.min(look.fanCount, box.h > 0.4 ? 2 : 1) }, (_, i) => (
-        <group
-          key={i}
-          position={[0.01, box.h * 0.02 + i * 0.12, box.d / 2 - 0.08]}
-          rotation={[0, -Math.PI / 2, 0]}
-          {...pick('fans')}
-        >
-          <SquareFan size={0.11} frame={fan.frame} blade={fan.blade} glow={fan.glow} spinning={motion} />
-        </group>
+      <group position={[0.015, box.h * 0.18, -box.d / 2 + 0.028]} rotation={[0, Math.PI / 2, 0]} {...pick('fans')}>
+        <SquareFan size={box.h > 0.4 ? 0.1 : 0.08} frame={fan.frame} blade={fan.blade} glow={fan.glow} spinning={motion} />
+      </group>
+      <mesh position={[-0.02, -box.h * 0.2, -box.d / 2 + 0.016]}>
+        <boxGeometry args={[0.01, 0.1, 0.004]} />
+        <meshStandardMaterial color="#d5dee6" metalness={0.8} roughness={0.24} />
+      </mesh>
+      {Array.from({ length: 6 }, (_, i) => (
+        <mesh key={i} position={[-0.006, -box.h * 0.2 - 0.04 + i * 0.015, -box.d / 2 + 0.02]}>
+          <boxGeometry args={[0.026, 0.0035, 0.003]} />
+          <meshStandardMaterial color="#c5ced6" metalness={0.78} roughness={0.26} />
+        </mesh>
       ))}
+      <Tube
+        from={[-0.01, -box.h / 2 + 0.09, box.d * 0.2]}
+        to={[-box.w / 2 + 0.042, -0.05, box.d * 0.16]}
+        radius={0.007}
+        bend={0.012}
+      />
+      <Tube
+        from={[-box.w / 2 + 0.03, -box.h / 2 + 0.09, -box.d * 0.3]}
+        to={[-box.w / 2 + 0.04, box.h * 0.2, -box.d * 0.28]}
+        radius={0.0055}
+        bend={-0.008}
+      />
+      {Array.from({ length: Math.min(look.fanCount, box.h > 0.4 ? 2 : 1) }, (_, i) => {
+        const count = Math.min(look.fanCount, box.h > 0.4 ? 2 : 1)
+        return (
+          <group
+            key={i}
+            position={[0.02, box.h * (count === 1 ? 0.02 : -0.08 + i * 0.24), box.d / 2 - 0.1]}
+            rotation={[0, -Math.PI / 2, 0]}
+            {...pick('fans')}
+          >
+            <SquareFan size={0.11} frame={fan.frame} blade={fan.blade} glow={fan.glow} spinning={motion} />
+          </group>
+        )
+      })}
     </group>
   )
 }
