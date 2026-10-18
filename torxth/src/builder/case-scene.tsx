@@ -413,11 +413,25 @@ function Front({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
       </mesh>
     )
   }
+  const rim = look.light ? '#d9d2c6' : '#8e98a2'
   return (
-    <mesh position={[0, 0, box.d / 2 - 0.01]} {...onCase}>
-      <boxGeometry args={[fw, fh, 0.01]} />
-      <meshStandardMaterial map={mesh ?? undefined} roughness={0.75} metalness={0.12} />
-    </mesh>
+    <group position={[0, 0, box.d / 2 - 0.01]}>
+      <mesh {...onCase}>
+        <boxGeometry args={[fw - 0.02, fh - 0.02, 0.008]} />
+        <meshStandardMaterial map={mesh ?? undefined} roughness={0.72} metalness={0.16} />
+      </mesh>
+      {(
+        [
+          [0, fh / 2 - 0.006, fw, 0.012],
+          [0, -fh / 2 + 0.006, fw, 0.012],
+        ] as const
+      ).map(([x, y, w, h]) => (
+        <mesh key={`${x}${y}`} position={[x, y, 0.004]}>
+          <boxGeometry args={[w, h, 0.008]} />
+          <meshPhysicalMaterial color={rim} metalness={0.7} roughness={0.3} />
+        </mesh>
+      ))}
+    </group>
   )
 }
 
@@ -461,21 +475,26 @@ function Shell({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
         <meshStandardMaterial color={look.light ? '#e4ddd2' : '#101418'} roughness={0.86} />
       </mesh>
       {([-1, 1] as const).map((side) => (
-        <mesh key={side} position={[side * (box.w / 2 - 0.01), 0, box.d / 2 - 0.008]} {...onCase}>
-          <boxGeometry args={[0.014, box.h, 0.016]} />
-          {mat(edge, 0.55, 0.32)}
-        </mesh>
+        <RoundedBox key={side} args={[0.016, box.h - 0.008, 0.018]} radius={0.004} position={[side * (box.w / 2 - 0.011), 0, box.d / 2 - 0.008]} {...onCase}>
+          {mat(edge, 0.62, 0.28)}
+        </RoundedBox>
       ))}
       {([-1, 1] as const).map((side) => (
-        <mesh key={side} position={[0, side * (box.h / 2 - 0.012), box.d / 2 - 0.008]}>
-          <boxGeometry args={[box.w - 0.02, 0.016, 0.016]} />
-          {mat(edge, 0.55, 0.32)}
-        </mesh>
+        <RoundedBox key={side} args={[box.w - 0.028, 0.016, 0.018]} radius={0.004} position={[0, side * (box.h / 2 - 0.012), box.d / 2 - 0.008]}>
+          {mat(edge, 0.62, 0.28)}
+        </RoundedBox>
       ))}
-      {([-0.05, 0.06] as const).map((x) => (
-        <mesh key={x} position={[x, -box.h / 2 - 0.01, box.d * 0.18]}>
-          <boxGeometry args={[0.04, 0.012, box.d * 0.22]} />
-          <meshStandardMaterial color="#101214" metalness={0.3} roughness={0.5} />
+      {(
+        [
+          [-1, 1],
+          [1, 1],
+          [-1, -1],
+          [1, -1],
+        ] as const
+      ).map(([x, z]) => (
+        <mesh key={`${x}${z}`} position={[x * (box.w * 0.28), -box.h / 2 - 0.014, z * box.d * 0.32]}>
+          <cylinderGeometry args={[0.011, 0.013, 0.012, 14]} />
+          <meshStandardMaterial color="#141618" roughness={0.72} />
         </mesh>
       ))}
       <Front box={box} look={look} onCase={onCase} />
@@ -566,8 +585,8 @@ function Graphics({
               <meshStandardMaterial color="#07080a" roughness={0.94} />
             </mesh>
             <mesh rotation={[0, Math.PI / 2, 0]} position={[0.01, 0, 0]}>
-              <torusGeometry args={[radius * 1.08, 0.0032, 8, 40]} />
-              <meshPhysicalMaterial color={style.shroud} metalness={style.metal} roughness={0.3} clearcoat={0.3} />
+              <torusGeometry args={[radius * 1.05, 0.0055, 10, 42]} />
+              <meshPhysicalMaterial color={style.shroud} metalness={Math.min(0.85, style.metal + 0.15)} roughness={0.26} clearcoat={0.35} />
             </mesh>
             <Rotor
               radius={radius}
@@ -691,8 +710,12 @@ function Memory({ look, box, onPick }: { look: Look; box: Chassis; onPick: Retur
       {Array.from({ length: look.sticks }, (_, i) => (
         <group key={i} position={[-box.w / 2 + 0.055, -box.h * 0.08 + tall / 2, 0.11 + i * 0.02]}>
           <mesh>
-            <boxGeometry args={[0.012, tall, 0.014]} />
+            <boxGeometry args={[0.012, tall - 0.006, 0.014]} />
             <meshStandardMaterial color={look.ram} metalness={0.45} roughness={0.4} />
+          </mesh>
+          <mesh position={[0, tall / 2 - 0.004, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.007, 0.007, 0.012, 10]} />
+            <meshStandardMaterial color={look.ram} metalness={0.5} roughness={0.35} />
           </mesh>
           {look.ramId.startsWith('fury') && (
             <mesh position={[0.007, 0, 0]}>
@@ -771,6 +794,12 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         <boxGeometry args={[0.014, 0.05, 0.08]} />
         <meshStandardMaterial color="#1a1e22" metalness={0.5} roughness={0.4} />
       </mesh>
+      {Array.from({ length: 5 }, (_, i) => (
+        <mesh key={i} position={[-box.w / 2 + 0.02, box.h * 0.28, -0.1 + i * 0.012]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.0032, 0.0032, 0.01, 8]} />
+          <meshStandardMaterial color="#c9ccd0" metalness={0.7} roughness={0.28} />
+        </mesh>
+      ))}
       <GlassDoor open={open} box={box} />
       <Cooler look={look} box={box} spinning={motion} onPick={pick('cool')} />
       <Memory look={look} box={box} onPick={pick('ram')} />
@@ -877,7 +906,7 @@ export function CaseScene({
 }) {
   const motion = useMotion()
   const box = chassisOf(look.caseId)
-  const dist = Math.max(box.h, box.d, box.w) * 2.25
+  const dist = Math.max(box.h, box.d, box.w) * 2.08
   const wash = useMemo(() => studioWash(), [])
   const floor = useMemo(() => floorWash(), [])
   return (
@@ -925,7 +954,7 @@ export function CaseScene({
         maxDistance={dist * 1.8}
         minPolarAngle={0.9}
         maxPolarAngle={1.25}
-        target={[0, 0, 0]}
+        target={[0, 0.09, 0]}
       />
     </Canvas>
   )
