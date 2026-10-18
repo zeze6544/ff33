@@ -35,7 +35,10 @@ export function MachinePage() {
       </p>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <img src={product.image} alt={product.name} className="aspect-[4/3] w-full object-cover" />
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <img src={product.image} alt={product.name} className="aspect-[4/3] w-full object-cover" />
+          <p className="stamp mt-4">Checked · FTG</p>
+        </div>
         <div>
           <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-blue">
             {categoryLabels[product.category]}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatAUD } from '../data/products'
 import { company } from '../data/company'
@@ -34,6 +34,8 @@ export function BuildPage() {
     }
     return sum
   }, [base.price, pick, tier])
+
+  const shown = useTally(total)
 
   const labels = Object.fromEntries(
     knobOrder.map((key) => [key, knobs[tier][key].find((o) => o.id === pick[key])?.label ?? '']),
@@ -112,7 +114,7 @@ export function BuildPage() {
 
         <aside className="h-fit bg-ink p-6 text-paper lg:sticky lg:top-24">
           <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-glow">Estimate</p>
-          <p className="mt-2 font-serif text-5xl">{formatAUD(total)}</p>
+          <p className="mt-2 font-serif text-5xl tabular-nums">{formatAUD(shown)}</p>
           <p className="mt-2 text-sm text-fog">{base.name}. AUD, before we lock parts.</p>
           <ul className="mt-6 space-y-2 border-t border-white/15 pt-4 text-sm">
             {knobOrder.map((key) => (
@@ -153,6 +155,32 @@ function defaults(tier: TierId) {
   const next: Record<string, string> = {}
   for (const key of knobOrder) next[key] = knobs[tier][key][0].id
   return next
+}
+
+function useTally(target: number) {
+  const [value, setValue] = useState(target)
+  const from = useRef(target)
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) {
+      from.current = target
+      setValue(target)
+      return
+    }
+    const start = from.current
+    const t0 = performance.now()
+    let frame = 0
+    const step = (now: number) => {
+      const p = Math.min(1, (now - t0) / 520)
+      const eased = 1 - (1 - p) ** 3
+      setValue(Math.round(start + (target - start) * eased))
+      if (p < 1) frame = requestAnimationFrame(step)
+      else from.current = target
+    }
+    frame = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(frame)
+  }, [target])
+  return value
 }
 
 function Schematic({ labels }: { labels: Record<string, string> }) {

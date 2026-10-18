@@ -112,9 +112,13 @@ export function ShopPage() {
 function Row({ product }: { product: Product }) {
   const { addItem } = useCart()
   return (
-    <article className="grid items-center gap-4 py-5 sm:grid-cols-[7rem_1fr_auto] sm:gap-6">
-      <Link to={`/shop/${product.slug}`} className="overflow-hidden">
-        <img src={product.image} alt="" className="aspect-[4/3] w-full object-cover sm:h-20 sm:w-28 sm:aspect-auto" />
+    <article className="group grid items-center gap-4 py-5 sm:grid-cols-[8.5rem_1fr_auto] sm:gap-6">
+      <Link to={`/shop/${product.slug}`} className="overflow-hidden bg-ink">
+        <img
+          src={product.image}
+          alt=""
+          className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-24 sm:w-full"
+        />
       </Link>
       <div>
         <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-blue">
@@ -122,9 +126,14 @@ function Row({ product }: { product: Product }) {
           {product.badge ? ` · ${product.badge}` : ''}
         </p>
         <Link to={`/shop/${product.slug}`}>
-          <h2 className="mt-1 text-2xl">{product.name}</h2>
+          <h2 className="mt-1 text-2xl transition group-hover:text-blue">{product.name}</h2>
         </Link>
         <p className="mt-1 max-w-xl text-sm text-mute">{product.summary}</p>
+        {product.specs[0] && (
+          <p className="mt-2 font-mono text-[0.68rem] text-ink/70">
+            {product.specs[0].label} {product.specs[0].value}
+          </p>
+        )}
       </div>
       <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
         <p className="font-mono text-lg">{formatAUD(product.price)}</p>

@@ -58,10 +58,29 @@
 
 .ticket {
   background:
-    linear-gradient(90deg, transparent 12px, var(--color-rule) 12px, var(--color-rule) 13px, transparent 13px),
+    radial-gradient(circle at left, transparent 8px, var(--color-sheet) 9px) left / 16px 28px repeat-y,
+    linear-gradient(90deg, transparent 18px, var(--color-rule) 18px, var(--color-rule) 19px, transparent 19px),
     var(--color-sheet);
-  background-size: 100% 2.15rem;
-  box-shadow: 0 18px 40px -28px rgba(16, 32, 48, 0.45);
+  background-size: 16px 28px, 100% 2.15rem, auto;
+  box-shadow: 0 22px 50px -30px rgba(16, 32, 48, 0.55);
+}
+
+.stamp {
+  display: inline-block;
+  border: 2px solid var(--color-blue);
+  color: var(--color-blue);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.35rem;
+  opacity: 0.85;
+}
+.stamp-float {
+  position: absolute;
+  right: 0.8rem;
+  top: 0.7rem;
+  transform: rotate(8deg);
 }
 
 .draw {

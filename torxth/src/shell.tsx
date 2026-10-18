@@ -20,7 +20,7 @@ function Mark({ light = false }: { light?: boolean }) {
   )
 }
 
-function Clock() {
+function Clock({ light = false }: { light?: boolean }) {
   const [label, setLabel] = useState('')
   useEffect(() => {
     const tick = () =>
@@ -37,13 +37,32 @@ function Clock() {
     return () => window.clearInterval(id)
   }, [])
   if (!label) return null
-  return <span className="hidden font-mono text-[0.7rem] text-mute xl:inline">{label} Melbourne</span>
+  return (
+    <span className={`hidden font-mono text-[0.7rem] xl:inline ${light ? 'text-fog' : 'text-mute'}`}>
+      {label} Melbourne
+    </span>
+  )
 }
 
 export function Shell() {
   const { pathname } = useLocation()
   const { count, openCart, slip } = useCart()
   const [open, setOpen] = useState(false)
+  const [top, setTop] = useState(true)
+  const [progress, setProgress] = useState(0)
+  const onDark = pathname === '/' && top
+
+  useEffect(() => {
+    const onScroll = () => {
+      setTop(window.scrollY < 24)
+      const doc = document.documentElement
+      const max = doc.scrollHeight - doc.clientHeight
+      setProgress(max > 0 ? (doc.scrollTop / max) * 100 : 0)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -58,9 +77,16 @@ export function Shell() {
       >
         Skip to content
       </a>
-      <header className="sticky top-0 z-40 border-b border-rule/80 bg-paper/85 backdrop-blur-md">
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-0.5 bg-transparent">
+        <div className="h-full bg-blue" style={{ width: `${progress}%` }} />
+      </div>
+      <header
+        className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors ${
+          onDark ? 'border-white/10 bg-ink/80 text-white' : 'border-rule/80 bg-paper/85'
+        }`}
+      >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Mark />
+          <Mark light={onDark} />
           <nav className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => (
               <NavLink
@@ -68,7 +94,15 @@ export function Shell() {
                 to={link.to}
                 end={link.to === '/'}
                 className={({ isActive }) =>
-                  `rounded px-2.5 py-1.5 text-sm ${isActive ? 'bg-ink text-paper' : 'text-mute hover:text-ink'}`
+                  `rounded px-2.5 py-1.5 text-sm ${
+                    onDark
+                      ? isActive
+                        ? 'bg-white/15 text-white'
+                        : 'text-fog hover:text-white'
+                      : isActive
+                        ? 'bg-ink text-paper'
+                        : 'text-mute hover:text-ink'
+                  }`
                 }
               >
                 {link.label}
@@ -76,8 +110,11 @@ export function Shell() {
             ))}
           </nav>
           <div className="flex items-center gap-3">
-            <Clock />
-            <a href={company.phoneHref} className="hidden text-sm font-medium text-ink sm:inline">
+            <Clock light={onDark} />
+            <a
+              href={company.phoneHref}
+              className={`hidden text-sm font-medium sm:inline ${onDark ? 'text-white' : 'text-ink'}`}
+            >
               {company.phone}
             </a>
             <button
