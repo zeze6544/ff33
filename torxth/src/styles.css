@@ -115,10 +115,16 @@
 }
 
 main:has(.bench-editor) + footer { margin-top: 0; }
+.bench-editor {
+  background:
+    radial-gradient(880px 380px at 100% -10%, rgba(196, 137, 74, 0.1), transparent 55%),
+    radial-gradient(640px 420px at -10% 12%, rgba(26, 143, 208, 0.08), transparent 50%),
+    #102030;
+}
 .bench-editor h1,
 .bench-editor h2 {
-  line-height: 1.08;
-  padding-top: 0.06em;
+  line-height: 1.2;
+  padding-top: 0.14em;
 }
 
 .kicker {

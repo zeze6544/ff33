@@ -82,18 +82,18 @@ export function BuildPage() {
   const active = preview[slot]
 
   return (
-    <div className="bench-editor bg-ink text-paper">
-      <div className="mx-auto max-w-6xl px-4 pb-6 pt-8 sm:px-6">
+    <div className="bench-editor text-paper">
+      <div className="mx-auto max-w-6xl px-4 pb-6 pt-10 sm:px-6">
         <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <p className="kicker text-brass">Bench editor</p>
-            <h1 className="mt-4 max-w-xl text-4xl text-white sm:text-6xl">Fit the parts.</h1>
+            <h1 className="mt-5 max-w-xl text-4xl text-white sm:text-5xl">Fit the parts.</h1>
             <p className="mt-3 max-w-lg text-sm leading-relaxed text-fog">
               Hover a part to try it in the case. Click, or press Enter, to leave it fitted. These are real boards and cards. The number is this week’s trade estimate, in AUD.
             </p>
           </div>
-          <div className="min-w-[12rem] border border-copper/50 bg-white/[0.04] px-4 py-3">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-brass">Workshop estimate</p>
+          <div className="min-w-[12rem] border-t border-brass/80 pt-3 md:text-right">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-brass">Workshop estimate</p>
             <p className="font-serif text-5xl tabular-nums text-white" data-total={fittedTotal}>
               {formatAUD(shown)}
             </p>
@@ -119,7 +119,7 @@ export function BuildPage() {
                 setSent(false)
                 setOpen(true)
               }}
-              className={`px-4 py-3 text-left ${tuneId === tune.id ? 'bg-white text-ink' : 'bg-white/5 text-paper hover:bg-white/10'}`}
+              className={`border px-4 py-3 text-left ${tuneId === tune.id ? 'border-brass bg-white text-ink' : 'border-white/15 text-paper hover:border-white/40'}`}
             >
               <span className="block font-serif text-xl">{tune.name}</span>
               <span className={`mt-1 block text-xs ${tuneId === tune.id ? 'text-mute' : 'text-fog'}`}>{tune.line}</span>
@@ -128,7 +128,7 @@ export function BuildPage() {
         </div>
 
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_250px]">
-          <Suspense fallback={<div className="h-[min(56vh,520px)] animate-pulse bg-[#121a22]" />}>
+          <Suspense fallback={<div className="h-[min(70vh,640px)] animate-pulse bg-[#10161c]" />}>
             <CaseView
               look={look}
               slot={slot}
@@ -301,12 +301,14 @@ export function BuildPage() {
 function Meter({ label, now, next, caption }: { label: string; now: number; next: number; caption: string }) {
   return (
     <div>
-      <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-fog">{label}</p>
-      <div className="relative mt-2 h-1.5 bg-white/10">
-        <div className="absolute inset-y-0 left-0 bg-white/30" style={{ width: `${now}%` }} />
-        <div className="absolute inset-y-0 left-0 bg-glow" style={{ width: `${next}%` }} />
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-fog">{label}</p>
+        <p className="text-sm text-paper">{caption}</p>
       </div>
-      <p className="mt-1 text-sm text-paper">{caption}</p>
+      <div className="relative mt-2 h-px bg-white/15">
+        <div className="absolute inset-y-0 left-0 bg-white/35" style={{ width: `${now}%` }} />
+        <div className="absolute -top-px h-0.5 bg-brass" style={{ width: `${next}%` }} />
+      </div>
     </div>
   )
 }
