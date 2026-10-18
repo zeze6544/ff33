@@ -119,11 +119,11 @@ type GpuPaint = {
 function gpuPaint(id: string): GpuPaint {
   switch (id) {
     case '5060ti':
-      return { fans: 2, thick: 0.042, shroud: '#16181c', metal: 0.35, rough: 0.48, accent: '#7dba32', ring: '#8d98a2', blade: '#23272c', hub: '#9aa3ab', cross: false }
+      return { fans: 2, thick: 0.046, shroud: '#1c2128', metal: 0.42, rough: 0.4, accent: '#7dba32', ring: '#b7c2cc', blade: '#6d7882', hub: '#c5ced6', cross: false }
     case '7800xt':
-      return { fans: 2, thick: 0.05, shroud: '#121416', metal: 0.32, rough: 0.5, accent: '#c0392b', ring: '#3a3e44', blade: '#1a1c20', hub: '#c0392b', cross: false }
+      return { fans: 2, thick: 0.052, shroud: '#181a1e', metal: 0.4, rough: 0.42, accent: '#c0392b', ring: '#9aa3ab', blade: '#4a5158', hub: '#c0392b', cross: false }
     case '9070xt':
-      return { fans: 3, thick: 0.056, shroud: '#141618', metal: 0.32, rough: 0.5, accent: '#c0392b', ring: '#3a3e44', blade: '#1a1c20', hub: '#c0392b', cross: false }
+      return { fans: 3, thick: 0.058, shroud: '#181a1e', metal: 0.4, rough: 0.42, accent: '#c0392b', ring: '#9aa3ab', blade: '#4a5158', hub: '#c0392b', cross: false }
     case '5070ti':
       return { fans: 3, thick: 0.06, shroud: '#1c2128', metal: 0.45, rough: 0.4, accent: '#d5dde6', ring: '#c5ced6', blade: '#2a3038', hub: '#8a939c', cross: false }
     case '5080':
@@ -181,18 +181,18 @@ function Rotor({
         <meshStandardMaterial color="#0c0e11" roughness={0.85} />
       </mesh>
       <mesh rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[radius * 0.9, radius * 0.07, 10, 36]} />
-        <meshStandardMaterial color={ring} metalness={0.7} roughness={0.28} />
+        <torusGeometry args={[radius * 0.92, radius * 0.038, 10, 40]} />
+        <meshStandardMaterial color={ring} metalness={0.72} roughness={0.26} />
       </mesh>
       <group ref={spin}>
-        {Array.from({ length: 9 }, (_, i) => {
-          const a = (i / 9) * Math.PI * 2
-          const mid = radius * 0.46
+        {Array.from({ length: 7 }, (_, i) => {
+          const a = (i / 7) * Math.PI * 2
+          const mid = radius * 0.48
           return (
-            <group key={i} position={[0.006, -Math.sin(a) * mid, Math.cos(a) * mid]} rotation={[a, 0, 0]}>
-              <mesh rotation={[0, 0.5, 0]}>
-                <boxGeometry args={[0.002, radius * 0.14, radius * 0.5]} />
-                <meshStandardMaterial color={blade} metalness={0.4} roughness={0.4} />
+            <group key={i} position={[0.007, -Math.sin(a) * mid, Math.cos(a) * mid]} rotation={[a, 0, 0]}>
+              <mesh rotation={[0, 0.55, 0]}>
+                <boxGeometry args={[0.003, radius * 0.2, radius * 0.52]} />
+                <meshStandardMaterial color={blade} metalness={0.35} roughness={0.42} />
               </mesh>
             </group>
           )
@@ -423,23 +423,46 @@ function Graphics({
         <boxGeometry args={[style.thick * 0.7, 0.09, 0.006]} />
         <meshStandardMaterial color="#c5ced6" metalness={0.75} roughness={0.25} />
       </mesh>
-      <mesh position={[style.thick / 2 - 0.001, 0.035, 0]}>
-        <boxGeometry args={[0.002, 0.004, length * 0.55]} />
-        <meshStandardMaterial color={style.accent} emissive={style.accent} emissiveIntensity={look.gpuId === 'astral' ? 0.45 : 0.05} />
+      <mesh position={[-style.thick / 2 - 0.004, 0, 0]}>
+        <boxGeometry args={[0.006, 0.098, length - 0.01]} />
+        <meshStandardMaterial color="#12161a" metalness={0.55} roughness={0.38} />
       </mesh>
-      {Array.from({ length: style.fans }, (_, i) => (
-        <group key={i} position={[style.thick / 2 + 0.002, 0, -length / 2 + length * ((i + 1) / (style.fans + 1))]}>
-          <Rotor
-            radius={Math.min(0.04, (length / style.fans) * 0.34)}
-            blade={style.blade}
-            ring={style.ring}
-            hub={style.hub}
-            cross={style.cross}
-            spinning={spinning}
-            speed={2 + i * 0.15}
-          />
-        </group>
-      ))}
+      <mesh position={[style.thick / 2 - 0.001, 0.04, 0]}>
+        <boxGeometry args={[0.002, 0.005, length * 0.62]} />
+        <meshStandardMaterial color={style.accent} emissive={style.accent} emissiveIntensity={look.gpuId === 'astral' ? 0.45 : 0.08} />
+      </mesh>
+      {!vertical && (
+        <>
+          <mesh position={[0, 0.058, length * 0.12]}>
+            <boxGeometry args={[0.016, 0.012, 0.028]} />
+            <meshStandardMaterial color="#0e1012" metalness={0.3} roughness={0.5} />
+          </mesh>
+          <Tube from={[0, 0.064, length * 0.12]} to={[-0.02, 0.14, length * 0.02]} />
+        </>
+      )}
+      {Array.from({ length: style.fans }, (_, i) => {
+        const radius = Math.min(0.04, (length / style.fans) * 0.32)
+        const zFan = -length / 2 + length * ((i + 1) / (style.fans + 1))
+        return (
+          <group key={i} position={[style.thick / 2 - 0.004, 0, zFan]}>
+            <mesh rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[radius * 1.08, radius * 1.08, 0.01, 28]} />
+              <meshStandardMaterial color="#090b0d" roughness={0.8} />
+            </mesh>
+            <group position={[0.008, 0, 0]}>
+              <Rotor
+                radius={radius}
+                blade={style.blade}
+                ring={style.ring}
+                hub={style.hub}
+                cross={style.cross}
+                spinning={spinning}
+                speed={1.4 + i * 0.1}
+              />
+            </group>
+          </group>
+        )
+      })}
     </group>
   )
 }
@@ -530,7 +553,7 @@ function Memory({ look, box, onPick }: { look: Look; box: Chassis; onPick: Retur
   return (
     <group {...onPick}>
       {Array.from({ length: look.sticks }, (_, i) => (
-        <group key={i} position={[-box.w / 2 + 0.045, -0.02 + tall / 2, 0.08 + i * 0.018]}>
+        <group key={i} position={[-box.w / 2 + 0.055, -box.h * 0.08 + tall / 2, 0.11 + i * 0.02]}>
           <mesh>
             <boxGeometry args={[0.012, tall, 0.014]} />
             <meshStandardMaterial color={look.ram} metalness={0.45} roughness={0.4} />
@@ -594,8 +617,12 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         <planeGeometry args={[box.d * 0.72, box.h * 0.7]} />
         <meshStandardMaterial map={board} roughness={0.9} />
       </mesh>
-      <mesh position={[-box.w / 2 + 0.02, 0.04, -0.02]} {...pick('cpu')}>
-        <boxGeometry args={[0.008, 0.04, 0.04]} />
+      <mesh position={[-box.w / 2 + 0.02, 0.08, -0.08]} {...pick('cpu')}>
+        <boxGeometry args={[0.018, 0.1, 0.14]} />
+        <meshStandardMaterial color={look.socket === 'LGA1851' ? '#2a2618' : '#1c2228'} metalness={0.55} roughness={0.38} />
+      </mesh>
+      <mesh position={[-box.w / 2 + 0.018, -0.08, 0.05]} {...pick('cpu')}>
+        <boxGeometry args={[0.014, 0.05, 0.08]} />
         <meshStandardMaterial color="#1a1e22" metalness={0.5} roughness={0.4} />
       </mesh>
       <GlassDoor open={open} box={box} />
@@ -665,8 +692,9 @@ export function CaseScene({
       <Studio />
       <ambientLight intensity={0.32} />
       <spotLight position={[1.6, 2.1, 1.3]} angle={0.5} penumbra={0.85} intensity={16} castShadow color="#fff4e8" />
+      <pointLight position={[0.12, 0.02, 0.16]} intensity={1.1} distance={0.9} decay={2} color="#fff6ee" />
       <directionalLight position={[-1.8, 0.9, -0.4]} intensity={0.7} color="#b7d4ea" />
-      <directionalLight position={[0.3, 0.2, 2]} intensity={0.45} color="#ffffff" />
+      <directionalLight position={[0.4, 0.25, 1.8]} intensity={0.5} color="#ffffff" />
       <Pc look={look} slot={slot} onSlot={onSlot} open={open} motion={motion} />
       <ContactShadows position={[0, -box.h / 2 - 0.02, 0]} opacity={0.45} scale={2} blur={2.2} far={0.7} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -box.h / 2 - 0.02, 0]} receiveShadow>
