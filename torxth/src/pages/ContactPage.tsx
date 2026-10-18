@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { company } from '../data/company'
 import { Button } from '../components/ui/Button'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { useMeta } from '../hooks/useMeta'
 
 export function ContactPage() {
-  usePageTitle('Contact')
+  useMeta({ title: 'Contact', description: 'Contact Torxth Technology at 61 Dorset Rd, Ferntree Gully VIC 3156 or call 0408 551 753.' })
   const [sent, setSent] = useState(false)
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -139,7 +139,7 @@ export function ContactPage() {
                     className="mt-1.5 w-full rounded-md border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-ink"
                   />
                 </label>
-                <Button type="submit" variant="copper" size="lg" className="w-full sm:w-auto">
+                <Button type="submit" variant="signal" size="lg" className="w-full sm:w-auto">
                   Send message
                 </Button>
               </form>

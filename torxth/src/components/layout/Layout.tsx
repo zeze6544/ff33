@@ -7,6 +7,7 @@ import { SkipLink } from './SkipLink'
 import { ScrollProgress } from './ScrollProgress'
 import { PageTransition } from './PageTransition'
 import { Toaster } from '../ui/Toaster'
+import { JsonLd } from '../brand/JsonLd'
 
 export function Layout() {
   const { pathname } = useLocation()
@@ -17,6 +18,7 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <JsonLd />
       <SkipLink />
       <ScrollProgress />
       <Header />

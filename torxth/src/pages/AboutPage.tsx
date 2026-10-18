@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { company } from '../data/company'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { useMeta } from '../hooks/useMeta'
 
 const pillars = [
   {
@@ -18,7 +18,7 @@ const pillars = [
 ]
 
 export function AboutPage() {
-  usePageTitle('About')
+  useMeta({ title: 'About', description: 'About Torxth Technology — computer sales, repairs and custom builds in Ferntree Gully, South East Melbourne.' })
   return (
     <div className="pt-24">
       <div className="relative overflow-hidden">

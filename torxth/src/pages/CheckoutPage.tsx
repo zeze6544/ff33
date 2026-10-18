@@ -4,10 +4,10 @@ import { formatAUD } from '../data/products'
 import { company } from '../data/company'
 import { useCart } from '../hooks/useCart'
 import { Button } from '../components/ui/Button'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { useMeta } from '../hooks/useMeta'
 
 export function CheckoutPage() {
-  usePageTitle('Checkout')
+  useMeta({ title: 'Checkout', description: 'Checkout your Torxth Technology order for pickup or local delivery.' })
   const { lines, subtotal, clear, count } = useCart()
   const [placed, setPlaced] = useState(false)
   const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery'>('pickup')
@@ -153,7 +153,7 @@ export function CheckoutPage() {
               />
             </label>
 
-            <Button type="submit" variant="copper" size="lg" className="w-full">
+            <Button type="submit" variant="signal" size="lg" className="w-full">
               Place order request · {formatAUD(subtotal)}
             </Button>
           </form>

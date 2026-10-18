@@ -1,10 +1,10 @@
 import { services } from '../data/services'
 import { formatAUD } from '../data/products'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { useMeta } from '../hooks/useMeta'
 import { BookingForm } from '../components/services/BookingForm'
 
 export function ServicesPage() {
-  usePageTitle('Services')
+  useMeta({ title: 'Services', description: 'Computer repairs, upgrades, custom builds and software setup from Torxth Technology in Ferntree Gully.' })
   return (
     <div className="pt-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">

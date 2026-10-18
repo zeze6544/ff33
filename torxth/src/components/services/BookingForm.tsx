@@ -79,7 +79,7 @@ export function BookingForm() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button type="submit" variant="copper" size="lg">
+        <Button type="submit" variant="signal" size="lg">
           Request booking
         </Button>
         <a

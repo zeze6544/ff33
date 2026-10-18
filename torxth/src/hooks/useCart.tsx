@@ -34,29 +34,40 @@ const STORAGE_KEY = 'torxth-cart-v1'
 
 function loadItems(): CartItem[] {
   try {
+    if (typeof window === 'undefined') return []
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw) as CartItem[]
-    return parsed.filter((i) => products.some((p) => p.id === i.productId))
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (i) =>
+        i &&
+        typeof i.productId === 'string' &&
+        typeof i.quantity === 'number' &&
+        i.quantity > 0 &&
+        products.some((p) => p.id === i.productId),
+    )
   } catch {
     return []
   }
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([])
+  const [items, setItems] = useState<CartItem[]>(() => loadItems())
   const [isOpen, setIsOpen] = useState(false)
-  const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    setItems(loadItems())
-    setHydrated(true)
-  }, [])
-
-  useEffect(() => {
-    if (!hydrated) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-  }, [items, hydrated])
+  }, [items])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [isOpen])
 
   const addItem = useCallback((productId: string, quantity = 1) => {
     setItems((prev) => {

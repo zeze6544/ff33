@@ -12,8 +12,8 @@ const items = [
 export function Marquee() {
   const row = [...items, ...items]
   return (
-    <div className="overflow-hidden border-y border-white/10 bg-ink py-3">
-      <div className="flex w-max animate-[marquee_32s_linear_infinite] gap-10 px-4">
+    <div className="overflow-hidden border-y border-white/10 bg-ink py-3" aria-hidden>
+      <div className="marquee-track flex w-max gap-10 px-4">
         {row.map((item, i) => (
           <span
             key={`${item}-${i}`}

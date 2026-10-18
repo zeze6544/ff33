@@ -8,7 +8,7 @@ import {
 } from '../data/buildOptions'
 import { formatAUD } from '../data/products'
 import { company } from '../data/company'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { useMeta } from '../hooks/useMeta'
 import { cn } from '../lib/utils'
 import { Button } from '../components/ui/Button'
 
@@ -26,7 +26,7 @@ function defaultSelections(tierId: string) {
 }
 
 export function BuildPage() {
-  usePageTitle('Custom build configurator')
+  useMeta({ title: 'Custom build configurator', description: 'Configure a Torxth custom PC — Starter, Ridge or Summit tiers with live AUD estimates.' })
   const [tierId, setTierId] = useState('ridge')
   const [selections, setSelections] = useState(() => defaultSelections('ridge'))
   const [notes, setNotes] = useState('')
@@ -196,7 +196,7 @@ export function BuildPage() {
                 </div>
               ) : (
                 <Button
-                  variant="copper"
+                  variant="signal"
                   size="lg"
                   className="mt-6 w-full"
                   onClick={() => setSent(true)}

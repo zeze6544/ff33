@@ -12,7 +12,7 @@ export function CompareTray({ items, onRemove, onClear }: Props) {
   if (items.length === 0) return null
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/95 px-4 py-4 text-white backdrop-blur-md">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/95 px-4 py-4 text-white backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-wrap gap-3">
           {items.map((p) => (
