@@ -22,9 +22,9 @@ export function CaseView({
   return (
     <div>
       <div className="mb-3 flex items-end justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-brass">{kicker}</p>
-          <h2 className="mt-1 font-serif text-3xl text-white sm:text-4xl">{title}</h2>
+          <h2 className="mt-1 font-serif text-2xl text-white sm:text-4xl">{title}</h2>
         </div>
         <button
           type="button"
@@ -36,7 +36,13 @@ export function CaseView({
         </button>
       </div>
       <StageBoundary>
-        <div className="h-[min(62vh,560px)] w-full bg-[#101820]">
+        <div
+          className="h-[min(56vh,520px)] w-full border border-white/10"
+          style={{
+            background:
+              'radial-gradient(ellipse 80% 70% at 50% 46%, #1c2a38 0%, #121a22 58%, #0d1318 100%)',
+          }}
+        >
           <CaseScene look={look} slot={slot} onSlot={onSlot} open={open} />
         </div>
       </StageBoundary>

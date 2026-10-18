@@ -84,10 +84,10 @@ export function BuildPage() {
   return (
     <div className="bench-editor bg-ink text-paper">
       <div className="mx-auto max-w-6xl px-4 pb-6 pt-8 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
-            <p className="kicker text-glow">Bench editor</p>
-            <h1 className="mt-2 max-w-xl text-5xl text-white sm:text-6xl">Fit the parts.</h1>
+            <p className="kicker text-brass">Bench editor</p>
+            <h1 className="mt-4 max-w-xl text-4xl text-white sm:text-6xl">Fit the parts.</h1>
             <p className="mt-3 max-w-lg text-sm leading-relaxed text-fog">
               Hover a part to try it in the case. Click, or press Enter, to leave it fitted. These are real boards and cards. The number is this week’s trade estimate, in AUD.
             </p>
@@ -128,7 +128,7 @@ export function BuildPage() {
         </div>
 
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_250px]">
-          <Suspense fallback={<div className="h-[min(62vh,560px)] animate-pulse bg-[#101820]" />}>
+          <Suspense fallback={<div className="h-[min(56vh,520px)] animate-pulse bg-[#121a22]" />}>
             <CaseView
               look={look}
               slot={slot}

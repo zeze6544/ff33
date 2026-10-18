@@ -115,6 +115,11 @@
 }
 
 main:has(.bench-editor) + footer { margin-top: 0; }
+.bench-editor h1,
+.bench-editor h2 {
+  line-height: 1.08;
+  padding-top: 0.06em;
+}
 
 .kicker {
   display: inline-flex;

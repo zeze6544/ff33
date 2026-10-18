@@ -50,7 +50,7 @@ export function Shell() {
   const [open, setOpen] = useState(false)
   const [top, setTop] = useState(true)
   const [progress, setProgress] = useState(0)
-  const onDark = pathname === '/' && top
+  const onDark = (pathname === '/' && top) || pathname === '/build'
 
   useEffect(() => {
     const onScroll = () => {
