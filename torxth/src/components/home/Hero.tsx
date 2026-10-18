@@ -59,10 +59,10 @@ export function Hero() {
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
-            to="/services"
+            to="/build"
             className="inline-flex h-12 items-center rounded-md border border-paper/35 bg-paper/5 px-6 text-base font-semibold text-paper backdrop-blur-sm transition hover:bg-paper/15"
           >
-            Book a repair
+            Configure a build
           </Link>
         </motion.div>
       </div>

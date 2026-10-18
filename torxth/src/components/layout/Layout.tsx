@@ -4,6 +4,7 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { CartDrawer } from './CartDrawer'
 import { SkipLink } from './SkipLink'
+import { Toaster } from '../ui/Toaster'
 
 export function Layout() {
   const { pathname } = useLocation()
@@ -21,6 +22,7 @@ export function Layout() {
       </main>
       <Footer />
       <CartDrawer />
+      <Toaster />
     </div>
   )
 }

@@ -1,15 +1,24 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { formatAUD, getProductBySlug, products } from '../data/products'
+import { Minus, Plus } from 'lucide-react'
+import {
+  categoryLabels,
+  formatAUD,
+  getProductBySlug,
+  products,
+} from '../data/products'
 import { useCart } from '../hooks/useCart'
+import { useToast } from '../hooks/useToast'
 import { Button } from '../components/ui/Button'
 import { ProductCard } from '../components/shop/ProductCard'
-import { categoryLabels } from '../data/products'
 import { usePageTitle } from '../hooks/usePageTitle'
 
 export function ProductPage() {
   const { slug } = useParams()
   const product = slug ? getProductBySlug(slug) : undefined
   const { addItem } = useCart()
+  const { push } = useToast()
+  const [qty, setQty] = useState(1)
   usePageTitle(product ? product.name : 'Product')
 
   if (!product) {
@@ -69,12 +78,40 @@ export function ProductPage() {
               {product.description}
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-6 flex items-center gap-4">
+              <div className="inline-flex items-center rounded-md border border-line bg-white/60">
+                <button
+                  type="button"
+                  className="px-3 py-2 text-steel hover:text-ink"
+                  aria-label="Decrease quantity"
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="min-w-10 text-center text-sm font-semibold">{qty}</span>
+                <button
+                  type="button"
+                  className="px-3 py-2 text-steel hover:text-ink"
+                  aria-label="Increase quantity"
+                  onClick={() => setQty((q) => q + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="text-sm text-steel">
+                In stock · pickup or local delivery
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
               <Button
                 variant="copper"
                 size="lg"
                 disabled={!product.inStock}
-                onClick={() => addItem(product.id)}
+                onClick={() => {
+                  addItem(product.id, qty)
+                  push(`${product.shortName} × ${qty} added to cart`)
+                }}
               >
                 {product.inStock ? 'Add to cart' : 'Out of stock'}
               </Button>
@@ -85,6 +122,21 @@ export function ProductPage() {
                 Ask about this build
               </Link>
             </div>
+
+            <ul className="mt-8 grid gap-3 text-sm text-steel sm:grid-cols-2">
+              <li className="border-t border-line pt-3">
+                Workshop support after sale
+              </li>
+              <li className="border-t border-line pt-3">
+                Parts checked for compatibility
+              </li>
+              <li className="border-t border-line pt-3">
+                Pickup at 61 Dorset Rd, FTG
+              </li>
+              <li className="border-t border-line pt-3">
+                Payment confirmed when order is final
+              </li>
+            </ul>
 
             <dl className="mt-10 divide-y divide-line border-y border-line">
               {product.specs.map((spec) => (

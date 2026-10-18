@@ -1,8 +1,7 @@
-import { Link } from 'react-router-dom'
 import { services } from '../data/services'
 import { formatAUD } from '../data/products'
-import { company } from '../data/company'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { BookingForm } from '../components/services/BookingForm'
 
 export function ServicesPage() {
   usePageTitle('Services')
@@ -71,28 +70,8 @@ export function ServicesPage() {
           ))}
         </div>
 
-        <div className="mt-20 rounded-xl border border-line bg-white/50 px-6 py-10 sm:px-10">
-          <h2 className="font-display text-2xl font-bold text-ink">
-            Book a service
-          </h2>
-          <p className="mt-3 max-w-xl text-steel">
-            Call {company.phone} or send a message with your machine type and
-            the issue. We will confirm diagnostics and timing.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a
-              href={company.phoneHref}
-              className="inline-flex h-11 items-center rounded-md bg-copper px-5 text-sm font-semibold text-white hover:bg-copper-deep"
-            >
-              Call now
-            </a>
-            <Link
-              to="/contact"
-              className="inline-flex h-11 items-center rounded-md border border-line px-5 text-sm font-semibold text-ink hover:border-ink"
-            >
-              Contact form
-            </Link>
-          </div>
+        <div className="mt-20">
+          <BookingForm />
         </div>
       </div>
     </div>

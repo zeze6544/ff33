@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
-import { formatAUD, type Product } from '../../data/products'
+import { formatAUD, type Product, categoryLabels } from '../../data/products'
 import { useCart } from '../../hooks/useCart'
+import { useToast } from '../../hooks/useToast'
 import { Button } from '../ui/Button'
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
+  const { push } = useToast()
 
   return (
     <article className="group flex flex-col">
@@ -26,7 +28,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="mt-4 flex flex-1 flex-col">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-steel">
-          {product.category}
+          {categoryLabels[product.category]}
         </p>
         <Link to={`/shop/${product.slug}`}>
           <h3 className="mt-1 font-display text-lg font-bold tracking-tight text-ink transition group-hover:text-forest">
@@ -49,7 +51,10 @@ export function ProductCard({ product }: { product: Product }) {
             variant="secondary"
             size="sm"
             disabled={!product.inStock}
-            onClick={() => addItem(product.id)}
+            onClick={() => {
+              addItem(product.id)
+              push(`${product.shortName} added to cart`)
+            }}
           >
             Add
           </Button>

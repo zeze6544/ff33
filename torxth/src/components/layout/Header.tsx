@@ -54,7 +54,7 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-0.5 lg:flex">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -105,7 +105,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="sm"
-            className={cn('md:hidden', onDark && 'text-paper hover:bg-paper/10')}
+            className={cn('lg:hidden', onDark && 'text-paper hover:bg-paper/10')}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMobileOpen((v) => !v)}
           >
@@ -115,7 +115,7 @@ export function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-line/60 bg-paper/95 px-4 py-4 backdrop-blur-md md:hidden">
+        <div className="border-t border-line/60 bg-paper/95 px-4 py-4 backdrop-blur-md lg:hidden">
           <nav className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <NavLink

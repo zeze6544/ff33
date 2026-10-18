@@ -50,6 +50,14 @@ export function Footer() {
             ))}
             <li>
               <Link
+                to="/build"
+                className="text-sm text-fog transition hover:text-paper"
+              >
+                Build configurator
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/checkout"
                 className="text-sm text-fog transition hover:text-paper"
               >

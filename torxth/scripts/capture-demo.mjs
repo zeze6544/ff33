@@ -43,6 +43,12 @@ await page.waitForURL('**/checkout')
 await page.waitForTimeout(500)
 await shot('checkout_form')
 
+await page.goto('http://localhost:5173/build')
+await page.waitForTimeout(500)
+await page.getByRole('button', { name: /Summit.*4K/i }).click()
+await page.waitForTimeout(300)
+await shot('build_configurator')
+
 await page.goto('http://localhost:5173/services')
 await page.waitForTimeout(400)
 await shot('services_page')

@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>/</loc></url>
   <url><loc>/shop</loc></url>
+  <url><loc>/build</loc></url>
   <url><loc>/services</loc></url>
   <url><loc>/about</loc></url>
   <url><loc>/contact</loc></url>
