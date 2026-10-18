@@ -114,7 +114,7 @@ function Row({ product, index }: { product: Product; index: number }) {
   return (
     <article className="group grid items-center gap-4 py-5 sm:grid-cols-[2.5rem_8.5rem_1fr_auto] sm:gap-6">
       <p className="hidden font-mono text-xs text-copper sm:block">{String(index).padStart(2, '0')}</p>
-      <Link to={`/shop/${product.slug}`} className="plate overflow-hidden bg-ink">
+      <Link to={`/shop/${product.slug}`} className="overflow-hidden bg-ink">
         <img
           src={product.image}
           alt=""

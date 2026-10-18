@@ -21,7 +21,7 @@ export function AboutPage() {
             </p>
           </div>
         </div>
-        <img src="/images/service-repair.jpg" alt="Hands fitting a drive at the bench" className="plate aspect-[4/5] w-full object-cover" />
+        <img src="/images/service-repair.jpg" alt="Hands fitting a drive at the bench" className="aspect-[4/5] w-full object-cover" />
       </div>
 
       <dl className="mt-16 grid gap-8 border-t border-rule pt-8 sm:grid-cols-3">

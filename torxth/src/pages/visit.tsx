@@ -25,14 +25,12 @@ export function VisitPage() {
           {company.phone}
         </a>
         <p className="mt-4 max-w-md text-sm leading-relaxed text-mute">{company.hoursNote}</p>
-        <div className="plate mt-6">
-          <iframe
-            title="Map to Torxth Technology"
-            src={company.mapsEmbed}
-            className="h-64 w-full grayscale"
-            loading="lazy"
-          />
-        </div>
+        <iframe
+          title="Map to Torxth Technology"
+          src={company.mapsEmbed}
+          className="mt-6 h-64 w-full border border-rule grayscale"
+          loading="lazy"
+        />
       </div>
 
       <div className="bg-sheet p-6 sm:p-8">

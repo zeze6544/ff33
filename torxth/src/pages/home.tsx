@@ -5,7 +5,6 @@ import { formatAUD, products } from '../data/products'
 import { bench } from '../copy'
 import { useMeta } from '../meta'
 import { useCart } from '../hooks/useCart'
-import { OpenCase } from '../case'
 
 export function HomePage() {
   useMeta(
@@ -24,7 +23,7 @@ export function HomePage() {
         </p>
         <div className="relative mx-auto grid min-h-[92vh] max-w-6xl items-center gap-10 px-4 pb-16 pt-28 sm:px-6 lg:grid-cols-[1.05fr_0.9fr]">
           <div>
-            <p className="kicker text-glow">Plate 01 · 61 Dorset Rd</p>
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-brass">61 Dorset Rd · Ferntree Gully</p>
             <h1 className="mt-5 max-w-xl text-[clamp(4.2rem,8vw,7.4rem)] text-white">
               We open
               <span className="mt-1 block italic text-copper">the case.</span>
@@ -41,7 +40,7 @@ export function HomePage() {
               </Link>
             </div>
           </div>
-          <figure className="plate relative">
+          <figure className="relative">
             <img
               src="/images/hero-workshop.jpg"
               alt="An open PC on the Torxth bench"
@@ -55,7 +54,18 @@ export function HomePage() {
         </div>
       </section>
 
-      <OpenCase />
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div>
+          <h2 className="text-4xl sm:text-5xl">The case is the product.</h2>
+          <p className="mt-4 max-w-md text-lg leading-relaxed text-mute">
+            Turn it. Take the glass off. Try a real card in it before you ask us to build it. If it will not clear, or the supply is too small, the bench says so.
+          </p>
+          <Link to="/build" className="mt-6 inline-block bg-ink px-5 py-3 text-sm font-semibold text-paper">
+            Open the builder
+          </Link>
+        </div>
+        <img src="/images/product-gaming-pc.jpg" alt="A Torxth gaming build" className="aspect-[5/4] w-full object-cover" />
+      </section>
 
       <section className="border-y border-rule bg-ink text-paper">
         <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-4 py-8 sm:px-6">
@@ -128,7 +138,7 @@ export function HomePage() {
         <img
           src="/images/ferntree-atmosphere.jpg"
           alt="Morning mist in the Dandenong foothills"
-          className="plate aspect-[5/3] w-full object-cover"
+          className="aspect-[5/3] w-full object-cover"
         />
       </section>
     </div>
@@ -140,7 +150,7 @@ function ShelfCard({ id, large = false }: { id: string; large?: boolean }) {
   const { addItem } = useCart()
   return (
     <article className={large ? 'group' : 'group grid grid-cols-[7.5rem_1fr] gap-4'}>
-      <Link to={`/shop/${product.slug}`} className="plate block overflow-hidden bg-ink">
+      <Link to={`/shop/${product.slug}`} className="block overflow-hidden bg-ink">
         <img
           src={product.image}
           alt=""

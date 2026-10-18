@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { company } from '../data/company'
 import { formatAUD } from '../data/products'
 import {
@@ -18,8 +18,9 @@ import {
   type PickMap,
   type Slot,
 } from '../data/parts'
-import { CaseView } from '../builder/case-view'
 import { useMeta } from '../meta'
+
+const CaseView = lazy(() => import('../builder/case-view').then((mod) => ({ default: mod.CaseView })))
 
 const ridge = tunes.find((tune) => tune.id === 'ridge')!
 
@@ -127,15 +128,17 @@ export function BuildPage() {
         </div>
 
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_250px]">
-          <CaseView
-            look={look}
-            slot={slot}
-            onSlot={chooseSlot}
-            open={open}
-            onToggle={() => setOpen((value) => !value)}
-            kicker={trying ? 'Trying' : 'Fitted'}
-            title={active.brand + ' ' + active.name}
-          />
+          <Suspense fallback={<div className="h-[min(62vh,560px)] animate-pulse bg-[#101820]" />}>
+            <CaseView
+              look={look}
+              slot={slot}
+              onSlot={chooseSlot}
+              open={open}
+              onToggle={() => setOpen((value) => !value)}
+              kicker={trying ? 'Trying' : 'Fitted'}
+              title={active.brand + ' ' + active.name}
+            />
+          </Suspense>
           <aside className="space-y-5 lg:sticky lg:top-24">
             <Meter label="How it plays" now={fittedScore.play} next={previewScore.play} caption={previewScore.playWord} />
             <Meter label="How quiet" now={fittedScore.quiet} next={previewScore.quiet} caption={previewScore.quietWord} />

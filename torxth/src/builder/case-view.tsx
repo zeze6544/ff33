@@ -1,52 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { Component, type ReactNode } from 'react'
 import type { Look, Slot } from '../data/parts'
-
-const cavity = 290
-
-function useEase(target: number) {
-  const [value, setValue] = useState(target)
-  const from = useRef(target)
-  useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduce) {
-      from.current = target
-      setValue(target)
-      return
-    }
-    const start = from.current
-    const t0 = performance.now()
-    let frame = 0
-    const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / 460)
-      const e = 1 - (1 - p) ** 3
-      setValue(start + (target - start) * e)
-      if (p < 1) frame = requestAnimationFrame(step)
-      else from.current = target
-    }
-    frame = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(frame)
-  }, [target])
-  return value
-}
-
-function Fan({ cx, cy, r, ring }: { cx: number; cy: number; r: number; ring?: string | null }) {
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r={r} fill="#071018" stroke={ring ?? '#7ec8ee'} strokeWidth={ring ? 3 : 1.2} />
-      {[0, 60, 120, 180, 240, 300].map((deg) => (
-        <path
-          key={deg}
-          d={`M ${cx} ${cy - 2} C ${cx + r * 0.55} ${cy - r * 0.85}, ${cx + r * 0.15} ${cy - r * 0.95}, ${cx} ${cy - r + 2}`}
-          fill="#163049"
-          stroke="#9fd4f0"
-          strokeWidth="0.6"
-          transform={`rotate(${deg} ${cx} ${cy})`}
-        />
-      ))}
-      <circle cx={cx} cy={cy} r={Math.max(2.5, r * 0.16)} fill="#c4894a" />
-    </g>
-  )
-}
+import { CaseScene } from './case-scene'
 
 export function CaseView({
   look,
@@ -65,271 +19,41 @@ export function CaseView({
   title: string
   kicker: string
 }) {
-  const overflow = look.gpuMm > look.gpuMax ? Math.max(42, (look.gpuMm - look.gpuMax) * 1.4) : 0
-  const gpuTarget =
-    overflow > 0 ? cavity + overflow : Math.max(132, cavity * (look.gpuMm / look.gpuMax) * 0.94)
-  const gpuW = useEase(gpuTarget)
-  const panel = useEase(open ? 0 : 214)
-  const coolLift = useEase(look.airTooTall ? -34 : 0)
-  const radPoke = useEase(look.liquid && look.rad > look.caseRad ? 28 : 0)
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
-  const shell = look.light ? '#e4ddd0' : look.tint
-  const bay = look.light ? '#cfc6b8' : '#0c1824'
-  const line = look.light ? '#102030' : '#1A8FD0'
-  const accent = look.maker === 'amd' ? '#c0392b' : '#7cb342'
-  const gpuX = 286
-  const gpuY = 318
-  const radW = look.rad === 360 ? 268 : look.rad === 240 ? 176 : 0
-
-  const zones: Record<Slot, { x: number; y: number; w: number; h: number; label: string }> = {
-    case: { x: 250, y: 36, w: 372, h: 452, label: 'Case shell' },
-    cpu: { x: 300, y: 108 + coolLift, w: 96, h: 132, label: 'Processor and cooler' },
-    gpu: { x: gpuX, y: gpuY, w: Math.max(120, gpuW), h: 62, label: 'Graphics card' },
-    ram: { x: 430, y: 124, w: look.sticks === 4 ? 78 : 46, h: 92, label: 'Memory' },
-    storage: { x: 300, y: 248, w: 78, h: look.drives === 2 ? 46 : 22, label: 'Storage' },
-    cool: { x: 292, y: (look.liquid ? 52 : 100) + (look.liquid ? -radPoke : coolLift), w: look.liquid ? radW + 20 : 110, h: look.liquid ? 150 : 150, label: 'Cooling' },
-    psu: { x: 286, y: 400, w: 210, h: 58, label: 'Power supply' },
-    fans: { x: 548, y: 78, w: 62, h: 250, label: 'Fans' },
-  }
-  const hot = zones[slot]
-
   return (
     <div>
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-glow">{kicker}</p>
+          <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-brass">{kicker}</p>
           <h2 className="mt-1 font-serif text-3xl text-white sm:text-4xl">{title}</h2>
         </div>
         <button
           type="button"
           onClick={onToggle}
           aria-pressed={open}
-          className="shrink-0 border border-white/20 px-3 py-2 text-xs font-semibold text-paper hover:border-glow"
+          className="shrink-0 border border-white/20 px-3 py-2 text-xs font-semibold text-paper hover:border-brass"
         >
           {open ? 'Put the panel back' : 'Take the panel off'}
         </button>
       </div>
-      <div
-        className="plate relative overflow-hidden bg-[#0b1520]"
-        onMouseMove={(e) => {
-          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-          const r = e.currentTarget.getBoundingClientRect()
-          setTilt({
-            x: ((e.clientX - r.left) / r.width - 0.5) * 7,
-            y: ((e.clientY - r.top) / r.height - 0.5) * -5,
-          })
-        }}
-        onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-        style={{ perspective: '900px' }}
-      >
-        <svg
-          viewBox="0 0 680 520"
-          className="w-full"
-          role="group"
-          aria-label="Side of the case. Choose a part to edit it."
-          style={{
-            transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
-            transition: 'transform 0.18s ease-out',
-          }}
-        >
-          <defs>
-            <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#e6c79a" stopOpacity="0.35" />
-              <stop offset="0.35" stopColor="#7ec8ee" stopOpacity="0.05" />
-              <stop offset="1" stopColor="#7ec8ee" stopOpacity="0.28" />
-            </linearGradient>
-            <linearGradient id="lip" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#ffffff" stopOpacity="0.22" />
-              <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-            </linearGradient>
-            <radialGradient id="bayglow" cx="35%" cy="30%" r="65%">
-              <stop offset="0" stopColor="#1a8fd0" stopOpacity="0.2" />
-              <stop offset="1" stopColor="#1a8fd0" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <rect width="680" height="520" fill="#0b1520" />
-          <ellipse cx="450" cy="498" rx="210" ry="12" fill="#000" opacity="0.45" />
-          {Array.from({ length: 18 }).map((_, i) => (
-            <circle key={i} cx={40 + (i % 9) * 90} cy={30 + Math.floor(i / 9) * 250} r="1.2" fill="#1A8FD0" opacity="0.35" />
-          ))}
-
-          <g transform={`translate(${panel} 0)`}>
-            <rect x="28" y="48" width="176" height="424" rx="8" fill={shell} stroke={line} />
-            <rect x="42" y="64" width="148" height="392" rx="4" fill="url(#sheen)" />
-            <path d="M58 80 L150 430" stroke="#fff" strokeOpacity="0.18" />
-            <text x="48" y="92" fill="#7ec8ee" fontSize="11" fontFamily="IBM Plex Mono, monospace">
-              SIDE PANEL
-            </text>
-            <circle cx="168" cy="260" r="7" fill="none" stroke={line} />
-            <circle cx="52" cy="80" r="3" fill="none" stroke={line} />
-            <circle cx="52" cy="440" r="3" fill="none" stroke={line} />
-          </g>
-
-          <rect x="262" y="48" width="360" height="440" fill="#070f18" />
-          <rect x="250" y="36" width="360" height="440" rx="4" fill={shell} stroke={line} />
-          <rect x="270" y="56" width="308" height="390" fill={bay} />
-          <rect x="270" y="56" width="308" height="390" fill="url(#bayglow)" />
-          <rect x="250" y="36" width="360" height="10" fill="url(#lip)" />
-
-          {look.front === 'wood' && (
-            <g opacity="0.9">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <path
-                  key={i}
-                  d={`M586 ${68 + i * 22} C 592 ${64 + i * 22}, 598 ${76 + i * 22}, 604 ${72 + i * 22}`}
-                  fill="none"
-                  stroke={i % 2 ? '#8a5a32' : '#e0b07a'}
-                  strokeWidth="2.4"
-                />
-              ))}
-            </g>
-          )}
-          {look.front === 'mesh' &&
-            Array.from({ length: 40 }).map((_, i) => (
-              <circle
-                key={i}
-                cx={578 + (i % 4) * 8}
-                cy={80 + Math.floor(i / 4) * 32}
-                r="1.3"
-                fill={look.light ? '#102030' : '#7ec8ee'}
-                opacity="0.45"
-              />
-            ))}
-          {look.front === 'glass' && (
-            <rect x="572" y="64" width="28" height="370" fill="#7ec8ee" opacity="0.16" />
-          )}
-
-          {look.liquid && radW > 0 && (
-            <g transform={`translate(0 ${-radPoke})`}>
-              <rect x="292" y="64" width={radW} height="34" fill={look.light ? '#2a3340' : '#163049'} stroke={line} />
-              {Array.from({ length: Math.round(radW / 8) }).map((_, i) => (
-                <line key={i} x1={298 + i * 8} x2={298 + i * 8} y1="68" y2="94" stroke="#7ec8ee" strokeWidth="1" opacity="0.7" />
-              ))}
-              {look.rad > look.caseRad && (
-                <text x="292" y="58" fill="#7ec8ee" fontSize="10" fontFamily="IBM Plex Mono, monospace">
-                  RADIATOR PAST THE CASE
-                </text>
-              )}
-            </g>
-          )}
-
-          <rect x="292" y="108" width="200" height="270" fill="none" stroke={line} strokeOpacity="0.35" />
-          <path
-            d="M310 140 H470 M310 200 H400 M420 220 H480 M310 300 H390"
-            fill="none"
-            stroke={line}
-            strokeOpacity="0.35"
-          />
-          {[
-            [258, 44],
-            [590, 44],
-            [258, 456],
-            [590, 456],
-          ].map(([x, y]) => (
-            <g key={`${x}-${y}`} stroke={line} strokeWidth="1.2">
-              <circle cx={x} cy={y} r="4" fill={look.light ? '#d7d0c4' : '#102030'} />
-              <path d={`M ${x - 2.2} ${y} H ${x + 2.2} M ${x} ${y - 2.2} V ${y + 2.2}`} />
-            </g>
-          ))}
-
-          <g transform={`translate(0 ${look.liquid ? 0 : coolLift})`}>
-            {look.liquid ? (
-              <>
-                <circle cx="338" cy="176" r="28" fill="#10283a" stroke="#c4894a" strokeWidth="3" />
-                <circle cx="338" cy="176" r="10" fill="#0b1520" stroke="#7ec8ee" />
-                <path d="M338 148 C 360 120, 400 110, 420 90" fill="none" stroke="#c4894a" strokeWidth="4" />
-                <path d="M316 160 C 300 130, 320 110, 340 96" fill="none" stroke="#8a5a32" strokeWidth="3" />
-              </>
-            ) : (
-              <>
-                <rect x="304" y="112" width="78" height="108" fill="#1a2836" stroke={line} />
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <line key={i} x1={312 + i * 7} x2={312 + i * 7} y1="118" y2="212" stroke="#7ec8ee" strokeWidth="1.4" />
-                ))}
-                <rect x="318" y="214" width="50" height="28" fill="#102030" stroke={line} />
-              </>
-            )}
-          </g>
-
-          {Array.from({ length: look.sticks }).map((_, i) => (
-            <g key={i}>
-              <rect x={436 + i * 16} y="128" width="12" height="86" rx="1" fill={look.ram} stroke="#7ec8ee" />
-              {look.ramGlow && <rect x={438 + i * 16} y="132" width="8" height="4" fill="#7ec8ee" />}
-            </g>
-          ))}
-
-          <rect x="304" y="252" width="62" height="16" fill="#163049" stroke={line} />
-          {look.drives === 2 && <rect x="304" y="274" width="62" height="16" fill="#163049" stroke={line} />}
-
-          <g>
-            <rect x={gpuX} y={gpuY} width={gpuW} height="56" rx="3" fill="#10161c" stroke={overflow ? '#e6c79a' : accent} strokeWidth="1.6" strokeDasharray={overflow ? '5 4' : undefined} />
-            <rect x={gpuX} y={gpuY} width="7" height="56" fill={accent} />
-            {Array.from({ length: 8 }).map((_, i) => (
-              <line key={i} x1={gpuX + 16 + i * 7} x2={gpuX + 16 + i * 7} y1={gpuY + 4} y2={gpuY + 12} stroke="#7ec8ee" strokeOpacity="0.45" />
-            ))}
-            {Array.from({ length: look.gpuFans }).map((_, i) => {
-              const fanW = gpuW / look.gpuFans
-              const cx = gpuX + fanW * i + fanW / 2
-              if (cx > gpuX + gpuW - 18) return null
-              return <Fan key={i} cx={cx} cy={gpuY + 32} r={13} />
-            })}
-            <rect x={gpuX + Math.min(gpuW - 18, cavity - 24)} y={gpuY + 18} width="10" height="16" fill="#c4894a" opacity="0.85" />
-            {overflow > 0 && (
-              <text x={gpuX + cavity + 4} y={gpuY - 8} fill="#7ec8ee" fontSize="10" fontFamily="IBM Plex Mono, monospace">
-                TOO LONG
-              </text>
-            )}
-          </g>
-
-          <rect x="292" y="404" width="200" height="48" fill="#101820" stroke={line} />
-          <circle cx="330" cy="428" r="12" fill="none" stroke="#7ec8ee" />
-          <text x="352" y="432" fill="#8ea0b0" fontSize="10" fontFamily="IBM Plex Mono, monospace">
-            PSU
-          </text>
-
-          {Array.from({ length: look.fanCount }).map((_, i) => (
-            <Fan key={i} cx={566} cy={110 + i * 78} r={18} ring={look.fanRing} />
-          ))}
-
-          <rect
-            x={hot.x - 8}
-            y={hot.y - 8}
-            width={Math.min(520, hot.w + 16)}
-            height={hot.h + 16}
-            fill="none"
-            stroke="#7ec8ee"
-            strokeWidth="1.4"
-            className="breathe"
-            pointerEvents="none"
-          />
-
-          {(['case', 'cool', 'psu', 'fans', 'gpu', 'ram', 'storage', 'cpu'] as Slot[]).map((id) => {
-            const zone = zones[id]
-            return (
-              <rect
-                key={id}
-                x={zone.x}
-                y={zone.y}
-                width={zone.w}
-                height={zone.h}
-                fill="transparent"
-                role="button"
-                tabIndex={0}
-                aria-label={zone.label}
-                aria-pressed={slot === id}
-                className="cursor-pointer"
-                onClick={() => onSlot(id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    onSlot(id)
-                  }
-                }}
-              />
-            )
-          })}
-        </svg>
-      </div>
+      <StageBoundary>
+        <div className="h-[min(62vh,560px)] w-full bg-[#101820]">
+          <CaseScene look={look} slot={slot} onSlot={onSlot} open={open} />
+        </div>
+      </StageBoundary>
+      <p className="mt-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-fog">Drag to turn the case. Click a part.</p>
     </div>
   )
+}
+
+class StageBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+  render() {
+    if (this.state.failed) {
+      return <p className="bg-[#101820] px-4 py-16 text-sm text-fog">The case viewer needs WebGL in this browser.</p>
+    }
+    return this.props.children
+  }
 }

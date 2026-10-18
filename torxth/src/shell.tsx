@@ -189,10 +189,7 @@ export function Shell() {
             </ul>
           </div>
         </div>
-        <p className="colophon" aria-hidden="true">
-          Torxth
-        </p>
-        <p className="border-t border-copper/30 px-4 py-4 text-center font-mono text-[0.65rem] text-fog/80">
+        <p className="border-t border-white/10 px-4 py-4 text-center font-mono text-[0.65rem] text-fog/80">
           © {new Date().getFullYear()} Torxth Technology · 61 Dorset Rd, Ferntree Gully
         </p>
       </footer>
