@@ -741,6 +741,12 @@ export type Look = {
   drives: 1 | 2
   fanRing: string | null
   fanCount: 2 | 3
+  caseId: string
+  gpuId: string
+  coolId: string
+  ramId: string
+  fanId: string
+  socket: 'AM5' | 'LGA1851'
 }
 
 export function appearance(build: Resolved): Look {
@@ -762,6 +768,12 @@ export function appearance(build: Resolved): Look {
     drives: build.storage.drives,
     fanRing: build.fans.ring,
     fanCount: build.fans.count,
+    caseId: build.case.id,
+    gpuId: build.gpu.id,
+    coolId: build.cool.id,
+    ramId: build.ram.id,
+    fanId: build.fans.id,
+    socket: build.cpu.socket,
   }
 }
 
