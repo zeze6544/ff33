@@ -1,18 +1,12 @@
 import { Link } from 'react-router-dom'
 import { company } from '../../data/company'
+import { CircuitPattern } from '../brand/CircuitPattern'
 
 export function ContactCTA() {
   return (
     <section className="mx-auto max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
-      <div className="relative overflow-hidden rounded-xl bg-ink px-6 py-12 text-paper sm:px-10 sm:py-14 grain">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-25"
-          style={{
-            backgroundImage: 'url(/images/ferntree-atmosphere.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
+      <div className="relative overflow-hidden rounded-xl bg-ink px-6 py-12 text-paper sm:px-10 sm:py-14">
+        <CircuitPattern className="pointer-events-none absolute inset-0 h-full w-full opacity-50" />
         <div className="relative max-w-2xl">
           <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal-bright">
             Visit or call
@@ -37,6 +31,12 @@ export function ContactCTA() {
               className="inline-flex h-11 items-center rounded-md border border-paper/30 px-5 text-sm font-semibold text-paper hover:bg-paper/10"
             >
               Open in Maps
+            </a>
+            <a
+              href={company.phoneHref}
+              className="inline-flex h-11 items-center rounded-md border border-signal/40 px-5 text-sm font-semibold text-signal-bright hover:bg-signal/10"
+            >
+              {company.phone}
             </a>
           </div>
         </div>

@@ -3,8 +3,19 @@ import { formatAUD, type Product, categoryLabels } from '../../data/products'
 import { useCart } from '../../hooks/useCart'
 import { useToast } from '../../hooks/useToast'
 import { Button } from '../ui/Button'
+import { cn } from '../../lib/utils'
 
-export function ProductCard({ product }: { product: Product }) {
+type Props = {
+  product: Product
+  compareSelected?: boolean
+  onToggleCompare?: (id: string) => void
+}
+
+export function ProductCard({
+  product,
+  compareSelected,
+  onToggleCompare,
+}: Props) {
   const { addItem } = useCart()
   const { push } = useToast()
 
@@ -19,19 +30,26 @@ export function ProductCard({ product }: { product: Product }) {
             loading="lazy"
           />
         </div>
-        {product.badge && (
-          <span className="absolute left-3 top-3 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-paper bg-ink/80 px-2 py-1 backdrop-blur-sm">
-            {product.badge}
-          </span>
-        )}
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          {product.badge && (
+            <span className="bg-ink/80 px-2 py-1 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-paper backdrop-blur-sm">
+              {product.badge}
+            </span>
+          )}
+          {product.inStock && (
+            <span className="bg-signal/90 px-2 py-1 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+              In stock
+            </span>
+          )}
+        </div>
       </Link>
 
       <div className="mt-4 flex flex-1 flex-col">
-        <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-steel">
+        <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-signal">
           {categoryLabels[product.category]}
         </p>
         <Link to={`/shop/${product.slug}`}>
-          <h3 className="mt-1 font-display text-lg font-bold tracking-tight text-ink transition group-hover:text-forest">
+          <h3 className="mt-1 font-display text-lg font-bold tracking-tight text-ink transition group-hover:text-signal">
             {product.name}
           </h3>
         </Link>
@@ -47,17 +65,33 @@ export function ProductCard({ product }: { product: Product }) {
               </p>
             )}
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={!product.inStock}
-            onClick={() => {
-              addItem(product.id)
-              push(`${product.shortName} added to cart`)
-            }}
-          >
-            Add
-          </Button>
+          <div className="flex items-center gap-2">
+            {onToggleCompare && (
+              <button
+                type="button"
+                onClick={() => onToggleCompare(product.id)}
+                className={cn(
+                  'h-9 rounded-md border px-2.5 text-xs font-semibold transition',
+                  compareSelected
+                    ? 'border-signal bg-signal/10 text-signal'
+                    : 'border-line text-steel hover:border-ink hover:text-ink',
+                )}
+              >
+                {compareSelected ? 'Comparing' : 'Compare'}
+              </button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={!product.inStock}
+              onClick={() => {
+                addItem(product.id)
+                push(`${product.shortName} added to cart`)
+              }}
+            >
+              Add
+            </Button>
+          </div>
         </div>
       </div>
     </article>

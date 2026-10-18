@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Minus, Plus } from 'lucide-react'
+import { Minus, Plus, ShieldCheck, Truck, Wrench } from 'lucide-react'
 import {
   categoryLabels,
   formatAUD,
@@ -9,9 +9,10 @@ import {
 } from '../data/products'
 import { useCart } from '../hooks/useCart'
 import { useToast } from '../hooks/useToast'
+import { useMeta } from '../hooks/useMeta'
 import { Button } from '../components/ui/Button'
 import { ProductCard } from '../components/shop/ProductCard'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { StickyBuyBar } from '../components/shop/StickyBuyBar'
 
 export function ProductPage() {
   const { slug } = useParams()
@@ -19,7 +20,12 @@ export function ProductPage() {
   const { addItem } = useCart()
   const { push } = useToast()
   const [qty, setQty] = useState(1)
-  usePageTitle(product ? product.name : 'Product')
+
+  useMeta({
+    title: product ? product.name : 'Product',
+    description: product?.summary,
+    image: product?.image,
+  })
 
   if (!product) {
     return (
@@ -36,8 +42,13 @@ export function ProductPage() {
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 3)
 
+  function handleAdd() {
+    addItem(product!.id, qty)
+    push(`${product!.shortName} × ${qty} added to cart`)
+  }
+
   return (
-    <div className="pt-24">
+    <div className="pt-24 pb-24 lg:pb-0">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <nav className="text-sm text-steel">
           <Link to="/shop" className="hover:text-ink">
@@ -48,18 +59,23 @@ export function ProductPage() {
         </nav>
 
         <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-14">
-          <div className="overflow-hidden rounded-lg bg-mist-deep">
+          <div className="relative overflow-hidden rounded-lg bg-mist-deep">
             <img
               src={product.image}
               alt={product.name}
               className="aspect-[4/3] w-full object-cover"
             />
+            {product.badge && (
+              <span className="absolute left-4 top-4 bg-ink/85 px-2.5 py-1 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+                {product.badge}
+              </span>
+            )}
           </div>
 
           <div>
-            <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-steel">
+            <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-signal">
               {categoryLabels[product.category]}
-              {product.badge ? ` · ${product.badge}` : ''}
+              {product.inStock ? ' · In stock' : ' · Out of stock'}
             </p>
             <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               {product.name}
@@ -98,20 +114,15 @@ export function ProductPage() {
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
-              <p className="text-sm text-steel">
-                In stock · pickup or local delivery
-              </p>
+              <p className="text-sm text-steel">Pickup or local delivery</p>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 hidden flex-wrap gap-3 lg:flex">
               <Button
-                variant="copper"
+                variant="signal"
                 size="lg"
                 disabled={!product.inStock}
-                onClick={() => {
-                  addItem(product.id, qty)
-                  push(`${product.shortName} × ${qty} added to cart`)
-                }}
+                onClick={handleAdd}
               >
                 {product.inStock ? 'Add to cart' : 'Out of stock'}
               </Button>
@@ -121,22 +132,29 @@ export function ProductPage() {
               >
                 Ask about this build
               </Link>
+              <Link
+                to="/build"
+                className="inline-flex h-12 items-center rounded-md border border-signal/30 bg-signal/5 px-6 text-base font-semibold text-signal hover:bg-signal/10"
+              >
+                Customise similar
+              </Link>
             </div>
 
-            <ul className="mt-8 grid gap-3 text-sm text-steel sm:grid-cols-2">
-              <li className="border-t border-line pt-3">
-                Workshop support after sale
-              </li>
-              <li className="border-t border-line pt-3">
-                Parts checked for compatibility
-              </li>
-              <li className="border-t border-line pt-3">
-                Pickup at 61 Dorset Rd, FTG
-              </li>
-              <li className="border-t border-line pt-3">
-                Payment confirmed when order is final
-              </li>
-            </ul>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              {[
+                { icon: ShieldCheck, label: 'Workshop warranty' },
+                { icon: Truck, label: 'Pickup or delivery' },
+                { icon: Wrench, label: 'Setup included options' },
+              ].map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2.5 border-t border-line pt-3 text-sm text-steel"
+                >
+                  <Icon className="h-4 w-4 text-signal" />
+                  {label}
+                </div>
+              ))}
+            </div>
 
             <dl className="mt-10 divide-y divide-line border-y border-line">
               {product.specs.map((spec) => (
@@ -167,6 +185,8 @@ export function ProductPage() {
           </section>
         )}
       </div>
+
+      <StickyBuyBar product={product} qty={qty} onAdd={handleAdd} />
     </div>
   )
 }

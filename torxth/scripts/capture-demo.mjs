@@ -26,15 +26,23 @@ await page.goto('http://localhost:5173/', { waitUntil: 'networkidle' })
 await page.waitForTimeout(800)
 await shot('home_hero')
 
+await page.waitForTimeout(600)
+await shot('home_with_marquee')
+
 await page.getByRole('link', { name: 'Shop systems' }).click()
 await page.waitForURL('**/shop')
 await page.waitForTimeout(500)
 await shot('shop_catalog')
 
+await page.getByRole('button', { name: 'Compare' }).first().click()
+await page.getByRole('button', { name: 'Compare' }).nth(1).click()
+await page.waitForTimeout(400)
+await shot('shop_compare_tray')
+
 await page.getByRole('link', { name: 'Ridge Gaming Tower' }).first().click()
 await page.waitForURL('**/shop/ridge-gaming-tower')
 await page.waitForTimeout(400)
-await page.getByRole('button', { name: 'Add to cart' }).click()
+await page.getByRole('button', { name: 'Add to cart' }).first().click()
 await page.waitForTimeout(500)
 await shot('product_cart_drawer')
 
