@@ -8,7 +8,7 @@ const parts = [
     title: 'The card that earns the case.',
     body: 'We size it to the games and the resolution you actually use. A quiet 1440p rig beats a loud 4K one you never needed.',
     href: '/build',
-    cta: 'Sketch the graphics',
+    cta: 'Open the editor',
     box: 'left-[8%] top-[46%] h-[28%] w-[62%]',
   },
   {
@@ -17,7 +17,7 @@ const parts = [
     title: 'Cool enough to forget it’s there.',
     body: 'The chip is the easy part. The cooler, the paste, and the fan curve are why it still sounds civil at midnight.',
     href: '/build',
-    cta: 'Choose a tier',
+    cta: 'Open the editor',
     box: 'left-[28%] top-[14%] h-[24%] w-[28%]',
   },
   {

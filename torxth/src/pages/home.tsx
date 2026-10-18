@@ -42,7 +42,7 @@ export function HomePage() {
               See what’s for sale
             </Link>
             <Link to="/build" className="border border-white/30 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
-              Sketch a build
+              Fit the parts
             </Link>
           </div>
         </div>

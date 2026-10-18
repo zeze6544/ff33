@@ -105,7 +105,15 @@
   to { opacity: 1; transform: none; }
 }
 
+.breathe { animation: breathe 2.6s ease-in-out infinite; }
+
+@keyframes breathe {
+  50% { opacity: 0.35; }
+}
+
+main:has(.bench-editor) + footer { margin-top: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .draw, .node-in, .page-in { animation: none !important; stroke-dashoffset: 0; opacity: 1; }
+  .draw, .node-in, .page-in, .breathe { animation: none !important; stroke-dashoffset: 0; opacity: 1; }
 }
