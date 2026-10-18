@@ -18,33 +18,40 @@ export function HomePage() {
 
   return (
     <div>
-      <section className="relative min-h-[92vh] overflow-hidden bg-ink text-paper">
-        <img
-          src="/images/hero-workshop.jpg"
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/30" />
-        <div className="relative mx-auto flex min-h-[92vh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6">
-          <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-glow">
-            61 Dorset Rd · Ferntree Gully
-          </p>
-          <h1 className="mt-4 max-w-4xl text-[clamp(4rem,12vw,8.5rem)] text-white">
-            We open
-            <span className="block italic">the case.</span>
-          </h1>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-fog">
-            A small computer shop under the Dandenongs. Rigs, quiet desks, laptops, and the repairs that keep last year’s machine honest.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/shop" className="bg-blue px-5 py-3 text-sm font-semibold text-white hover:bg-blue-deep">
-              See what’s for sale
-            </Link>
-            <Link to="/build" className="border border-white/30 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
-              Fit the parts
-            </Link>
+      <section className="stage relative overflow-hidden text-paper">
+        <p className="pointer-events-none absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 font-mark text-[0.7rem] tracking-[0.55em] text-white/35 [writing-mode:vertical-rl] lg:block">
+          TORXTH · FERNTREE GULLY
+        </p>
+        <div className="relative mx-auto grid min-h-[92vh] max-w-6xl items-center gap-10 px-4 pb-16 pt-28 sm:px-6 lg:grid-cols-[1.05fr_0.9fr]">
+          <div>
+            <p className="kicker text-glow">Plate 01 · 61 Dorset Rd</p>
+            <h1 className="mt-5 max-w-xl text-[clamp(4.2rem,8vw,7.4rem)] text-white">
+              We open
+              <span className="mt-1 block italic text-copper">the case.</span>
+            </h1>
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-fog">
+              A small computer shop under the Dandenongs. Rigs, quiet desks, laptops, and the repairs that keep last year’s machine honest.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/shop" className="bg-blue px-5 py-3 text-sm font-semibold text-white hover:bg-blue-deep">
+                See what’s for sale
+              </Link>
+              <Link to="/build" className="border border-copper/70 px-5 py-3 text-sm font-semibold text-brass hover:bg-copper/15">
+                Fit the parts
+              </Link>
+            </div>
           </div>
+          <figure className="plate relative">
+            <img
+              src="/images/hero-workshop.jpg"
+              alt="An open PC on the Torxth bench"
+              className="aspect-[4/5] max-h-[78vh] w-full object-cover"
+            />
+            <figcaption className="absolute bottom-4 left-4 right-4 z-[3] flex items-end justify-between gap-3 text-[0.65rem] uppercase tracking-[0.18em] text-brass">
+              <span className="font-mono">Ferntree Gully</span>
+              <span className="font-mono">Night bench</span>
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -121,7 +128,7 @@ export function HomePage() {
         <img
           src="/images/ferntree-atmosphere.jpg"
           alt="Morning mist in the Dandenong foothills"
-          className="aspect-[5/3] w-full object-cover"
+          className="plate aspect-[5/3] w-full object-cover"
         />
       </section>
     </div>
@@ -133,7 +140,7 @@ function ShelfCard({ id, large = false }: { id: string; large?: boolean }) {
   const { addItem } = useCart()
   return (
     <article className={large ? 'group' : 'group grid grid-cols-[7.5rem_1fr] gap-4'}>
-      <Link to={`/shop/${product.slug}`} className="block overflow-hidden bg-ink">
+      <Link to={`/shop/${product.slug}`} className="plate block overflow-hidden bg-ink">
         <img
           src={product.image}
           alt=""

@@ -14,7 +14,7 @@ export function VisitPage() {
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-4 py-10 sm:px-6 lg:grid-cols-2">
       <div>
-        <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-blue">Find us</p>
+        <p className="kicker text-blue">Find us</p>
         <h1 className="mt-2 text-5xl">The door’s on Dorset Road.</h1>
         <p className="mt-4 text-lg">
           {company.address.line1}
@@ -25,12 +25,14 @@ export function VisitPage() {
           {company.phone}
         </a>
         <p className="mt-4 max-w-md text-sm leading-relaxed text-mute">{company.hoursNote}</p>
-        <iframe
-          title="Map to Torxth Technology"
-          src={company.mapsEmbed}
-          className="mt-6 h-64 w-full border border-rule grayscale"
-          loading="lazy"
-        />
+        <div className="plate mt-6">
+          <iframe
+            title="Map to Torxth Technology"
+            src={company.mapsEmbed}
+            className="h-64 w-full grayscale"
+            loading="lazy"
+          />
+        </div>
       </div>
 
       <div className="bg-sheet p-6 sm:p-8">

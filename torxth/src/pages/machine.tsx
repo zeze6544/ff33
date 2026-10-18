@@ -36,7 +36,7 @@ export function MachinePage() {
 
       <div className="mt-6 grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <img src={product.image} alt={product.name} className="aspect-[4/3] w-full object-cover" />
+          <img src={product.image} alt={product.name} className="plate aspect-[4/3] w-full object-cover" />
           <p className="stamp mt-4">Checked · FTG</p>
         </div>
         <div>

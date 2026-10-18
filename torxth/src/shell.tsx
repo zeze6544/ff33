@@ -82,7 +82,9 @@ export function Shell() {
       </div>
       <header
         className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors ${
-          onDark ? 'border-white/10 bg-ink/80 text-white' : 'border-rule/80 bg-paper/85'
+          onDark
+            ? 'border-white/10 bg-ink/80 text-white shadow-[inset_0_-2px_0_0_rgba(196,137,74,0.7)]'
+            : 'border-rule/80 bg-paper/90 shadow-[inset_0_-2px_0_0_rgba(196,137,74,0.85)]'
         }`}
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -187,8 +189,11 @@ export function Shell() {
             </ul>
           </div>
         </div>
-        <p className="border-t border-white/10 px-4 py-4 text-center font-mono text-[0.65rem] text-fog/80">
-          © {new Date().getFullYear()} Torxth Technology · Ferntree Gully
+        <p className="colophon" aria-hidden="true">
+          Torxth
+        </p>
+        <p className="border-t border-copper/30 px-4 py-4 text-center font-mono text-[0.65rem] text-fog/80">
+          © {new Date().getFullYear()} Torxth Technology · 61 Dorset Rd, Ferntree Gully
         </p>
       </footer>
 

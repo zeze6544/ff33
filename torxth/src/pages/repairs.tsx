@@ -8,7 +8,7 @@ export function RepairsPage() {
   useMeta('Repairs & setup', 'Diagnostics, upgrades, custom builds and software from Torxth in Ferntree Gully.')
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-blue">The bench</p>
+      <p className="kicker text-blue">The bench</p>
       <h1 className="mt-2 max-w-2xl text-5xl sm:text-6xl">Bring it in. We’ll tell you if it’s worth it.</h1>
       <p className="mt-4 max-w-xl text-mute">
         Most jobs are quoted before a screwdriver turns. If a new machine is the honest answer, we’ll say so.

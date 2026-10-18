@@ -52,7 +52,7 @@ export function ShopPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-blue">The shelf</p>
+      <p className="kicker text-blue">The shelf</p>
       <h1 className="mt-2 max-w-xl text-5xl sm:text-6xl">Machines we can hand you.</h1>
       <p className="mt-4 max-w-lg text-mute">
         Built or checked in Ferntree Gully. Add what you want to the docket — we’ll confirm stock before you pay.
@@ -98,8 +98,8 @@ export function ShopPage() {
       <p className="mt-6 font-mono text-xs text-mute">{list.length} on this shelf</p>
 
       <div className="mt-4 divide-y divide-rule border-y border-rule">
-        {list.map((product) => (
-          <Row key={product.id} product={product} />
+        {list.map((product, index) => (
+          <Row key={product.id} product={product} index={index + 1} />
         ))}
       </div>
       {list.length === 0 && (
@@ -109,11 +109,12 @@ export function ShopPage() {
   )
 }
 
-function Row({ product }: { product: Product }) {
+function Row({ product, index }: { product: Product; index: number }) {
   const { addItem } = useCart()
   return (
-    <article className="group grid items-center gap-4 py-5 sm:grid-cols-[8.5rem_1fr_auto] sm:gap-6">
-      <Link to={`/shop/${product.slug}`} className="overflow-hidden bg-ink">
+    <article className="group grid items-center gap-4 py-5 sm:grid-cols-[2.5rem_8.5rem_1fr_auto] sm:gap-6">
+      <p className="hidden font-mono text-xs text-copper sm:block">{String(index).padStart(2, '0')}</p>
+      <Link to={`/shop/${product.slug}`} className="plate overflow-hidden bg-ink">
         <img
           src={product.image}
           alt=""

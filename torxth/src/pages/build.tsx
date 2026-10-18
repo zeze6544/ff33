@@ -85,14 +85,14 @@ export function BuildPage() {
       <div className="mx-auto max-w-6xl px-4 pb-6 pt-8 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-glow">Bench editor</p>
+            <p className="kicker text-glow">Bench editor</p>
             <h1 className="mt-2 max-w-xl text-5xl text-white sm:text-6xl">Fit the parts.</h1>
             <p className="mt-3 max-w-lg text-sm leading-relaxed text-fog">
               Hover a part to try it in the case. Click, or press Enter, to leave it fitted. These are real boards and cards. The number is this week’s trade estimate, in AUD.
             </p>
           </div>
-          <div className="min-w-[12rem]">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-fog">Workshop estimate</p>
+          <div className="min-w-[12rem] border border-copper/50 bg-white/[0.04] px-4 py-3">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-brass">Workshop estimate</p>
             <p className="font-serif text-5xl tabular-nums text-white" data-total={fittedTotal}>
               {formatAUD(shown)}
             </p>
@@ -218,7 +218,7 @@ export function BuildPage() {
                     }
                   }}
                   className={`w-64 shrink-0 snap-start border p-4 text-left ${
-                    on ? 'border-glow bg-white/10' : over ? 'border-white/40 bg-white/5' : 'border-white/10 bg-transparent'
+                    on ? 'border-copper bg-copper/10' : over ? 'border-white/40 bg-white/5' : 'border-white/10 bg-transparent'
                   }`}
                 >
                   <span className="flex items-center justify-between gap-2">

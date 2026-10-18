@@ -17,6 +17,8 @@
   --color-mute: #5e6c78;
   --color-fog: #8ea0b0;
   --color-navy: #102030;
+  --color-copper: #c4894a;
+  --color-brass: #e6c79a;
 }
 
 @layer base {
@@ -41,7 +43,8 @@
     mix-blend-mode: multiply;
   }
   #root { position: relative; z-index: 1; min-height: 100vh; }
-  h1, h2, h3 { font-family: var(--font-serif); font-weight: 560; letter-spacing: -0.03em; line-height: 1.02; }
+  h1, h2, h3 { font-family: var(--font-serif); font-weight: 560; letter-spacing: -0.03em; line-height: 0.96; }
+  h1 { font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1; }
   a { color: inherit; text-decoration: none; }
   img { max-width: 100%; display: block; }
   button, input, select, textarea { font: inherit; }
@@ -112,6 +115,59 @@
 }
 
 main:has(.bench-editor) + footer { margin-top: 0; }
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.kicker::before {
+  content: "";
+  width: 1.4rem;
+  height: 1px;
+  background: var(--color-copper);
+}
+
+.plate { position: relative; }
+.plate::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0.55rem;
+  z-index: 2;
+  background:
+    linear-gradient(var(--color-copper), var(--color-copper)) left top / 18px 1.5px no-repeat,
+    linear-gradient(var(--color-copper), var(--color-copper)) left top / 1.5px 18px no-repeat,
+    linear-gradient(var(--color-copper), var(--color-copper)) right top / 18px 1.5px no-repeat,
+    linear-gradient(var(--color-copper), var(--color-copper)) right top / 1.5px 18px no-repeat,
+    linear-gradient(var(--color-copper), var(--color-copper)) left bottom / 18px 1.5px no-repeat,
+    linear-gradient(var(--color-copper), var(--color-copper)) left bottom / 1.5px 18px no-repeat,
+    linear-gradient(var(--color-copper), var(--color-copper)) right bottom / 18px 1.5px no-repeat,
+    linear-gradient(var(--color-copper), var(--color-copper)) right bottom / 1.5px 18px no-repeat;
+}
+
+.colophon {
+  margin: 0;
+  padding: 0.02em 0.4rem 0.08em;
+  font-family: var(--font-serif);
+  font-size: clamp(5.5rem, 20vw, 14rem);
+  font-weight: 560;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(196, 137, 74, 0.55);
+}
+
+.stage {
+  background:
+    radial-gradient(520px 280px at 70% 20%, rgba(196, 137, 74, 0.16), transparent 60%),
+    radial-gradient(420px 240px at 10% 80%, rgba(26, 143, 208, 0.18), transparent 55%),
+    #0c1824;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

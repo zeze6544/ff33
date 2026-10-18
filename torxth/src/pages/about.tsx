@@ -7,7 +7,7 @@ export function AboutPage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="grid items-end gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-blue">The shop</p>
+          <p className="kicker text-blue">The shop</p>
           <h1 className="mt-2 text-5xl sm:text-6xl">Torxth Technology</h1>
           <div className="mt-6 max-w-xl space-y-4 text-lg leading-relaxed text-mute">
             <p>
@@ -21,7 +21,7 @@ export function AboutPage() {
             </p>
           </div>
         </div>
-        <img src="/images/service-repair.jpg" alt="Hands fitting a drive at the bench" className="aspect-[4/5] w-full object-cover" />
+        <img src="/images/service-repair.jpg" alt="Hands fitting a drive at the bench" className="plate aspect-[4/5] w-full object-cover" />
       </div>
 
       <dl className="mt-16 grid gap-8 border-t border-rule pt-8 sm:grid-cols-3">
