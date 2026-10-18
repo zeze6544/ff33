@@ -20,7 +20,7 @@ export function BuildTeaser() {
             </p>
             <Link
               to="/build"
-              className="mt-8 inline-flex h-12 items-center gap-2 rounded-md bg-copper px-6 text-base font-semibold text-white transition hover:bg-copper-deep"
+              className="mt-8 inline-flex h-12 items-center gap-2 rounded-md bg-signal px-6 text-base font-semibold text-white transition hover:bg-signal-deep"
             >
               Open configurator
               <ArrowRight className="h-4 w-4" />

@@ -42,7 +42,7 @@ export function ProcessStrip() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.06, duration: 0.45 }}
             >
-              <p className="font-mono text-xs text-copper">{step.n}</p>
+              <p className="font-mono text-xs text-signal">{step.n}</p>
               <h3 className="mt-2 font-display text-xl font-bold text-ink">
                 {step.title}
               </h3>

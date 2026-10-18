@@ -3,23 +3,35 @@ import { company, navLinks } from '../../data/company'
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-line/70 bg-ink text-mist">
+    <footer className="mt-24 border-t border-white/10 bg-ink text-mist circuit-bg">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-3 lg:px-8">
         <div>
-          <p className="font-display text-2xl font-bold tracking-tight text-paper">
-            Torxth Technology
-          </p>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-fog">
+          <div className="flex items-center gap-3">
+            <img
+              src="/images/logo-badge.png"
+              alt=""
+              className="h-14 w-14 rounded-lg object-cover"
+            />
+            <div>
+              <p className="font-display text-2xl font-bold tracking-[0.06em] text-white">
+                TORXTH
+              </p>
+              <p className="text-[0.65rem] font-medium uppercase tracking-[0.32em] text-signal-bright">
+                Technology
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-fog">
             Small computer business in Ferntree Gully — sales, custom builds,
             repairs and upgrades for South East Melbourne.
           </p>
         </div>
 
         <div>
-          <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fog">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal-bright">
             Visit
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-paper">
+          <p className="mt-3 text-sm leading-relaxed text-white">
             {company.address.line1}
             <br />
             {company.address.suburb} {company.address.state}{' '}
@@ -27,14 +39,14 @@ export function Footer() {
           </p>
           <a
             href={company.phoneHref}
-            className="mt-3 inline-block text-sm font-semibold text-copper transition hover:text-paper"
+            className="mt-3 inline-block text-sm font-semibold text-signal-bright transition hover:text-white"
           >
             {company.phone}
           </a>
         </div>
 
         <div>
-          <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fog">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal-bright">
             Explore
           </p>
           <ul className="mt-3 space-y-2">
@@ -42,7 +54,7 @@ export function Footer() {
               <li key={link.to}>
                 <Link
                   to={link.to}
-                  className="text-sm text-fog transition hover:text-paper"
+                  className="text-sm text-fog transition hover:text-white"
                 >
                   {link.label}
                 </Link>
@@ -50,16 +62,8 @@ export function Footer() {
             ))}
             <li>
               <Link
-                to="/build"
-                className="text-sm text-fog transition hover:text-paper"
-              >
-                Build configurator
-              </Link>
-            </li>
-            <li>
-              <Link
                 to="/checkout"
-                className="text-sm text-fog transition hover:text-paper"
+                className="text-sm text-fog transition hover:text-white"
               >
                 Checkout
               </Link>

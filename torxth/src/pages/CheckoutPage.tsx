@@ -53,7 +53,7 @@ export function CheckoutPage() {
         <p className="mt-3 text-steel">Add products from the shop to check out.</p>
         <Link
           to="/shop"
-          className="mt-8 inline-flex h-11 items-center rounded-md bg-copper px-5 text-sm font-semibold text-white"
+          className="mt-8 inline-flex h-11 items-center rounded-md bg-signal px-5 text-sm font-semibold text-white"
         >
           Browse shop
         </Link>

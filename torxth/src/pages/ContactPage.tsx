@@ -36,7 +36,7 @@ export function ContactPage() {
                 <dd className="mt-1">
                   <a
                     href={company.phoneHref}
-                    className="font-display text-2xl font-bold text-ink hover:text-copper"
+                    className="font-display text-2xl font-bold text-ink hover:text-signal"
                   >
                     {company.phone}
                   </a>

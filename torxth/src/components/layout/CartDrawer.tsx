@@ -44,7 +44,7 @@ export function CartDrawer() {
               <Link
                 to="/shop"
                 onClick={closeCart}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-copper px-5 text-sm font-semibold text-white hover:bg-copper-deep"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-signal px-5 text-sm font-semibold text-white hover:bg-signal-deep"
               >
                 Browse the shop
               </Link>
@@ -72,7 +72,7 @@ export function CartDrawer() {
                       </Link>
                       <button
                         type="button"
-                        className="text-steel hover:text-copper"
+                        className="text-steel hover:text-signal"
                         aria-label={`Remove ${product.name}`}
                         onClick={() => removeItem(product.id)}
                       >

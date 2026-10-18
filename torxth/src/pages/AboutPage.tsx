@@ -102,14 +102,14 @@ export function AboutPage() {
             {company.address.full}
             <br />
             Phone:{' '}
-            <a href={company.phoneHref} className="text-copper hover:underline">
+            <a href={company.phoneHref} className="text-signal hover:underline">
               {company.phone}
             </a>
           </p>
           <p className="mt-4 max-w-xl text-sm text-fog">{company.hoursNote}</p>
           <Link
             to="/contact"
-            className="mt-6 inline-flex h-11 items-center rounded-md bg-copper px-5 text-sm font-semibold text-white hover:bg-copper-deep"
+            className="mt-6 inline-flex h-11 items-center rounded-md bg-signal px-5 text-sm font-semibold text-white hover:bg-signal-deep"
           >
             Contact Torxth
           </Link>

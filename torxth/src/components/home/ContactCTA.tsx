@@ -14,7 +14,7 @@ export function ContactCTA() {
           }}
         />
         <div className="relative max-w-2xl">
-          <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fog">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal-bright">
             Visit or call
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
@@ -26,7 +26,7 @@ export function ContactCTA() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/contact"
-              className="inline-flex h-11 items-center rounded-md bg-copper px-5 text-sm font-semibold text-white hover:bg-copper-deep"
+              className="inline-flex h-11 items-center rounded-md bg-signal px-5 text-sm font-semibold text-white hover:bg-signal-deep"
             >
               Get in touch
             </Link>

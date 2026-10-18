@@ -1,23 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
-  --font-sans: "Source Sans 3", system-ui, sans-serif;
+  --font-display: "Rajdhani", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  --color-ink: #0b2e28;
-  --color-ink-soft: #163f37;
-  --color-forest: #1f4d43;
-  --color-mist: #e7eee9;
-  --color-mist-deep: #d5e0d8;
-  --color-paper: #f4f7f4;
-  --color-fog: #c8d5cc;
-  --color-copper: #d4784a;
-  --color-copper-deep: #b85f35;
-  --color-clay: #a86b52;
-  --color-steel: #5a6b66;
-  --color-line: #b7c5bc;
+  /* Torxth logo palette: navy + circuit blue */
+  --color-ink: #102030;
+  --color-ink-soft: #182841;
+  --color-navy: #182139;
+  --color-forest: #1a3a55;
+  --color-mist: #e8eef4;
+  --color-mist-deep: #d4dde8;
+  --color-paper: #f2f5f9;
+  --color-fog: #8fa3b8;
+  --color-signal: #0070b0;
+  --color-signal-deep: #005a8f;
+  --color-signal-bright: #1a8fd0;
+  --color-steel: #5a6d80;
+  --color-line: #c5d0dc;
   --color-white: #ffffff;
+  --color-copper: #0070b0;
+  --color-copper-deep: #005a8f;
 }
 
 @layer base {
@@ -37,9 +41,9 @@
     font-family: var(--font-sans);
     color: var(--color-ink);
     background:
-      radial-gradient(1200px 600px at 10% -10%, rgba(212, 120, 74, 0.08), transparent 55%),
-      radial-gradient(900px 500px at 90% 0%, rgba(31, 77, 67, 0.1), transparent 50%),
-      linear-gradient(180deg, #eef3ef 0%, var(--color-paper) 38%, #e9f0eb 100%);
+      radial-gradient(1100px 560px at 8% -8%, rgba(0, 112, 176, 0.12), transparent 55%),
+      radial-gradient(900px 500px at 92% 0%, rgba(16, 32, 48, 0.08), transparent 50%),
+      linear-gradient(180deg, #eef3f8 0%, var(--color-paper) 40%, #e8eef4 100%);
     background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -51,12 +55,12 @@
     position: fixed;
     inset: 0;
     z-index: 0;
-    opacity: 0.35;
+    opacity: 0.4;
     background-image:
-      linear-gradient(rgba(11, 46, 40, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(11, 46, 40, 0.03) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+      linear-gradient(rgba(0, 112, 176, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 112, 176, 0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse at center, black 15%, transparent 72%);
   }
 
   #root {
@@ -71,7 +75,7 @@
   h4 {
     font-family: var(--font-display);
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     line-height: 1.05;
   }
 
@@ -86,12 +90,12 @@
   }
 
   ::selection {
-    background: rgba(212, 120, 74, 0.28);
+    background: rgba(0, 112, 176, 0.28);
     color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-copper);
+    outline: 2px solid var(--color-signal);
     outline-offset: 3px;
   }
 }
@@ -122,6 +126,14 @@
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+
+  .circuit-bg {
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0, 112, 176, 0.15), transparent 28%),
+      linear-gradient(rgba(0, 112, 176, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 112, 176, 0.08) 1px, transparent 1px);
+    background-size: auto, 36px 36px, 36px 36px;
+  }
 }
 
 @keyframes rise-in {
@@ -145,12 +157,13 @@
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: 0% 50%;
-  }
+@keyframes node-pulse {
+  0%,
   100% {
-    background-position: 100% 50%;
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
@@ -162,6 +175,6 @@
   animation: drift 7s ease-in-out infinite;
 }
 
-.hero-mask {
-  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+.animate-node {
+  animation: node-pulse 3.2s ease-in-out infinite;
 }

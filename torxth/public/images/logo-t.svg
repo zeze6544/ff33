@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 130" fill="none">
+  <!-- Outer circuit T -->
+  <path d="M12 18 H108" stroke="#0070B0" stroke-width="7" stroke-linecap="round"/>
+  <path d="M60 18 V112" stroke="#0070B0" stroke-width="7" stroke-linecap="round"/>
+  <!-- Inner parallel traces -->
+  <path d="M28 18 V42" stroke="#0070B0" stroke-width="5" stroke-linecap="round"/>
+  <path d="M92 18 V42" stroke="#0070B0" stroke-width="5" stroke-linecap="round"/>
+  <path d="M60 58 H92" stroke="#0070B0" stroke-width="5" stroke-linecap="round"/>
+  <path d="M44 18 H76" stroke="#1A8FD0" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+  <path d="M60 34 V96" stroke="#1A8FD0" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+  <!-- Nodes -->
+  <circle cx="12" cy="18" r="6" fill="#1A8FD0"/>
+  <circle cx="60" cy="18" r="6" fill="#1A8FD0"/>
+  <circle cx="108" cy="18" r="6" fill="#1A8FD0"/>
+  <circle cx="28" cy="42" r="5" fill="#1A8FD0"/>
+  <circle cx="92" cy="42" r="5" fill="#1A8FD0"/>
+  <circle cx="92" cy="58" r="5" fill="#1A8FD0"/>
+  <circle cx="60" cy="112" r="6" fill="#1A8FD0"/>
+</svg>

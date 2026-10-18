@@ -37,7 +37,7 @@ export function FaqSection() {
                   </span>
                   <span
                     className={cn(
-                      'mt-1 font-mono text-sm text-copper transition-transform',
+                      'mt-1 font-mono text-sm text-signal transition-transform',
                       isOpen && 'rotate-45',
                     )}
                     aria-hidden

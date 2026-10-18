@@ -59,7 +59,7 @@ export function ServicesPage() {
                   {service.highlights.map((item) => (
                     <li
                       key={item}
-                      className="flex gap-3 text-sm text-ink before:mt-2 before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-copper before:content-['']"
+                      className="flex gap-3 text-sm text-ink before:mt-2 before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-signal before:content-['']"
                     >
                       {item}
                     </li>

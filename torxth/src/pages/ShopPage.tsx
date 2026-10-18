@@ -145,7 +145,7 @@ export function ShopPage() {
                   step={50}
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-copper"
+                  className="w-full accent-signal"
                 />
               </label>
             </div>

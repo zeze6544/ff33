@@ -30,7 +30,7 @@ export function ServicesStrip() {
           >
             <Link
               to="/services"
-              className="block border-t border-line pt-6 transition hover:border-copper"
+              className="block border-t border-line pt-6 transition hover:border-signal"
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="font-display text-xl font-bold text-ink">

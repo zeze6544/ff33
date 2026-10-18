@@ -34,7 +34,7 @@ export function FeaturedShop() {
           </div>
           <Link
             to="/shop"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-ink transition hover:text-copper"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-ink transition hover:text-signal"
           >
             View all products
             <ArrowRight className="h-4 w-4" />

@@ -128,7 +128,7 @@ export function BuildPage() {
                         className={cn(
                           'flex w-full items-center justify-between gap-4 rounded-md border px-4 py-3 text-left transition',
                           active
-                            ? 'border-copper bg-copper/10'
+                            ? 'border-signal bg-signal/10'
                             : 'border-line bg-white/50 hover:border-ink/40',
                         )}
                       >
@@ -189,7 +189,7 @@ export function BuildPage() {
               {sent ? (
                 <div className="mt-6 rounded-md bg-paper/10 px-4 py-4 text-sm text-mist">
                   Build brief received. We will confirm parts and timing — or call{' '}
-                  <a href={company.phoneHref} className="font-semibold text-copper">
+                  <a href={company.phoneHref} className="font-semibold text-signal">
                     {company.phone}
                   </a>{' '}
                   if you need it sooner.
