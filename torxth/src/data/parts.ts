@@ -341,7 +341,7 @@ export const catalog: CatalogPart[] = [
     blurb: 'Two sticks, EXPO, no light show. What we fit unless you ask for more.',
     gb: 32,
     sticks: 2,
-    color: '#2a2926',
+    color: '#1b1c1e',
     glow: false,
   },
   {

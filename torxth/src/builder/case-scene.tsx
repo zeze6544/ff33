@@ -74,32 +74,42 @@ function meshTexture(light: boolean, fine: boolean) {
   })
 }
 
-function boardTexture(intel: boolean) {
+function boardTexture(intel: boolean, lightBoard = false) {
   return paint(512, 640, (g) => {
-    g.fillStyle = '#1a2420'
+    g.fillStyle = lightBoard ? '#c9ccd1' : intel ? '#191a1c' : '#131c16'
     g.fillRect(0, 0, 512, 640)
-    g.strokeStyle = intel ? '#6a5a28' : '#2f6a48'
-    g.lineWidth = 1.2
-    for (let i = 0; i < 24; i++) {
+    g.strokeStyle = lightBoard ? 'rgba(88,104,124,0.5)' : intel ? 'rgba(150,120,50,0.5)' : 'rgba(64,125,88,0.5)'
+    g.lineWidth = 1
+    for (let i = 0; i < 18; i++) {
       g.beginPath()
-      const y = 30 + i * 24
-      g.moveTo(18, y)
-      g.lineTo(200, y + (i % 2 ? 10 : -8))
-      g.lineTo(490, y)
+      const y = 26 + i * 34
+      g.moveTo(14, y)
+      g.lineTo(180 + (i % 4) * 22, y + (i % 2 ? 9 : -7))
+      g.lineTo(498, y + (i % 3 ? 4 : -5))
       g.stroke()
     }
-    g.fillStyle = '#0e1012'
-    g.fillRect(180, 150, 120, 120)
-    g.strokeStyle = intel ? '#c6a15a' : '#b08a5a'
-    g.lineWidth = 5
-    g.strokeRect(188, 158, 104, 104)
-    if (intel) {
-      g.fillStyle = '#c6a15a'
-      g.fillRect(40, 40, 90, 8)
+    g.strokeStyle = lightBoard ? 'rgba(120,135,155,0.55)' : intel ? 'rgba(198,161,90,0.5)' : 'rgba(120,190,150,0.4)'
+    for (let i = 0; i < 12; i++) {
+      g.beginPath()
+      g.moveTo(30 + i * 8, 470)
+      g.lineTo(120 + i * 8, 560 + (i % 3) * 12)
+      g.stroke()
     }
-    g.fillStyle = '#1a1e22'
-    g.fillRect(360, 80, 70, 200)
-    g.fillRect(40, 430, 160, 50)
+    g.fillStyle = lightBoard ? '#a8adb5' : '#0b0d0f'
+    g.fillRect(176, 148, 128, 128)
+    g.strokeStyle = intel ? '#c6a15a' : '#c9a06a'
+    g.lineWidth = 6
+    g.strokeRect(186, 158, 108, 108)
+    g.fillStyle = lightBoard ? 'rgba(40,48,58,0.7)' : 'rgba(230,235,240,0.75)'
+    for (let i = 0; i < 26; i++) {
+      g.fillRect(24 + ((i * 67) % 440), 24 + ((i * 89) % 580), i % 4 === 0 ? 10 : 5, 3)
+    }
+    g.fillStyle = lightBoard ? '#9ba1a9' : '#0d0f11'
+    g.fillRect(356, 70, 76, 230)
+    g.fillRect(36, 420, 170, 54)
+    g.fillStyle = intel ? '#c6a15a' : '#8a6a3c'
+    g.fillRect(36, 420, 170, 7)
+    g.fillRect(356, 70, 76, 7)
   })
 }
 
@@ -358,7 +368,7 @@ function GlassDoor({ open, box }: { open: boolean; box: Chassis }) {
     <group ref={ref} position={[restX, 0, 0]}>
       <mesh>
         <boxGeometry args={[0.006, gh, gd]} />
-        <meshStandardMaterial color="#e7eef4" transparent opacity={0.1} roughness={0.04} depthWrite={false} />
+        <meshStandardMaterial color="#dfe9f2" transparent opacity={0.13} roughness={0.05} depthWrite={false} />
       </mesh>
       {(
         [
@@ -370,7 +380,7 @@ function GlassDoor({ open, box }: { open: boolean; box: Chassis }) {
       ).map((bar, i) => (
         <mesh key={i} position={[0.004, bar[1], bar[2]]}>
           <boxGeometry args={[0.006, bar[3], bar[4]]} />
-          <meshStandardMaterial color="#d5dde4" metalness={0.7} roughness={0.25} />
+          <meshStandardMaterial color="#23282f" metalness={0.65} roughness={0.3} />
         </mesh>
       ))}
     </group>
@@ -388,20 +398,28 @@ function Front({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
   const fw = box.w - 0.04
   const fh = box.h - 0.1
   if (look.front === 'wood') {
-    const slats = look.caseId === 'north-xl' ? 9 : 7
+    const slats = look.caseId === 'north-xl' ? 11 : 9
     return (
       <group position={[0, 0, box.d / 2 - 0.012]}>
         <mesh {...onCase}>
           <boxGeometry args={[fw, fh, 0.008]} />
           <meshStandardMaterial map={mesh} color="#14120f" roughness={0.82} metalness={0.18} />
         </mesh>
-        {walnut.slice(0, slats).map((color, i) => (
-          <group key={color} position={[0, -fh / 2 + 0.04 + i * ((fh - 0.06) / slats), 0.014]} rotation={[0.42, 0, 0]}>
-            <RoundedBox args={[fw - 0.02, 0.018, 0.012]} radius={0.003} {...onCase}>
-              <meshPhysicalMaterial map={grain} color={color} roughness={0.55} clearcoat={0.18} clearcoatRoughness={0.45} bumpMap={grain} bumpScale={0.02} />
+        {Array.from({ length: slats }, (_, i) => {
+          const color = walnut[i % walnut.length]
+          const x = -fw / 2 + 0.016 + i * ((fw - 0.032) / (slats - 1))
+          return (
+            <RoundedBox
+              key={i}
+              args={[0.011, fh - 0.03, 0.014]}
+              radius={0.003}
+              position={[x, 0, 0.013]}
+              {...onCase}
+            >
+              <meshPhysicalMaterial map={grain} color={color} roughness={0.5} clearcoat={0.22} clearcoatRoughness={0.4} bumpMap={grain} bumpScale={0.015} />
             </RoundedBox>
-          </group>
-        ))}
+          )
+        })}
       </group>
     )
   }
@@ -498,6 +516,22 @@ function Shell({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
         </mesh>
       ))}
       <Front box={box} look={look} onCase={onCase} />
+      <group position={[box.w * 0.22, box.h / 2 + 0.008, box.d / 2 - 0.055]} {...onCase}>
+        <mesh rotation={[0, 0, 0]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.003, 20]} />
+          <meshPhysicalMaterial color={edge} metalness={0.75} roughness={0.25} clearcoat={0.4} />
+        </mesh>
+        <mesh position={[0, 0.001, 0]}>
+          <cylinderGeometry args={[0.0035, 0.0035, 0.0035, 12]} />
+          <meshStandardMaterial color="#0c0e10" roughness={0.5} emissive="#9fd8ff" emissiveIntensity={0.35} />
+        </mesh>
+      </group>
+      {[-0.028, 0.028].map((x) => (
+        <mesh key={x} position={[x, box.h / 2 + 0.0075, box.d / 2 - 0.055]} {...onCase}>
+          <boxGeometry args={[0.032, 0.0025, 0.011]} />
+          <meshStandardMaterial color="#0a0c0e" roughness={0.6} metalness={0.3} />
+        </mesh>
+      ))}
     </group>
   )
 }
@@ -516,13 +550,118 @@ function Graphics({
   const style = gpuPaint(look.gpuId)
   const length = Math.min((look.gpuMm / 450) * box.d, box.d * 0.92)
   const vertical = look.caseId === 'y70'
-  const y = -box.h / 2 + 0.1 + style.thick * 0.15
-  const z = -box.d / 2 + 0.06 + length / 2
   const poke = look.gpuMm > look.gpuMax
+  if (!vertical) {
+    const cardH = look.gpuId === 'astral' ? 0.124 : look.gpuId === '5080' || look.gpuId === '5090' ? 0.112 : 0.104
+    const cy = -box.h / 2 + 0.208
+    const cz = -box.d / 2 + 0.055 + length / 2
+    const cx = -box.w / 2 + 0.02 + cardH / 2
+    return (
+      <group position={[cx, cy, cz]} {...onPick}>
+        <RoundedBox args={[cardH - 0.006, 0.005, length - 0.004]} position={[0, style.thick / 2 - 0.002, 0]} radius={0.002}>
+          <meshPhysicalMaterial
+            color={style.cross ? style.shroud : '#17191d'}
+            metalness={style.cross ? 0.78 : 0.62}
+            roughness={style.cross ? 0.3 : 0.36}
+            clearcoat={0.4}
+            clearcoatRoughness={0.3}
+            emissive={poke ? '#5a3a28' : '#000000'}
+            emissiveIntensity={poke ? 0.3 : 0}
+          />
+        </RoundedBox>
+        <mesh position={[-cardH * 0.22, style.thick * 0.16, 0]}>
+          <boxGeometry args={[cardH * 0.5, 0.003, length - 0.016]} />
+          <meshStandardMaterial color="#12291b" roughness={0.85} />
+        </mesh>
+        <RoundedBox args={[cardH - 0.01, style.thick * 0.78, length - 0.01]} position={[0, -0.002, 0.002]} radius={0.007} castShadow>
+          <meshPhysicalMaterial color={style.shroud} metalness={style.metal} roughness={style.rough} clearcoat={style.cross ? 0.5 : 0.22} clearcoatRoughness={0.3} envMapIntensity={1} />
+        </RoundedBox>
+        <mesh position={[cardH / 2 - 0.002, 0, 0]}>
+          <boxGeometry args={[0.004, style.thick * 0.6, length - 0.014]} />
+          <meshPhysicalMaterial color={style.cross ? '#c9ced4' : '#22262c'} metalness={0.7} roughness={0.3} clearcoat={0.3} />
+        </mesh>
+        {Array.from({ length: 6 }, (_, i) => (
+          <mesh key={i} position={[cardH / 2 + 0.0005, 0.004, -length * 0.36 + i * length * 0.13]}>
+            <boxGeometry args={[0.0016, style.thick * 0.42, 0.006]} />
+            <meshStandardMaterial color="#0c0e10" roughness={0.7} />
+          </mesh>
+        ))}
+        {style.cross ? (
+          <group position={[0, style.thick / 2 + 0.003, length * 0.27]} rotation={[0, 0, Math.PI / 2]}>
+            <Rotor radius={0.037} blade={style.blade} ring={style.ring} hub={style.hub} cross spinning={spinning} speed={1.4} />
+          </group>
+        ) : (
+          <group position={[0, style.thick / 2 + 0.0012, length * 0.27]}>
+            <mesh>
+              <boxGeometry args={[cardH * 0.6, 0.0016, length * 0.2]} />
+              <meshStandardMaterial color="#0e1013" metalness={0.4} roughness={0.5} />
+            </mesh>
+            {Array.from({ length: 4 }, (_, i) => (
+              <mesh key={i} position={[0, 0.0008, -length * 0.07 + i * length * 0.045]}>
+                <boxGeometry args={[cardH * 0.56, 0.0012, 0.004]} />
+                <meshStandardMaterial color="#3c434b" metalness={0.6} roughness={0.35} />
+              </mesh>
+            ))}
+          </group>
+        )}
+        <mesh position={[cardH * 0.18, style.thick / 2 + 0.001, 0]}>
+          <boxGeometry args={[0.0018, 0.002, length * 0.6]} />
+          <meshStandardMaterial color={style.accent} roughness={0.4} metalness={0.3} emissive={style.accent} emissiveIntensity={look.gpuId === 'astral' ? 0.4 : 0} />
+        </mesh>
+        <group position={[0, 0.01, -length / 2 - 0.002]}>
+          <mesh>
+            <boxGeometry args={[cardH - 0.02, 0.088, 0.004]} />
+            <meshPhysicalMaterial color="#c5ced6" metalness={0.82} roughness={0.24} clearcoat={0.3} />
+          </mesh>
+          {[-0.02, 0.018].map((yy) => (
+            <mesh key={yy} position={[0.004, yy, -0.003]}>
+              <boxGeometry args={[cardH * 0.52, 0.013, 0.002]} />
+              <meshStandardMaterial color="#0a0c0e" roughness={0.7} />
+            </mesh>
+          ))}
+        </group>
+        {Array.from({ length: 4 }, (_, i) => (
+          <mesh key={i} position={[cardH * 0.28, style.thick / 2 + 0.004, -length * 0.32 + i * length * 0.2]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.0032, 0.0032, 0.003, 8]} />
+            <meshStandardMaterial color="#aeb6be" metalness={0.82} roughness={0.24} />
+          </mesh>
+        ))}
+        <mesh position={[0.008, style.thick / 2 + 0.007, length * 0.14]}>
+          <boxGeometry args={[0.02, 0.01, 0.03]} />
+          <meshStandardMaterial color="#0e1012" metalness={0.3} roughness={0.5} />
+        </mesh>
+        <Tube from={[0.008, style.thick / 2 + 0.012, length * 0.14]} to={[-cardH / 2 + 0.014, 0.125, length * 0.38]} radius={0.0046} bend={0.01} />
+        <Tube from={[0.014, style.thick / 2 + 0.012, length * 0.12]} to={[-cardH / 2 + 0.02, 0.122, length * 0.37]} radius={0.0046} bend={0.01} />
+        {look.gpuMm > 280 && (
+          <mesh position={[0.012, -(style.thick / 2 + 0.046), length / 2 - 0.024]}>
+            <boxGeometry args={[0.012, 0.092, 0.01]} />
+            <meshStandardMaterial color="#14171b" metalness={0.55} roughness={0.4} />
+          </mesh>
+        )}
+        {Array.from({ length: style.fans }, (_, i) => {
+          const radius = Math.min(0.041, (length / style.fans) * 0.31)
+          const zFan = -length / 2 + length * ((i + 1) / (style.fans + 1))
+          return (
+            <group key={i} position={[0, -style.thick / 2 - 0.004, zFan]} rotation={[0, 0, -Math.PI / 2]}>
+              <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.01, 0, 0]}>
+                <circleGeometry args={[radius * 1.05, 40]} />
+                <meshStandardMaterial color="#060708" roughness={0.95} />
+              </mesh>
+              <mesh rotation={[0, Math.PI / 2, 0]} position={[0.006, 0, 0]}>
+                <torusGeometry args={[radius * 1.06, 0.005, 10, 42]} />
+                <meshPhysicalMaterial color={style.shroud} metalness={Math.min(0.85, style.metal + 0.15)} roughness={0.28} clearcoat={0.3} />
+              </mesh>
+              <Rotor radius={radius} blade={style.blade} ring={style.ring} hub={style.hub} cross={style.cross} spinning={spinning} speed={1.4 + i * 0.1} />
+            </group>
+          )
+        })}
+      </group>
+    )
+  }
   return (
     <group
-      position={vertical ? [box.w / 2 - style.thick / 2 - 0.03, 0.01, 0.02] : [box.w / 2 - style.thick / 2 - 0.04, y, z]}
-      rotation={vertical ? [Math.PI / 2, 0, 0] : [0, 0, 0]}
+      position={[box.w / 2 - style.thick / 2 - 0.03, 0.01, 0.02]}
+      rotation={[Math.PI / 2, 0, 0]}
       {...onPick}
     >
       <RoundedBox args={[0.007, 0.112, length]} position={[-style.thick / 2 + 0.001, 0, 0]} radius={0.002}>
@@ -571,8 +710,15 @@ function Graphics({
             <boxGeometry args={[0.016, 0.012, 0.028]} />
             <meshStandardMaterial color="#0e1012" metalness={0.3} roughness={0.5} />
           </mesh>
-          <Tube from={[0, 0.064, length * 0.12]} to={[-0.02, 0.14, length * 0.02]} />
+          <Tube from={[0, 0.064, length * 0.12]} to={[-0.055, 0.1, length * 0.34]} radius={0.0058} bend={0.018} />
+          <Tube from={[0.004, 0.064, length * 0.1]} to={[-0.051, 0.098, length * 0.33]} radius={0.0058} bend={0.018} />
         </>
+      )}
+      {!vertical && look.gpuMm > 280 && (
+        <mesh position={[0.004, -0.078, length / 2 - 0.024]}>
+          <boxGeometry args={[0.012, 0.052, 0.01]} />
+          <meshStandardMaterial color="#15181c" metalness={0.55} roughness={0.4} />
+        </mesh>
       )}
       {Array.from({ length: style.fans }, (_, i) => {
         const radius = Math.min(0.038, (length / style.fans) * 0.3)
@@ -620,49 +766,51 @@ function Cooler({
   const tall = look.airTooTall ? 0.07 : 0
   if (!look.liquid) {
     const fanCount = look.coolId === 'd15' ? 2 : 1
+    const towerZ: [number, number][] = [
+      [-0.042, 0.03],
+      [0.038, 0.03],
+    ]
     return (
-      <group position={[-box.w * 0.08, 0.02 + tall, -0.02]} {...onPick}>
-        {[-0.045, 0.04].map((z) => (
-          <group key={z} position={[0, 0.02, z]}>
-            {Array.from({ length: 18 }, (_, i) => (
-              <mesh key={i} position={[0, (i - 9) * 0.0054, 0]}>
-                <boxGeometry args={[0.052, 0.0016, 0.068]} />
-                <meshPhysicalMaterial color={fin} metalness={black ? 0.45 : 0.78} roughness={0.28} clearcoat={black ? 0 : 0.15} />
+      <group position={[-box.w / 2 + 0.055, 0.03 + tall, -0.03]} {...onPick}>
+        {towerZ.map(([zc, thick]) => (
+          <group key={zc} position={[0, 0, zc]}>
+            {Array.from({ length: 16 }, (_, i) => (
+              <mesh key={i} position={[0, -0.052 + i * 0.0069, 0]}>
+                <boxGeometry args={[0.056, 0.0015, thick]} />
+                <meshPhysicalMaterial color={fin} metalness={black ? 0.45 : 0.8} roughness={0.3} clearcoat={black ? 0 : 0.12} />
               </mesh>
             ))}
+            <mesh position={[0, 0.058, 0]}>
+              <boxGeometry args={[0.058, 0.006, thick + 0.004]} />
+              <meshPhysicalMaterial color={black ? '#17191c' : '#d3d9df'} metalness={black ? 0.4 : 0.75} roughness={0.3} />
+            </mesh>
           </group>
         ))}
-        {[-0.08, 0.078].map((z) => (
-          <mesh key={z} position={[0, 0.02, z]}>
-            <boxGeometry args={[0.05, 0.1, 0.003]} />
-            <meshPhysicalMaterial color={fin} metalness={black ? 0.4 : 0.72} roughness={0.3} />
-          </mesh>
-        ))}
-        {[-0.018, 0.018].map((z) => (
-          <mesh key={z} position={[0.002, 0.078, z]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.004, 0.004, 0.012, 10]} />
-            <meshStandardMaterial color="#b87333" metalness={0.85} roughness={0.22} />
-          </mesh>
-        ))}
         {Array.from({ length: fanCount }, (_, i) => (
-          <group key={i} position={[0.03, 0.02, i === 0 ? -0.005 : 0.07]} rotation={[0, -Math.PI / 2, 0]}>
+          <group key={i} position={[0.004, 0, i === 0 ? 0.082 : 0.002]} rotation={[0, -Math.PI / 2, 0]}>
             <SquareFan
-              size={0.12}
-              frame={black ? '#1a1c1f' : '#c5ccd2'}
-              blade={black ? '#4a525a' : '#3e474f'}
+              size={0.118}
+              frame={black ? '#141518' : '#2b2f34'}
+              blade={black ? '#454d55' : '#9aa6b0'}
               glow={null}
               spinning={spinning}
             />
           </group>
         ))}
-        <mesh position={[0, -0.045, 0]}>
-          <boxGeometry args={[0.06, 0.012, 0.1]} />
-          <meshStandardMaterial color="#a56b3c" metalness={0.8} roughness={0.28} />
+        <mesh position={[0, -0.062, -0.002]}>
+          <boxGeometry args={[0.062, 0.014, 0.104]} />
+          <meshStandardMaterial color="#a56b3c" metalness={0.85} roughness={0.25} />
         </mesh>
-        {[-0.015, 0.015].map((z) => (
-          <mesh key={z} position={[0, -0.01, z]}>
-            <cylinderGeometry args={[0.004, 0.004, 0.08, 8]} />
-            <meshStandardMaterial color={black ? '#3a3e44' : '#b87333'} metalness={0.8} roughness={0.25} />
+        {[-0.024, -0.008, 0.008, 0.024].map((z) => (
+          <mesh key={z} position={[0.012, -0.028, z]}>
+            <cylinderGeometry args={[0.0035, 0.0035, 0.07, 8]} />
+            <meshStandardMaterial color={black ? '#3a3e44' : '#b87333'} metalness={0.85} roughness={0.22} />
+          </mesh>
+        ))}
+        {[-0.036, 0.036].map((x) => (
+          <mesh key={x} position={[x * 0.4, 0.064, -0.002]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.0038, 0.0038, 0.014, 10]} />
+            <meshStandardMaterial color="#b87333" metalness={0.85} roughness={0.22} />
           </mesh>
         ))}
       </group>
@@ -672,32 +820,36 @@ function Cooler({
   const span = count === 2 ? 0.2 : 0.3
   return (
     <group {...onPick}>
-      <group position={[-box.w * 0.05, -0.02, -0.02]}>
-        <mesh rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.034, 0.034, 0.028, 32]} />
-          <meshStandardMaterial color="#1a1e22" metalness={0.6} roughness={0.35} />
+      <group position={[-box.w / 2 + 0.048, 0.0, -0.03]}>
+        <RoundedBox args={[0.034, 0.064, 0.064]} radius={0.006}>
+          <meshPhysicalMaterial color="#15181c" metalness={0.6} roughness={0.32} clearcoat={0.4} clearcoatRoughness={0.3} />
+        </RoundedBox>
+        <mesh position={[0.018, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <torusGeometry args={[0.021, 0.0026, 10, 36]} />
+          <meshStandardMaterial color="#d7dde4" metalness={0.6} roughness={0.3} emissive="#cfe8ff" emissiveIntensity={0.22} />
         </mesh>
-        <group position={[0.03, 0.02, 0.03]}>
-          <SquareFan size={0.055} frame="#2a3036" blade="#4a545e" glow={null} spinning={spinning} />
-        </group>
+        <mesh position={[0.018, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.011, 0.011, 0.004, 24]} />
+          <meshPhysicalMaterial color="#0b0d10" metalness={0.5} roughness={0.3} clearcoat={0.5} />
+        </mesh>
       </group>
-      <mesh position={[0, box.h / 2 - 0.045, 0]}>
-        <boxGeometry args={[0.028, 0.026, span]} />
-        <meshPhysicalMaterial color="#242a30" metalness={0.62} roughness={0.34} />
+      <mesh position={[0, box.h / 2 - 0.038, 0]}>
+        <boxGeometry args={[0.118, 0.027, span + 0.03]} />
+        <meshPhysicalMaterial color="#22272e" metalness={0.62} roughness={0.34} />
       </mesh>
       {Array.from({ length: count * 10 }, (_, i) => (
-        <mesh key={i} position={[0.012, box.h / 2 - 0.045, -span / 2 + (i + 0.5) * (span / (count * 10))]}>
-          <boxGeometry args={[0.004, 0.02, 0.0012]} />
-          <meshStandardMaterial color="#3a424a" metalness={0.5} roughness={0.4} />
+        <mesh key={i} position={[0, box.h / 2 - 0.043, -span / 2 + (i + 0.5) * (span / (count * 10))]}>
+          <boxGeometry args={[0.104, 0.019, 0.0012]} />
+          <meshStandardMaterial color="#39424c" metalness={0.5} roughness={0.4} />
         </mesh>
       ))}
       {Array.from({ length: count }, (_, i) => (
-        <group key={i} position={[0.02, box.h / 2 - 0.07, -span / 2 + (i + 0.5) * (span / count)]} rotation={[Math.PI / 2, 0, 0]}>
-          <SquareFan size={0.09} frame="#23282e" blade="#59636e" glow={null} spinning={spinning} />
+        <group key={i} position={[0.005, box.h / 2 - 0.07, -span / 2 + (i + 0.5) * (span / count)]} rotation={[0, 0, -Math.PI / 2]}>
+          <SquareFan size={0.098} frame="#20242a" blade="#59636e" glow={null} spinning={spinning} />
         </group>
       ))}
-      <Tube from={[-box.w * 0.02, 0.01, 0]} to={[0, box.h / 2 - 0.06, -span * 0.25]} />
-      <Tube from={[-box.w * 0.02, 0.0, -0.03]} to={[0, box.h / 2 - 0.06, span * 0.25]} />
+      <Tube from={[-box.w / 2 + 0.058, 0.03, -0.014]} to={[-0.014, box.h / 2 - 0.066, span * 0.34]} radius={0.0062} bend={0.012} />
+      <Tube from={[-box.w / 2 + 0.05, 0.02, -0.038]} to={[-0.014, box.h / 2 - 0.066, span * 0.2]} radius={0.0062} bend={0.006} />
     </group>
   )
 }
@@ -711,7 +863,7 @@ function Memory({ look, box, onPick }: { look: Look; box: Chassis; onPick: Retur
         <group key={i} position={[-box.w / 2 + 0.055, -box.h * 0.08 + tall / 2, 0.11 + i * 0.02]}>
           <mesh>
             <boxGeometry args={[0.012, tall - 0.006, 0.014]} />
-            <meshStandardMaterial color={look.ram} metalness={0.45} roughness={0.4} />
+            <meshStandardMaterial color={look.ram} metalness={0.25} roughness={0.55} />
           </mesh>
           <mesh position={[0, tall / 2 - 0.004, 0]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.007, 0.007, 0.012, 10]} />
@@ -762,14 +914,14 @@ function Tube({
   }, [from, to, radius, bend])
   return (
     <mesh geometry={geom}>
-      <meshBasicMaterial color="#2a2622" />
+      <meshStandardMaterial color="#191b1e" metalness={0.15} roughness={0.55} />
     </mesh>
   )
 }
 
 function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSlot: PickSlot; open: boolean; motion: boolean }) {
   const box = chassisOf(look.caseId)
-  const board = useMemo(() => boardTexture(look.socket === 'LGA1851'), [look.socket])
+  const board = useMemo(() => boardTexture(look.socket === 'LGA1851', look.light), [look.socket, look.light])
   const pick = (name: Slot) => handlers(name, onSlot)
   const fan = look.fanId === 'noctua'
     ? { frame: '#4a372c', blade: '#6b5344', glow: null as string | null }
@@ -782,12 +934,46 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
   return (
     <group>
       <Shell box={box} look={look} onCase={pick('case')} />
-      <mesh position={[-box.w / 2 + 0.012, 0.01, 0]} rotation={[0, Math.PI / 2, 0]} {...pick('cpu')}>
-        <planeGeometry args={[box.d * 0.72, box.h * 0.7]} />
-        <meshStandardMaterial map={board} roughness={0.9} />
+      <mesh position={[-box.w / 2 + 0.007, 0, 0]}>
+        <boxGeometry args={[0.006, box.h - 0.035, box.d - 0.025]} />
+        <meshStandardMaterial color={look.light ? '#ddd6ca' : '#12171d'} metalness={0.35} roughness={0.62} />
       </mesh>
-      <mesh position={[-box.w / 2 + 0.02, 0.08, -0.08]} {...pick('cpu')}>
-        <boxGeometry args={[0.018, 0.1, 0.14]} />
+      <mesh position={[-box.w / 2 + 0.013, 0.015, -0.015]} rotation={[0, Math.PI / 2, 0]} {...pick('cpu')}>
+        <planeGeometry args={[box.d * 0.68, box.h * 0.64]} />
+        <meshStandardMaterial map={board} roughness={0.88} metalness={0.08} />
+      </mesh>
+      <group position={[-box.w / 2 + 0.017, 0.01, box.d * 0.235]}>
+        <mesh>
+          <boxGeometry args={[0.012, box.h * 0.58, 0.034]} />
+          <meshStandardMaterial color={look.light ? '#e2dbcf' : '#171d24'} metalness={0.4} roughness={0.5} />
+        </mesh>
+        {[-0.09, 0, 0.09].map((y) => (
+          <mesh key={y} position={[0.008, y, 0]}>
+            <boxGeometry args={[0.006, 0.052, 0.02]} />
+            <meshStandardMaterial color="#050708" roughness={0.9} />
+          </mesh>
+        ))}
+      </group>
+      {Array.from({ length: 4 }, (_, i) => (
+        <mesh key={i} position={[-box.w / 2 + 0.02, 0.0, 0.085 + i * 0.017]} {...pick('ram')}>
+          <boxGeometry args={[0.006, 0.128, 0.009]} />
+          <meshStandardMaterial color="#0a0c0e" roughness={0.8} />
+        </mesh>
+      ))}
+      <mesh position={[-box.w / 2 + 0.02, -0.105, -0.055]} {...pick('storage')}>
+        <boxGeometry args={[0.01, 0.018, 0.085]} />
+        <meshPhysicalMaterial color={look.socket === 'LGA1851' ? '#3a3323' : '#20262c'} metalness={0.65} roughness={0.32} clearcoat={0.3} />
+      </mesh>
+      <mesh position={[-box.w / 2 + 0.019, -0.115, 0.075]} {...pick('cpu')}>
+        <boxGeometry args={[0.009, 0.026, 0.055]} />
+        <meshPhysicalMaterial color="#1d232a" metalness={0.6} roughness={0.35} clearcoat={0.25} />
+      </mesh>
+      <mesh position={[-box.w / 2 + 0.021, box.h * 0.3, -box.d * 0.31]} {...pick('cpu')}>
+        <boxGeometry args={[0.014, 0.075, 0.06]} />
+        <meshStandardMaterial color="#242a31" metalness={0.6} roughness={0.38} />
+      </mesh>
+      <mesh position={[-box.w / 2 + 0.02, 0.075, -0.085]} {...pick('cpu')}>
+        <boxGeometry args={[0.015, 0.068, 0.105]} />
         <meshStandardMaterial color={look.socket === 'LGA1851' ? '#2a2618' : '#1c2228'} metalness={0.55} roughness={0.38} />
       </mesh>
       <mesh position={[-box.w / 2 + 0.018, -0.08, 0.05]} {...pick('cpu')}>
@@ -805,21 +991,41 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
       <Memory look={look} box={box} onPick={pick('ram')} />
       <Graphics look={look} box={box} spinning={motion} onPick={pick('gpu')} />
       {marked && null}
-      <mesh position={[-box.w / 2 + 0.02, -box.h * 0.22, -0.04]} {...pick('storage')}>
-        <boxGeometry args={[0.004, 0.016, 0.07]} />
-        <meshStandardMaterial color={look.drives === 2 ? '#9aa8b4' : '#6a7580'} metalness={0.6} roughness={0.35} />
-      </mesh>
-      <group position={[0, -box.h / 2 + 0.05, 0]} {...pick('psu')}>
-        <RoundedBox args={[box.w - 0.04, 0.07, box.d * 0.72]} radius={0.004}>
-          <meshStandardMaterial color="#101418" metalness={0.4} roughness={0.5} />
+      {look.drives === 2 && (
+        <mesh position={[-box.w / 2 + 0.02, -0.142, 0.045]} {...pick('storage')}>
+          <boxGeometry args={[0.009, 0.014, 0.07]} />
+          <meshPhysicalMaterial color="#7e8a96" metalness={0.65} roughness={0.32} clearcoat={0.25} />
+        </mesh>
+      )}
+      <group position={[0, -box.h / 2 + 0.048, -0.01]} {...pick('psu')}>
+        <RoundedBox args={[box.w - 0.035, 0.068, box.d * 0.86]} radius={0.004}>
+          <meshPhysicalMaterial color={look.light ? '#e6e0d3' : '#11151a'} metalness={0.42} roughness={0.46} clearcoat={0.2} />
         </RoundedBox>
-        <mesh position={[0, 0.036, box.d * 0.08]}>
-          <boxGeometry args={[0.05, 0.004, 0.03]} />
-          <meshStandardMaterial color="#07080a" roughness={0.9} />
+        {Array.from({ length: 8 }, (_, i) => (
+          <mesh key={i} position={[(i % 2 === 0 ? -0.03 : 0.03), 0.0355, -box.d * 0.3 + Math.floor(i / 2) * 0.045]}>
+            <boxGeometry args={[0.04, 0.002, 0.014]} />
+            <meshStandardMaterial color="#050708" roughness={0.9} />
+          </mesh>
+        ))}
+        <mesh position={[box.w / 2 - 0.019, 0.012, box.d * 0.18]}>
+          <boxGeometry args={[0.002, 0.018, 0.11]} />
+          <meshStandardMaterial color={look.light ? '#b9b1a1' : '#2c333b'} metalness={0.5} roughness={0.4} emissive="#9fd8ff" emissiveIntensity={look.fanId === 'inf' ? 0.35 : 0.04} />
         </mesh>
       </group>
       <group position={[0.015, box.h * 0.18, -box.d / 2 + 0.028]} rotation={[0, Math.PI / 2, 0]} {...pick('fans')}>
         <SquareFan size={box.h > 0.4 ? 0.1 : 0.08} frame={fan.frame} blade={fan.blade} glow={fan.glow} spinning={motion} />
+      </group>
+      <group position={[-box.w / 2 + 0.045, box.h * 0.31, -box.d / 2 + 0.014]}>
+        <mesh>
+          <boxGeometry args={[0.075, 0.062, 0.004]} />
+          <meshStandardMaterial color="#0b0d10" metalness={0.4} roughness={0.5} />
+        </mesh>
+        {[-0.018, 0.002, 0.02].map((y) => (
+          <mesh key={y} position={[0.004, y, 0.003]}>
+            <boxGeometry args={[0.05, 0.009, 0.002]} />
+            <meshStandardMaterial color="#6a7580" metalness={0.7} roughness={0.3} />
+          </mesh>
+        ))}
       </group>
       <mesh position={[-0.02, -box.h * 0.2, -box.d / 2 + 0.016]}>
         <boxGeometry args={[0.01, 0.1, 0.004]} />
@@ -832,11 +1038,23 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         </mesh>
       ))}
       <Tube
-        from={[-0.01, -box.h / 2 + 0.09, box.d * 0.2]}
-        to={[-box.w / 2 + 0.042, -0.05, box.d * 0.16]}
-        radius={0.007}
-        bend={0.012}
+        from={[-0.012, -box.h / 2 + 0.088, box.d * 0.24]}
+        to={[-box.w / 2 + 0.032, -0.028, box.d * 0.27]}
+        radius={0.0062}
+        bend={0.01}
       />
+      <Tube
+        from={[-0.004, -box.h / 2 + 0.088, box.d * 0.225]}
+        to={[-box.w / 2 + 0.04, -0.03, box.d * 0.255]}
+        radius={0.0062}
+        bend={0.01}
+      />
+      {[-0.055, -0.1].map((y) => (
+        <mesh key={y} position={[-box.w / 2 + 0.055, y, box.d * 0.245]} rotation={[0, 0.5, 0]}>
+          <boxGeometry args={[0.018, 0.006, 0.026]} />
+          <meshStandardMaterial color="#05070a" roughness={0.75} />
+        </mesh>
+      ))}
       <Tube
         from={[-box.w / 2 + 0.03, -box.h / 2 + 0.09, -box.d * 0.3]}
         to={[-box.w / 2 + 0.04, box.h * 0.2, -box.d * 0.28]}
@@ -848,7 +1066,7 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         return (
           <group
             key={i}
-            position={[0.02, box.h * (count === 1 ? 0.02 : -0.08 + i * 0.24), box.d / 2 - 0.1]}
+            position={[0.004, box.h * (count === 1 ? 0.02 : -0.09 + i * 0.26), box.d / 2 - 0.042]}
             rotation={[0, -Math.PI / 2, 0]}
             {...pick('fans')}
           >
@@ -906,17 +1124,17 @@ export function CaseScene({
 }) {
   const motion = useMotion()
   const box = chassisOf(look.caseId)
-  const dist = Math.max(box.h, box.d, box.w) * 2.08
+  const dist = Math.max(box.h, box.d, box.w) * 2.12
   const wash = useMemo(() => studioWash(), [])
   const floor = useMemo(() => floorWash(), [])
   return (
     <Canvas
       key={look.caseId}
-      camera={{ position: [dist * 0.9, dist * 0.28, dist * 0.86], fov: 28 }}
+      camera={{ position: [dist * 1.04, dist * 0.22, dist * 0.58], fov: 29 }}
       dpr={[1, 1.75]}
       gl={{ antialias: true, preserveDrawingBuffer: true, toneMapping: THREE.ACESFilmicToneMapping }}
       onCreated={({ gl }) => {
-        gl.toneMappingExposure = 1
+        gl.toneMappingExposure = 1.06
       }}
       shadows
     >
@@ -937,7 +1155,7 @@ export function CaseScene({
       />
       <spotLight position={[0.9, 0.35, 0.7]} angle={0.9} penumbra={1} intensity={3.2} color="#fff8f2" />
       <spotLight position={[-2.2, 1.5, -1.1]} angle={0.5} penumbra={1} intensity={4.5} color="#b9cce0" />
-      <pointLight position={[0.02, 0.02, 0.04]} intensity={1.05} distance={1.2} decay={2} color="#fff6ee" />
+      <pointLight position={[0.07, 0.04, 0.03]} intensity={1.3} distance={1.25} decay={2} color="#fff6ee" />
       <directionalLight position={[-0.4, 0.8, -1.6]} intensity={0.35} color="#d5e2ee" />
       <Pc look={look} slot={slot} onSlot={onSlot} open={open} motion={motion} />
       <ContactShadows position={[0, -box.h / 2 - 0.02, 0]} opacity={0.38} scale={2.4} blur={2.4} far={0.8} />
@@ -950,11 +1168,11 @@ export function CaseScene({
         enablePan={false}
         autoRotate={motion}
         autoRotateSpeed={0.28}
-        minDistance={dist * 0.75}
+        minDistance={dist * 0.72}
         maxDistance={dist * 1.8}
-        minPolarAngle={0.9}
-        maxPolarAngle={1.25}
-        target={[0, 0.09, 0]}
+        minPolarAngle={1.02}
+        maxPolarAngle={1.38}
+        target={[0, 0.055, 0]}
       />
     </Canvas>
   )
