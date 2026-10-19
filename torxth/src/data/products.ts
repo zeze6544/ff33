@@ -110,7 +110,7 @@ export const products: Product[] = [
     category: 'gaming',
     price: 4299,
     badge: 'Creator',
-    image: '/images/product-gaming-pc.jpg',
+    image: '/images/hero-workshop.jpg',
     summary: '4K gaming and content creation without compromise.',
     description:
       'Summit is for creators and enthusiasts who push resolution, frame rate and render times. We hand-pick components for thermal headroom, then validate with extended stress tests before delivery.',
@@ -170,15 +170,15 @@ export const products: Product[] = [
   {
     id: 'tx-copper-kit',
     slug: 'copper-desk-kit',
-    name: 'Copper Desk Kit',
-    shortName: 'Copper Kit',
+    name: 'Torxth Desk Kit — Keyboard & Mouse',
+    shortName: 'Desk Kit',
     category: 'peripherals',
     price: 249,
     badge: 'Bundle',
     image: '/images/product-peripherals.jpg',
     summary: 'Mechanical keyboard + wireless mouse matched pair.',
     description:
-      'A tactile mechanical keyboard and precise wireless mouse, colour-matched to our workshop copper accent. Hot-swap switches on the board so you can retune the feel later.',
+      'A tactile mechanical keyboard and precise wireless mouse in matched black. Hot-swap switches on the board so you can retune the feel later.',
     specs: [
       { label: 'Keyboard', value: '75% hot-swap, RGB optional' },
       { label: 'Switches', value: 'Tactile brown (stock)' },

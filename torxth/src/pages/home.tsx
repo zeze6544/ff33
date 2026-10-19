@@ -1,179 +1,306 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRight, Briefcase, Gamepad2, Laptop, MapPin, Phone, Wrench } from 'lucide-react'
 import { company } from '../data/company'
-import { formatAUD, products } from '../data/products'
-import { bench } from '../copy'
+import { formatAUD, products, type ProductCategory } from '../data/products'
+import { services } from '../data/services'
+import { resolve, score, totalOf, tunes } from '../data/parts'
+import { homeFaqs, repairSteps } from '../copy'
 import { useMeta } from '../meta'
-import { useCart } from '../hooks/useCart'
+import { Eyebrow, Faq, ProductCard, SectionHead, TrustItem } from '../components/ui'
+
+function fromPrice(category: ProductCategory) {
+  const prices = products.filter((p) => p.category === category).map((p) => p.price)
+  return prices.length ? Math.min(...prices) : 0
+}
+
+const needs: { cat: ProductCategory; title: string; text: string; image: string; icon: typeof Gamepad2 }[] = [
+  {
+    cat: 'gaming',
+    title: 'Gaming PCs',
+    text: '1080p, 1440p and 4K towers, built and burn-in tested here.',
+    image: '/images/product-gaming-pc.jpg',
+    icon: Gamepad2,
+  },
+  {
+    cat: 'office',
+    title: 'Home & office',
+    text: 'Quiet desktops and honest refurbs that start fast and stay fast.',
+    image: '/images/product-office-pc.jpg',
+    icon: Briefcase,
+  },
+  {
+    cat: 'laptops',
+    title: 'Laptops',
+    text: 'Carry machines set up with your accounts and files before you leave.',
+    image: '/images/product-laptop.jpg',
+    icon: Laptop,
+  },
+]
 
 export function HomePage() {
   useMeta(
     'Torxth Technology · Ferntree Gully',
     'Computers, custom builds and repairs at 61 Dorset Rd, Ferntree Gully. Shop the shelf or bring the machine in.',
   )
-  const shelf = products.filter((p) => p.featured).slice(0, 3)
-  const [lead, ...rest] = shelf
-  const [openTag, setOpenTag] = useState<string>(bench[2].tag)
+  const featured = products.filter((p) => p.featured).slice(0, 3)
 
   return (
     <div>
-      <section className="stage relative overflow-hidden text-paper">
-        <p className="pointer-events-none absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 font-mark text-[0.7rem] tracking-[0.55em] text-white/35 [writing-mode:vertical-rl] lg:block">
-          TORXTH · FERNTREE GULLY
-        </p>
-        <div className="relative mx-auto grid min-h-[92vh] max-w-6xl items-center gap-10 px-4 pb-16 pt-28 sm:px-6 lg:grid-cols-[1.05fr_0.9fr]">
+      <section className="bg-ink text-white">
+        <div className="wrap grid items-center gap-10 pb-14 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:pb-20 lg:pt-16">
           <div>
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-brass">61 Dorset Rd · Ferntree Gully</p>
-            <h1 className="mt-5 max-w-xl text-[clamp(4.2rem,8vw,7.4rem)] text-white">
-              We open
-              <span className="mt-1 block italic text-copper">the case.</span>
+            <p className="inline-flex items-center gap-2 rounded-full border border-line-dark px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-fog">
+              <MapPin className="h-3.5 w-3.5 text-sky" aria-hidden />
+              61 Dorset Rd · Ferntree Gully VIC
+            </p>
+            <h1 className="mt-5 text-5xl sm:text-6xl lg:text-[4.2rem]">
+              Custom PCs, repairs & upgrades — done in Ferntree Gully.
             </h1>
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-fog">
-              A small computer shop under the Dandenongs. Rigs, quiet desks, laptops, and the repairs that keep last year’s machine honest.
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-fog">
+              Buy a machine that is ready today, spec one part by part with a builder that checks the fit, or bring in the computer you already own. You deal with the person doing the work.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/shop" className="bg-blue px-5 py-3 text-sm font-semibold text-white hover:bg-blue-deep">
-                See what’s for sale
+              <Link to="/build" className="btn-primary">
+                Build your PC
+                <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
-              <Link to="/build" className="border border-copper/70 px-5 py-3 text-sm font-semibold text-brass hover:bg-copper/15">
-                Fit the parts
+              <Link to="/shop" className="btn-ghost-light">
+                Shop ready machines
               </Link>
+              <a href={company.phoneHref} className="btn-ghost-light">
+                <Phone className="h-4 w-4" aria-hidden />
+                {company.phone}
+              </a>
             </div>
+            <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-line-dark pt-6">
+              <div>
+                <dt className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-fog">Builds from</dt>
+                <dd className="mt-1 font-mono text-xl tabular-nums">{formatAUD(899)}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-fog">Repairs from</dt>
+                <dd className="mt-1 font-mono text-xl tabular-nums">{formatAUD(79)}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-fog">Build warranty</dt>
+                <dd className="mt-1 font-mono text-xl tabular-nums">12 mo</dd>
+              </div>
+            </dl>
           </div>
           <figure className="relative">
             <img
               src="/images/hero-workshop.jpg"
-              alt="An open PC on the Torxth bench"
-              className="aspect-[4/5] max-h-[78vh] w-full object-cover"
+              alt="An open gaming PC on the workbench at Torxth Technology"
+              className="aspect-[4/3] w-full rounded-xl object-cover"
+              loading="eager"
             />
-            <figcaption className="absolute bottom-4 left-4 right-4 z-[3] flex items-end justify-between gap-3 text-[0.65rem] uppercase tracking-[0.18em] text-brass">
-              <span className="font-mono">Ferntree Gully</span>
-              <span className="font-mono">Night bench</span>
+            <figcaption className="absolute inset-x-3 bottom-3 flex flex-wrap gap-2">
+              <span className="rounded-lg bg-ink/85 px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white backdrop-blur">
+                Assembled & tested in-store
+              </span>
+              <span className="rounded-lg bg-ink/85 px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-white backdrop-blur">
+                Quote before we start
+              </span>
             </figcaption>
           </figure>
         </div>
-      </section>
-
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
-          <h2 className="text-4xl sm:text-5xl">The case is the product.</h2>
-          <p className="mt-4 max-w-md text-lg leading-relaxed text-mute">
-            Turn it. Take the glass off. Try a real card in it before you ask us to build it. If it will not clear, or the supply is too small, the bench says so.
-          </p>
-          <Link to="/build" className="mt-6 inline-block bg-ink px-5 py-3 text-sm font-semibold text-paper">
-            Open the builder
-          </Link>
-        </div>
-        <img src="/images/product-gaming-pc.jpg" alt="A Torxth gaming build" className="aspect-[5/4] w-full object-cover" />
-      </section>
-
-      <section className="border-y border-rule bg-ink text-paper">
-        <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-4 py-8 sm:px-6">
-          <div>
-            <h2 className="text-3xl text-white sm:text-4xl">On the bench</h2>
-            <p className="mt-2 max-w-md text-sm text-fog">Tickets from a normal week. No names — just the work.</p>
+        <div className="border-t border-line-dark">
+          <div className="wrap grid gap-6 py-8 sm:grid-cols-2 lg:grid-cols-4">
+            <TrustItem title="Quoted before work" text="Repairs and orders are priced and confirmed before you pay anything." />
+            <TrustItem title="12-month build warranty" text="Parts and labour on new builds, handled by calling this shop." />
+            <TrustItem title="Real parts in the builder" text="Named cases, chips and cards with clearance and power checks." />
+            <TrustItem title="Local pickup & delivery" text="Collect on Dorset Rd, or ask us to run it out locally." />
           </div>
-          <Link to="/services" className="text-sm text-glow">
-            Book yours →
-          </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto px-4 pb-10 sm:px-6">
-          {bench.map((job) => {
-            const open = openTag === job.tag
-            return (
-              <button
-                key={job.tag}
-                type="button"
-                onClick={() => setOpenTag(job.tag)}
-                className={`ticket relative min-w-[17rem] shrink-0 px-5 py-5 text-left text-ink ${open ? 'ring-2 ring-glow' : ''}`}
-              >
-                <span className="stamp stamp-float">{open ? 'Open' : 'Filed'}</span>
-                <span className="font-mono text-xs text-blue">{job.tag}</span>
-                <p className="mt-6 font-serif text-2xl leading-tight">{job.machine}</p>
-                <p className="mt-2 text-sm">{job.job}</p>
-                <p className="mt-4 border-t border-dashed border-rule pt-3 text-xs uppercase tracking-[0.14em] text-mute">
-                  {job.state}
+      </section>
+
+      <section className="wrap py-16 lg:py-20">
+        <SectionHead
+          eyebrow="Start here"
+          title="What do you need it to do?"
+          action={{ to: '/shop', label: 'Everything in the shop' }}
+        />
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          {needs.map((need) => (
+            <Link key={need.cat} to={`/shop?cat=${need.cat}`} className="card group overflow-hidden hover:shadow-[0_16px_40px_-20px_rgba(10,20,31,0.35)]">
+              <img src={need.image} alt="" loading="lazy" className="aspect-[16/9] w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+              <div className="p-5">
+                <need.icon className="h-6 w-6 text-blue" aria-hidden />
+                <h3 className="mt-3 text-xl">{need.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-mute">{need.text}</p>
+                <p className="mt-4 flex items-center justify-between border-t border-line pt-3">
+                  <span className="font-mono text-sm tabular-nums">from {formatAUD(fromPrice(need.cat))}</span>
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue">
+                    Shop <ArrowRight className="h-4 w-4" aria-hidden />
+                  </span>
                 </p>
-                {open && <p className="mt-2 text-sm text-mute">{job.eta}</p>}
-              </button>
-            )
-          })}
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="flex items-end justify-between">
-          <h2 className="text-4xl">Leaving soon</h2>
-          <Link to="/shop" className="text-sm text-blue">
-            The whole shelf →
-          </Link>
+      <ConfiguratorTeaser />
+
+      <section className="wrap py-16 lg:py-20">
+        <SectionHead
+          eyebrow="Ready to take home"
+          title="Machines on the shelf"
+          intro="Built or checked here, priced in AUD, confirmed with you before payment."
+          action={{ to: '/shop', label: 'See all 12 products' }}
+        />
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {featured.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
         </div>
-        {lead && (
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_0.8fr]">
-            <ShelfCard id={lead.id} large />
-            <div className="grid gap-8">
-              {rest.map((p) => (
-                <ShelfCard key={p.id} id={p.id} />
-              ))}
-            </div>
+      </section>
+
+      <section className="bg-sheet py-16 lg:py-20">
+        <div className="wrap">
+          <SectionHead
+            eyebrow="The workshop"
+            title="Repairs & services"
+            intro="Most jobs are quoted before a screwdriver turns. If a new machine is the honest answer, we will say so."
+            action={{ to: '/services', label: 'All services & booking' }}
+          />
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {services.map((service) => (
+              <Link key={service.id} to={`/services#${service.slug}`} className="card group p-5 hover:border-blue">
+                <Wrench className="h-6 w-6 text-blue" aria-hidden />
+                <h3 className="mt-3 text-lg leading-snug">{service.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-mute">{service.summary}</p>
+                <p className="mt-4 border-t border-line pt-3 font-mono text-sm tabular-nums">
+                  {service.fromPrice != null ? `from ${formatAUD(service.fromPrice)}` : 'Quoted first'}
+                </p>
+                <p className="mt-1 text-xs text-mute">{service.turnaround}</p>
+              </Link>
+            ))}
           </div>
-        )}
+
+          <ol className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {repairSteps.map((step, i) => (
+              <li key={step.title}>
+                <p className="font-mono text-sm text-blue">{String(i + 1).padStart(2, '0')}</p>
+                <h3 className="mt-2 text-lg">{step.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-mute">{step.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-8 sm:px-6 lg:grid-cols-2">
+      <section className="wrap grid gap-10 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:py-20">
         <div>
-          <h2 className="text-4xl">Come up Dorset Road</h2>
-          <p className="mt-4 max-w-md leading-relaxed text-mute">{company.hoursNote}</p>
-          <p className="mt-6 text-lg">
-            {company.address.full}
-            <br />
-            <a href={company.phoneHref} className="text-blue">
+          <Eyebrow>Before you ask</Eyebrow>
+          <h2 className="mt-2 text-3xl sm:text-4xl">Straight answers</h2>
+          <p className="mt-3 max-w-md leading-relaxed text-mute">
+            Warranty, timing, payment and delivery — the things people actually ring to ask.
+          </p>
+          <a href={company.phoneHref} className="btn-dark mt-6">
+            <Phone className="h-4 w-4" aria-hidden />
+            Ask us: {company.phone}
+          </a>
+        </div>
+        <Faq items={[...homeFaqs]} />
+      </section>
+
+      <section className="wrap pb-16 lg:pb-20">
+        <div className="grid overflow-hidden rounded-xl bg-ink text-white lg:grid-cols-2">
+          <div className="p-8 lg:p-10">
+            <Eyebrow light>Visit</Eyebrow>
+            <h2 className="mt-2 text-3xl sm:text-4xl">Come up Dorset Road</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-fog">{company.hoursNote}</p>
+            <p className="mt-6 text-lg font-medium">{company.address.full}</p>
+            <a href={company.phoneHref} className="mt-1 inline-block font-mono text-2xl text-sky">
               {company.phone}
             </a>
-          </p>
-          <Link to="/contact" className="mt-6 inline-block border-b border-blue text-sm text-blue">
-            Write to the shop
-          </Link>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <a href={company.mapUrl} target="_blank" rel="noreferrer" className="btn-primary">
+                Get directions
+              </a>
+              <Link to="/contact" className="btn-ghost-light">
+                Send a message
+              </Link>
+            </div>
+          </div>
+          <img src="/images/ferntree-atmosphere.jpg" alt="Mist over the tree ferns in the Dandenong foothills" loading="lazy" className="h-full min-h-64 w-full object-cover" />
         </div>
-        <img
-          src="/images/ferntree-atmosphere.jpg"
-          alt="Morning mist in the Dandenong foothills"
-          className="aspect-[5/3] w-full object-cover"
-        />
       </section>
     </div>
   )
 }
 
-function ShelfCard({ id, large = false }: { id: string; large?: boolean }) {
-  const product = products.find((p) => p.id === id)!
-  const { addItem } = useCart()
+function ConfiguratorTeaser() {
+  const [tuneId, setTuneId] = useState('ridge')
+  const tune = tunes.find((t) => t.id === tuneId) ?? tunes[0]
+  const build = resolve(tune.pick)
+  const points = score(build)
   return (
-    <article className={large ? 'group' : 'group grid grid-cols-[7.5rem_1fr] gap-4'}>
-      <Link to={`/shop/${product.slug}`} className="block overflow-hidden bg-ink">
-        <img
-          src={product.image}
-          alt=""
-          className={`w-full object-cover transition duration-700 group-hover:scale-[1.04] ${large ? 'aspect-[16/10]' : 'h-full min-h-28'}`}
-        />
-      </Link>
-      <div className={large ? 'mt-4' : ''}>
-        <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-blue">{product.shortName}</p>
-        <Link to={`/shop/${product.slug}`}>
-          <h3 className={large ? 'mt-1 text-4xl' : 'mt-1 text-xl'}>{product.name}</h3>
-        </Link>
-        {large && <p className="mt-2 max-w-lg text-sm leading-relaxed text-mute">{product.summary}</p>}
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <span className="font-mono">{formatAUD(product.price)}</span>
-          <button
-            type="button"
-            className="text-sm font-semibold text-blue"
-            onClick={() => addItem(product.id, 1, `${product.shortName} is on the docket`)}
-          >
-            Add to docket
-          </button>
+    <section className="bg-ink py-16 text-white lg:py-20">
+      <div className="wrap grid items-center gap-10 lg:grid-cols-[1fr_1fr]">
+        <div>
+          <Eyebrow light>PC builder</Eyebrow>
+          <h2 className="mt-2 text-3xl sm:text-4xl">Spec it before you spend it.</h2>
+          <p className="mt-3 max-w-lg leading-relaxed text-fog">
+            Pick real cases, chips and cards and watch the machine change. The builder checks graphics-card length, cooler height, radiator size and power headroom as you go — the same checks we run at the bench.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Example builds">
+            {tunes.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                aria-pressed={tuneId === t.id}
+                onClick={() => setTuneId(t.id)}
+                className={`min-h-11 rounded-lg px-4 text-sm font-semibold ${tuneId === t.id ? 'bg-blue text-white' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
+              >
+                {t.name}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-sm text-fog">{tune.line}</p>
+          <Link to="/build" className="btn-primary mt-7">
+            Open the builder
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+        <div className="rounded-xl border border-line-dark bg-panel p-6">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-fog">Workshop estimate</p>
+            <p className="font-mono text-3xl tabular-nums">{formatAUD(totalOf(build))}</p>
+          </div>
+          <dl className="mt-5 space-y-2.5 text-sm">
+            {[
+              ['Case', `${build.case.brand} ${build.case.name}`],
+              ['Processor', `${build.cpu.brand} ${build.cpu.name}`],
+              ['Graphics', `${build.gpu.brand} ${build.gpu.name}`],
+              ['Memory', `${build.ram.brand} ${build.ram.name}`],
+              ['Storage', `${build.storage.brand} ${build.storage.name}`],
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-baseline justify-between gap-4 border-b border-line-dark/70 pb-2.5">
+                <dt className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-fog">{label}</dt>
+                <dd className="text-right font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-5 grid grid-cols-3 gap-3 text-center">
+            <div className="rounded-lg bg-ink-2 px-2 py-3">
+              <p className="font-mono text-lg tabular-nums">{points.playWord}</p>
+              <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-fog">Gaming</p>
+            </div>
+            <div className="rounded-lg bg-ink-2 px-2 py-3">
+              <p className="font-mono text-lg tabular-nums">{points.draw}W</p>
+              <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-fog">Rated draw</p>
+            </div>
+            <div className="rounded-lg bg-ink-2 px-2 py-3">
+              <p className="font-mono text-lg tabular-nums">{build.psu.watts}W</p>
+              <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-fog">Power supply</p>
+            </div>
+          </div>
+          <p className="mt-4 text-xs leading-relaxed text-fog">Estimate includes the motherboard, Windows 11 Pro and assembly. Change any part in the full builder.</p>
         </div>
       </div>
-    </article>
+    </section>
   )
 }

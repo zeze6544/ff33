@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>/</loc></url>
-  <url><loc>/shop</loc></url>
-  <url><loc>/build</loc></url>
-  <url><loc>/services</loc></url>
-  <url><loc>/about</loc></url>
-  <url><loc>/contact</loc></url>
-  <url><loc>/checkout</loc></url>
+  <url><loc>https://lost.pink/</loc></url>
+  <url><loc>https://lost.pink/shop</loc></url>
+  <url><loc>https://lost.pink/build</loc></url>
+  <url><loc>https://lost.pink/services</loc></url>
+  <url><loc>https://lost.pink/about</loc></url>
+  <url><loc>https://lost.pink/contact</loc></url>
+  <url><loc>https://lost.pink/shop/ridge-gaming-tower</loc></url>
+  <url><loc>https://lost.pink/shop/grove-office-desktop</loc></url>
+  <url><loc>https://lost.pink/shop/fern-15-laptop</loc></url>
+  <url><loc>https://lost.pink/shop/summit-creator-rig</loc></url>
+  <url><loc>https://lost.pink/shop/trail-13-ultrabook</loc></url>
+  <url><loc>https://lost.pink/shop/hearth-family-pc</loc></url>
+  <url><loc>https://lost.pink/shop/copper-desk-kit</loc></url>
+  <url><loc>https://lost.pink/shop/torxth-nvme-2tb</loc></url>
+  <url><loc>https://lost.pink/shop/ddr5-32gb-kit</loc></url>
+  <url><loc>https://lost.pink/shop/windows-11-pro</loc></url>
+  <url><loc>https://lost.pink/shop/endpoint-security-suite</loc></url>
+  <url><loc>https://lost.pink/shop/certified-refurb-i7</loc></url>
 </urlset>

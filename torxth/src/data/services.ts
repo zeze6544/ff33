@@ -5,6 +5,7 @@ export type Service = {
   summary: string
   description: string
   fromPrice?: number
+  turnaround: string
   highlights: string[]
   image?: string
 }
@@ -18,6 +19,7 @@ export const services: Service[] = [
     description:
       'Slow boot? Strange noises? Blue screens? We diagnose first, quote clearly, then fix. From fan replacements and liquid damage assessment to malware removal and data recovery triage, Torxth keeps South East Melbourne machines running.',
     fromPrice: 79,
+    turnaround: 'Most jobs same day or next day',
     highlights: [
       'No-fix diagnostics when you proceed with the repair',
       'Genuine or quality-equivalent parts',
@@ -34,6 +36,7 @@ export const services: Service[] = [
     description:
       'Often the smartest spend is upgrading what you already trust. We match compatible RAM, NVMe drives and GPUs to your motherboard and power supply, install them, and verify stability.',
     fromPrice: 49,
+    turnaround: 'Often while you wait, once parts land',
     highlights: [
       'Compatibility check before you buy',
       'Install + stress test included',
@@ -49,6 +52,7 @@ export const services: Service[] = [
     description:
       'Tell us how you play, work or create. We specify parts, order quality components, assemble with care, and deliver a machine that is quiet, cool and ready on day one — with cable management you will want to show people.',
     fromPrice: 149,
+    turnaround: 'Built and burn-in tested before pickup',
     highlights: [
       'Parts selection matched to your goals',
       'Workshop assembly & burn-in testing',
@@ -65,6 +69,7 @@ export const services: Service[] = [
     description:
       'Clean OS installs, office suites, specialised applications and endpoint security. We also help with email, printer setup, file migration and making sure your backups actually work.',
     fromPrice: 59,
+    turnaround: 'Usually same day',
     highlights: [
       'Clean Windows / Linux installs',
       'Account & printer configuration',
