@@ -41,7 +41,7 @@ const needs: { cat: ProductCategory; title: string; text: string; image: string;
 export function HomePage() {
   useMeta(
     'Torxth Technology · Ferntree Gully',
-    'Computers, custom builds and repairs at 61 Dorset Rd, Ferntree Gully. Shop the shelf or bring the machine in.',
+    'Computers, custom builds and repairs at 61 Dorset Rd, Ferntree Gully. Browse the shop, spec a build, or bring the machine in.',
   )
   const featured = products.filter((p) => p.featured).slice(0, 3)
 
