@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, Copy, Mail, Minus, Phone, Plus, TriangleAlert } from 'lucide-react'
 import { company } from '../data/company'
 import { formatAUD } from '../data/products'
@@ -206,22 +207,22 @@ export function BuildPage() {
   }
 
   const chip = (on: boolean) =>
-    `min-h-9 rounded-full px-3.5 text-xs font-semibold ${on ? 'bg-white text-ink' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`
+    `min-h-10 rounded-full px-3.5 text-xs font-semibold sm:min-h-9 ${on ? 'bg-white text-ink' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`
 
   return (
     <div className="bench-editor bg-ink text-white">
-      <div className="wrap pb-16 pt-10 lg:pt-14">
+      <div className="wrap pb-28 pt-10 lg:pb-16 lg:pt-14">
         <div className="grid items-end gap-6 lg:grid-cols-[1fr_auto]">
           <div>
             <p className="eyebrow">PC builder · Ferntree Gully</p>
-            <h1 className="mt-3 max-w-2xl text-4xl text-white sm:text-5xl">Build it on screen. We build it on the bench.</h1>
+            <h1 className="mt-3 max-w-2xl text-3xl text-white min-[420px]:text-4xl sm:text-5xl">Build it on screen. We build it on the bench.</h1>
             <p className="mt-4 max-w-xl leading-relaxed text-fog">
               The real parts list: processors, boards, cards, cases and cooling we actually fit. Hover or tap a part to try it in the case, select it to fit it. Clearances, radiator room and power headroom are checked as you go.
             </p>
           </div>
-          <div className="rounded-xl border border-line-dark bg-panel px-5 py-4 lg:min-w-72">
+          <div className="rounded-xl border border-line-dark bg-panel px-4 py-3.5 sm:px-5 sm:py-4 lg:min-w-72">
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-fog">Workshop estimate</p>
-            <p className="mt-1 font-mono text-4xl tabular-nums" data-total={fittedTotal}>
+            <p className="mt-1 font-mono text-3xl tabular-nums sm:text-4xl" data-total={fittedTotal}>
               {formatAUD(shown)}
             </p>
             {previewTotal !== fittedTotal ? (
@@ -235,14 +236,14 @@ export function BuildPage() {
           </div>
         </div>
 
-        <div className="mt-7 flex flex-wrap gap-2" role="group" aria-label="Starting points">
+        <div className="mt-7 flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0" role="group" aria-label="Starting points">
           {tunes.map((tune) => (
             <button
               key={tune.id}
               type="button"
               aria-pressed={tuneId === tune.id}
               onClick={() => applyTune(tune.id)}
-              className={`min-h-11 rounded-lg px-4 text-left ${tuneId === tune.id ? 'bg-blue text-white' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
+              className={`min-h-11 shrink-0 rounded-lg px-4 text-left ${tuneId === tune.id ? 'bg-blue text-white' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
             >
               <span className="block text-sm font-semibold">{tune.name}</span>
               <span className={`block text-xs ${tuneId === tune.id ? 'text-white/80' : 'text-fog'}`}>{tune.line}</span>
@@ -278,7 +279,7 @@ export function BuildPage() {
           </Suspense>
 
           <aside className="space-y-6 xl:sticky xl:top-24">
-            <section aria-label="Performance estimates" className="rounded-xl border border-line-dark bg-panel p-5">
+            <section aria-label="Performance estimates" className="rounded-xl border border-line-dark bg-panel p-4 sm:p-5">
               <h2 className="text-base">How this build rates</h2>
               <div className="mt-4 space-y-4">
                 <Meter label="Gaming" now={fittedScore.play} next={previewScore.play} caption={previewScore.playWord} />
@@ -307,7 +308,7 @@ export function BuildPage() {
               </p>
             </section>
 
-            <section aria-label="Fitted parts" className="rounded-xl border border-line-dark bg-panel p-5">
+            <section aria-label="Fitted parts" className="rounded-xl border border-line-dark bg-panel p-4 sm:p-5">
               <h2 className="text-base">In this build</h2>
               <ul className="mt-3 divide-y divide-line-dark/70">
                 {slots.map((s) => {
@@ -319,7 +320,7 @@ export function BuildPage() {
                         type="button"
                         onClick={() => editSlot(s.id)}
                         aria-current={slot === s.id || undefined}
-                        className={`flex w-full items-baseline justify-between gap-3 py-2.5 text-left ${slot === s.id ? 'text-sky' : 'hover:text-sky'}`}
+                        className={`flex w-full items-baseline justify-between gap-3 py-3 text-left sm:py-2.5 ${slot === s.id ? 'text-sky' : 'hover:text-sky'}`}
                       >
                         <span>
                           <span className="block font-mono text-[0.6rem] uppercase tracking-[0.16em] text-fog">{s.label}</span>
@@ -362,7 +363,7 @@ export function BuildPage() {
           <div className="mt-5 space-y-2.5">
             {visibleTabs.map((group) => (
               <div key={group.label} className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label={group.label}>
-                <span className="mr-1 w-24 shrink-0 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-fog">{group.label}</span>
+                <span className="mr-1 w-full shrink-0 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-fog sm:w-24">{group.label}</span>
                 {group.slots.map((item) => {
                   const s = slots.find((x) => x.id === item)!
                   return (
@@ -372,7 +373,7 @@ export function BuildPage() {
                       role="tab"
                       aria-selected={slot === item}
                       onClick={() => chooseSlot(item)}
-                      className={`min-h-10 shrink-0 rounded-lg px-3.5 text-sm font-medium ${slot === item ? 'bg-white text-ink' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
+                      className={`min-h-11 shrink-0 rounded-lg px-3.5 text-sm font-medium sm:min-h-10 ${slot === item ? 'bg-white text-ink' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
                     >
                       {s.label}
                     </button>
@@ -458,9 +459,9 @@ export function BuildPage() {
               </div>
               <div className="flex items-center gap-2" role="group" aria-label="Fan quantity">
                 <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-fog">Quantity</span>
-                <button type="button" aria-label="One fewer fan" onClick={() => fitCfg({ fanQty: Math.max(1, cfg.fanQty - 1) })} className="grid h-9 w-9 place-items-center rounded-full border border-line-dark hover:border-sky"><Minus className="h-4 w-4" /></button>
+                <button type="button" aria-label="One fewer fan" onClick={() => fitCfg({ fanQty: Math.max(1, cfg.fanQty - 1) })} className="grid h-11 w-11 place-items-center rounded-full border border-line-dark hover:border-sky sm:h-9 sm:w-9"><Minus className="h-4 w-4" /></button>
                 <span className="min-w-6 text-center font-mono tabular-nums">{cfg.fanQty}</span>
-                <button type="button" aria-label="One more fan" onClick={() => fitCfg({ fanQty: Math.min(10, cfg.fanQty + 1) })} className="grid h-9 w-9 place-items-center rounded-full border border-line-dark hover:border-sky"><Plus className="h-4 w-4" /></button>
+                <button type="button" aria-label="One more fan" onClick={() => fitCfg({ fanQty: Math.min(10, cfg.fanQty + 1) })} className="grid h-11 w-11 place-items-center rounded-full border border-line-dark hover:border-sky sm:h-9 sm:w-9"><Plus className="h-4 w-4" /></button>
                 <span className="text-xs text-fog">Case fits {preview.case.fanMax}</span>
               </div>
               <div className="flex items-center gap-1.5" role="group" aria-label="Fan lighting">
@@ -470,7 +471,7 @@ export function BuildPage() {
             </div>
           )}
 
-          <div className="mt-4 grid gap-3 pb-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" onMouseLeave={() => setHover(null)}>
+          <div className="mt-4 grid gap-2.5 pb-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4" onMouseLeave={() => setHover(null)}>
             {isOptional && (
               <button
                 type="button"
@@ -554,7 +555,7 @@ export function BuildPage() {
           </div>
         </section>
 
-        <section id="brief" className="mt-10 grid gap-6 rounded-xl border border-line-dark bg-panel p-6 lg:grid-cols-[1fr_320px] lg:p-8">
+        <section id="brief" className="mt-10 grid scroll-mt-24 gap-6 rounded-xl border border-line-dark bg-panel p-4 sm:p-6 lg:scroll-mt-0 lg:grid-cols-[1fr_320px] lg:p-8">
           <div>
             <h2 className="text-2xl sm:text-3xl">Send this build to the shop</h2>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-fog">
@@ -573,7 +574,7 @@ export function BuildPage() {
           </div>
           <div>
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-fog">Estimated total</p>
-            <p className="mt-1 font-mono text-4xl tabular-nums">{formatAUD(fittedTotal)}</p>
+            <p className="mt-1 font-mono text-3xl tabular-nums sm:text-4xl">{formatAUD(fittedTotal)}</p>
             <div className="mt-5 grid gap-2.5">
               <a href={mailto} className="btn-primary w-full">
                 <Mail className="h-4 w-4" aria-hidden />
@@ -594,6 +595,24 @@ export function BuildPage() {
           </div>
         </section>
       </div>
+
+      {createPortal(
+        <div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-line-dark bg-ink/95 text-white backdrop-blur lg:hidden"
+          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+        >
+          <div className="flex items-center justify-between gap-3 px-4 pt-3">
+            <div className="min-w-0">
+              <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-fog">Estimate</p>
+              <p className="font-mono text-xl tabular-nums leading-tight">{formatAUD(fittedTotal)}</p>
+            </div>
+            <a href="#brief" className="btn-primary shrink-0">
+              Send this build
+            </a>
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   )
 }
