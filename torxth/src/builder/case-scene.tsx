@@ -369,6 +369,7 @@ function SquareFan({
   glow,
   screen,
   spinning,
+  kind = 'stock',
 }: {
   size: number
   frame: string
@@ -376,25 +377,89 @@ function SquareFan({
   glow: string | null
   screen?: boolean
   spinning: boolean
+  kind?: string
 }) {
   const frameGeom = useMemo(() => fanFrame(size), [size])
+  const deep = kind === 'd30'
+  const mirror = kind === 'slinf'
+  const qx = kind === 'qx120'
+  const core = kind === 'f120core'
+  const swa = kind === 'swafan'
+  const noctua = kind === 'a12x25'
   return (
     <group>
       <mesh geometry={frameGeom} castShadow>
-        <meshPhysicalMaterial color={frame} metalness={0.58} roughness={0.34} clearcoat={0.22} clearcoatRoughness={0.4} />
+        <meshPhysicalMaterial color={frame} metalness={noctua ? 0.18 : 0.58} roughness={noctua ? 0.62 : 0.34} clearcoat={0.22} clearcoatRoughness={0.4} />
       </mesh>
-      <Rotor radius={size * 0.42} blade={blade} ring={frame} hub={glow ? '#d7dde4' : '#8b939c'} spinning={spinning} speed={1.6} />
-      {glow && (
+      {deep && (
+        <mesh position={[-0.012, 0, 0]}>
+          <boxGeometry args={[0.012, size * 0.92, size * 0.92]} />
+          <meshPhysicalMaterial color={frame} metalness={0.55} roughness={0.36} clearcoat={0.2} />
+        </mesh>
+      )}
+      <Rotor
+        radius={size * 0.42}
+        blade={blade}
+        ring={frame}
+        hub={glow ? '#d7dde4' : noctua ? '#c4a882' : '#8b939c'}
+        spinning={spinning}
+        speed={1.6}
+      />
+      {glow && !mirror && (
         <>
           <mesh rotation={[0, Math.PI / 2, 0]}>
-            <ringGeometry args={[size * 0.34, size * 0.4, 32]} />
-            <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.85} side={THREE.DoubleSide} />
+            <ringGeometry args={[size * (qx ? 0.38 : 0.34), size * (qx ? 0.46 : 0.4), 36]} />
+            <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={qx ? 1.05 : 0.85} side={THREE.DoubleSide} />
           </mesh>
           <mesh rotation={[0, Math.PI / 2, 0]} position={[0.004, 0, 0]}>
             <ringGeometry args={[size * 0.18, size * 0.24, 28]} />
             <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.55} side={THREE.DoubleSide} />
           </mesh>
         </>
+      )}
+      {deep && glow &&
+        [-0.014, 0.014].map((x) => (
+          <mesh key={x} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <ringGeometry args={[size * 0.36, size * 0.44, 36]} />
+            <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.7} side={THREE.DoubleSide} />
+          </mesh>
+        ))}
+      {mirror && glow && (
+        <group position={[0.012, 0, 0]}>
+          {[0.42, 0.34, 0.26, 0.18, 0.1].map((r, i) => (
+            <mesh key={r} rotation={[0, Math.PI / 2, 0]} position={[i * 0.0012, 0, 0]}>
+              <ringGeometry args={[size * (r - 0.035), size * r, 40]} />
+              <meshStandardMaterial
+                color={glow}
+                emissive={glow}
+                emissiveIntensity={0.95 - i * 0.12}
+                side={THREE.DoubleSide}
+                transparent
+                opacity={0.85}
+              />
+            </mesh>
+          ))}
+          <mesh rotation={[0, Math.PI / 2, 0]} position={[0.008, 0, 0]}>
+            <circleGeometry args={[size * 0.07, 28]} />
+            <meshPhysicalMaterial color="#0a0c10" metalness={0.9} roughness={0.12} clearcoat={0.8} />
+          </mesh>
+        </group>
+      )}
+      {core && glow &&
+        Array.from({ length: 8 }, (_, i) => {
+          const a = (i / 8) * Math.PI * 2
+          return (
+            <mesh key={i} position={[0.012, Math.sin(a) * size * 0.14, Math.cos(a) * size * 0.14]}>
+              <sphereGeometry args={[0.0032, 10, 10]} />
+              <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.9} />
+            </mesh>
+          )
+        })}
+      {swa && (
+        <mesh rotation={[0, Math.PI / 2, 0]} position={[0.01, 0, 0]}>
+          <torusGeometry args={[size * 0.4, 0.0035, 10, 40]} />
+          <meshPhysicalMaterial color={glow ?? '#b3ffd9'} metalness={0.5} roughness={0.35} emissive={glow ?? '#b3ffd9'} emissiveIntensity={0.45} />
+        </mesh>
       )}
       {screen && (
         <mesh position={[0.013, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
@@ -1039,38 +1104,86 @@ function Memory({ look, box, onPick }: { look: Look; box: Chassis; onPick: Retur
   }
   const tall = kitHeights[look.ramId] ?? 0.095
   const glow = look.ramGlow
+  const id = look.ramId
   return (
     <group {...onPick}>
       {Array.from({ length: look.sticks }, (_, i) => (
         <group key={i} position={[-box.w / 2 + 0.055, -box.h * 0.08 + tall / 2, 0.1 + i * 0.019]}>
           <mesh>
             <boxGeometry args={[0.012, tall - 0.006, 0.014]} />
-            <meshStandardMaterial color={look.ram} metalness={0.25} roughness={0.55} />
+            <meshStandardMaterial color={look.ram} metalness={0.35} roughness={id === 'flare-x5' ? 0.62 : 0.48} />
           </mesh>
           <mesh position={[0, tall / 2 - 0.004, 0]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.007, 0.007, 0.012, 10]} />
-            <meshStandardMaterial color={look.ram} metalness={0.5} roughness={0.35} />
+            <meshStandardMaterial color={look.ram} metalness={0.55} roughness={0.32} />
           </mesh>
-          {look.ramId === 'fury-beast' && (
-            <mesh position={[0.007, 0, 0]}>
-              <boxGeometry args={[0.002, tall * 0.7, 0.004]} />
-              <meshStandardMaterial color="#c0392b" />
+          {id === 'flare-x5' && (
+            <mesh position={[0.0065, 0, 0]}>
+              <boxGeometry args={[0.0015, tall * 0.55, 0.011]} />
+              <meshStandardMaterial color="#2a2c30" metalness={0.4} roughness={0.55} />
             </mesh>
           )}
-          {look.ramId === 'trident-neo' && (
-            <mesh position={[0.004, tall * 0.28, 0]} rotation={[0, 0, 0.4]}>
-              <boxGeometry args={[0.006, tall * 0.35, 0.014]} />
-              <meshStandardMaterial color="#c5ccd2" metalness={0.7} roughness={0.3} />
-            </mesh>
-          )}
-          {look.ramId === 'dominator' &&
-            [-0.004, 0.004].map((z) => (
-              <mesh key={z} position={[0.0065, tall * 0.3, z]}>
-                <boxGeometry args={[0.002, tall * 0.5, 0.005]} />
-                <meshStandardMaterial color="#c5ccd2" metalness={0.75} roughness={0.28} />
+          {id === 'fury-beast' && (
+            <>
+              <mesh position={[0.007, 0, 0]}>
+                <boxGeometry args={[0.002, tall * 0.7, 0.004]} />
+                <meshStandardMaterial color="#c0392b" />
               </mesh>
-            ))}
-          {glow && (
+              <mesh position={[0.0068, tall * 0.22, 0]} rotation={[0, 0, -0.35]}>
+                <boxGeometry args={[0.0018, tall * 0.18, 0.012]} />
+                <meshStandardMaterial color="#a83228" metalness={0.3} roughness={0.5} />
+              </mesh>
+            </>
+          )}
+          {id === 'trident-neo' && (
+            <>
+              <mesh position={[0.004, tall * 0.28, 0]} rotation={[0, 0, 0.4]}>
+                <boxGeometry args={[0.006, tall * 0.35, 0.014]} />
+                <meshPhysicalMaterial color="#c5ccd2" metalness={0.78} roughness={0.26} clearcoat={0.35} />
+              </mesh>
+              {glow && (
+                <mesh position={[0.0072, tall * 0.38, 0]}>
+                  <boxGeometry args={[0.0025, tall * 0.42, 0.012]} />
+                  <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.85} />
+                </mesh>
+              )}
+            </>
+          )}
+          {id === 'vengeance' && glow && (
+            <>
+              <mesh position={[0.007, tall * 0.36, 0]}>
+                <boxGeometry args={[0.0028, tall * 0.48, 0.011]} />
+                <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.75} />
+              </mesh>
+              {Array.from({ length: 10 }, (_, z) => (
+                <mesh key={z} position={[0.0082, tall * 0.18 + z * (tall * 0.045), 0]}>
+                  <boxGeometry args={[0.0012, tall * 0.028, 0.009]} />
+                  <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.55 + (z % 3) * 0.1} />
+                </mesh>
+              ))}
+            </>
+          )}
+          {id === 'dominator' && (
+            <>
+              <mesh position={[0, tall / 2 - 0.002, 0]}>
+                <boxGeometry args={[0.014, 0.006, 0.016]} />
+                <meshPhysicalMaterial color="#d8dde4" metalness={0.85} roughness={0.2} clearcoat={0.4} />
+              </mesh>
+              {[-0.0045, 0, 0.0045].map((z) => (
+                <mesh key={z} position={[0.0065, tall * 0.28, z]}>
+                  <boxGeometry args={[0.0022, tall * 0.52, 0.0038]} />
+                  <meshStandardMaterial color="#c5ccd2" metalness={0.78} roughness={0.26} />
+                </mesh>
+              ))}
+              {glow && (
+                <mesh position={[0.0075, tall * 0.4, 0]}>
+                  <boxGeometry args={[0.002, tall * 0.2, 0.012]} />
+                  <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.8} />
+                </mesh>
+              )}
+            </>
+          )}
+          {glow && id !== 'trident-neo' && id !== 'vengeance' && id !== 'dominator' && (
             <mesh position={[0.007, tall * 0.42, 0]}>
               <boxGeometry args={[0.003, 0.008, 0.012]} />
               <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.7} />
@@ -1285,7 +1398,15 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         </mesh>
       )}
       <group position={[0.015, box.h * 0.18, -box.d / 2 + 0.028]} rotation={[0, Math.PI / 2, 0]} {...pick('fans')}>
-        <SquareFan size={box.h > 0.4 ? 0.1 : 0.08} frame={fan.frame} blade={fan.blade} glow={fan.glow} screen={fan.screen} spinning={motion} />
+        <SquareFan
+          size={box.h > 0.4 ? 0.1 : 0.08}
+          frame={fan.frame}
+          blade={fan.blade}
+          glow={fan.glow}
+          screen={fan.screen}
+          spinning={motion}
+          kind={look.fanId}
+        />
       </group>
       <group position={[-box.w / 2 + 0.045, box.h * 0.31, -box.d / 2 + 0.014]}>
         <mesh>
@@ -1342,7 +1463,15 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
           rotation={[0, -Math.PI / 2, 0]}
           {...pick('fans')}
         >
-          <SquareFan size={look.fanSize === 140 ? 0.125 : 0.11} frame={fan.frame} blade={fan.blade} glow={fan.glow} screen={fan.screen} spinning={motion} />
+          <SquareFan
+            size={look.fanSize === 140 ? 0.125 : 0.11}
+            frame={fan.frame}
+            blade={fan.blade}
+            glow={fan.glow}
+            screen={fan.screen}
+            spinning={motion}
+            kind={look.fanId}
+          />
         </group>
         )
       })}
