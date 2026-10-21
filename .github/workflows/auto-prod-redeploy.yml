@@ -1,0 +1,73 @@
+# Keeps lost.pink / Vercel production current with the latest Cursor agent branch.
+# Vercel production tracks `main`; this job fast-forwards main to the tip of the
+# most recently updated open PR (or newest cursor/* branch) every ten minutes.
+name: Auto production redeploy
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - 'cursor/**'
+
+concurrency:
+  group: auto-prod-redeploy
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  sync-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve source branch
+        id: src
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BRANCH="$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --state open --json headRefName,updatedAt --jq 'sort_by(.updatedAt) | reverse | .[0].headRefName // empty')"
+          if [ -z "$BRANCH" ]; then
+            BRANCH="$(git for-each-ref --sort=-committerdate --format='%(refname:short)' 'refs/remotes/origin/cursor/*' | head -n1 | sed 's#^origin/##')"
+          fi
+          if [ -z "$BRANCH" ]; then
+            echo "No open PR or cursor/* branch — nothing to sync."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "Source branch: $BRANCH"
+
+      - name: Fast-forward main and push
+        if: steps.src.outputs.skip != 'true'
+        env:
+          BRANCH: ${{ steps.src.outputs.branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "torxth-auto-deploy"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "$BRANCH" main
+          SRC_SHA="$(git rev-parse "origin/$BRANCH")"
+          MAIN_SHA="$(git rev-parse origin/main)"
+          if [ "$SRC_SHA" = "$MAIN_SHA" ]; then
+            echo "main already at $SRC_SHA — Vercel is current."
+            exit 0
+          fi
+          git checkout -B main origin/main
+          if git merge-base --is-ancestor origin/main "origin/$BRANCH"; then
+            git merge --ff-only "origin/$BRANCH"
+          else
+            # Diverged histories (e.g. main has unrelated commits): take the agent tip.
+            git reset --hard "origin/$BRANCH"
+          fi
+          git push origin main
+          echo "Pushed main → $(git rev-parse HEAD). Vercel production redeploy will follow."
