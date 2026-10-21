@@ -70,6 +70,27 @@ function meshTexture(light: boolean, fine: boolean) {
   })
 }
 
+function triangleTexture() {
+  return paint(256, 256, (g) => {
+    g.fillStyle = '#22262c'
+    g.fillRect(0, 0, 256, 256)
+    g.fillStyle = '#0b0d10'
+    const s = 26
+    for (let row = 0; row < 11; row++) {
+      for (let col = 0; col < 11; col++) {
+        const x = col * s + (row % 2 ? s / 2 : 0)
+        const y = row * (s * 0.62)
+        g.beginPath()
+        g.moveTo(x, y)
+        g.lineTo(x + 9, y + 14)
+        g.lineTo(x - 9, y + 14)
+        g.closePath()
+        g.fill()
+      }
+    }
+  })
+}
+
 function boardTexture(intel: boolean, scheme: 'black' | 'silver' | 'white' | 'gold' = 'black') {
   const lightBoard = scheme === 'white'
   return paint(512, 640, (g) => {
@@ -107,6 +128,17 @@ function boardTexture(intel: boolean, scheme: 'black' | 'silver' | 'white' | 'go
     g.fillStyle = intel ? '#c6a15a' : '#8a6a3c'
     g.fillRect(36, 420, 170, 7)
     g.fillRect(356, 70, 76, 7)
+    g.fillStyle = lightBoard ? 'rgba(70,80,95,0.85)' : 'rgba(200,210,220,0.5)'
+    for (let i = 0; i < 4; i++) g.fillRect(366 + i * 17, 78, 7, 214)
+    g.fillStyle = lightBoard ? 'rgba(70,80,95,0.9)' : 'rgba(190,200,212,0.55)'
+    g.fillRect(30, 428, 320, 11)
+    g.fillRect(30, 462, 260, 11)
+    g.fillRect(30, 540, 150, 40)
+    g.fillStyle = lightBoard ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.16)'
+    g.fillRect(30, 428, 320, 3)
+    g.fillRect(196, 168, 88, 88)
+    g.fillStyle = lightBoard ? 'rgba(90,100,115,0.9)' : 'rgba(220,228,238,0.6)'
+    for (let i = 0; i < 6; i++) g.fillRect(44 + i * 30, 596, 18, 26)
   })
 }
 
@@ -353,10 +385,16 @@ function SquareFan({
       </mesh>
       <Rotor radius={size * 0.42} blade={blade} ring={frame} hub={glow ? '#d7dde4' : '#8b939c'} spinning={spinning} speed={1.6} />
       {glow && (
-        <mesh rotation={[0, Math.PI / 2, 0]}>
-          <ringGeometry args={[size * 0.34, size * 0.4, 32]} />
-          <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.8} side={THREE.DoubleSide} />
-        </mesh>
+        <>
+          <mesh rotation={[0, Math.PI / 2, 0]}>
+            <ringGeometry args={[size * 0.34, size * 0.4, 32]} />
+            <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.85} side={THREE.DoubleSide} />
+          </mesh>
+          <mesh rotation={[0, Math.PI / 2, 0]} position={[0.004, 0, 0]}>
+            <ringGeometry args={[size * 0.18, size * 0.24, 28]} />
+            <meshStandardMaterial color={glow} emissive={glow} emissiveIntensity={0.55} side={THREE.DoubleSide} />
+          </mesh>
+        </>
       )}
       {screen && (
         <mesh position={[0.013, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
@@ -410,9 +448,10 @@ const walnut = ['#4a2e1c', '#6d4328', '#8a5a34', '#58361f', '#73492c', '#3a2414'
 function Front({ box, look, onCase }: { box: Chassis; look: Look; onCase: ReturnType<typeof handlers> }) {
   const grain = useMemo(() => grainTexture(), [])
   const mesh = useMemo(
-    () => meshTexture(look.front === 'mesh' && look.light, look.caseId === '4000d' || look.caseId === 'meshify3xl'),
+    () => meshTexture(look.front === 'mesh' && look.light, look.caseId === 'meshify3xl'),
     [look.front, look.light, look.caseId],
   )
+  const triangles = useMemo(() => triangleTexture(), [])
   const fw = box.w - 0.04
   const fh = box.h - 0.1
   if (look.front === 'wood') {
@@ -443,10 +482,51 @@ function Front({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
   }
   if (look.front === 'glass') {
     return (
-      <mesh position={[0, 0, box.d / 2 - 0.01]} {...onCase}>
-        <boxGeometry args={[fw, fh, 0.008]} />
-        <meshStandardMaterial color="#d5e4ee" transparent opacity={0.16} roughness={0.05} depthWrite={false} />
-      </mesh>
+      <group position={[0, 0, box.d / 2 - 0.01]} {...onCase}>
+        <mesh>
+          <boxGeometry args={[fw, fh, 0.008]} />
+          <meshStandardMaterial color="#d5e4ee" transparent opacity={0.16} roughness={0.05} depthWrite={false} />
+        </mesh>
+        {look.caseId === 'h9' && (
+          <>
+            <mesh position={[fw / 2 - 0.004, 0, 0.005]}>
+              <boxGeometry args={[0.008, fh, 0.006]} />
+              <meshPhysicalMaterial color="#e8ecf0" metalness={0.7} roughness={0.28} clearcoat={0.35} />
+            </mesh>
+            <mesh position={[0, fh / 2 - 0.004, 0.005]}>
+              <boxGeometry args={[fw, 0.008, 0.006]} />
+              <meshPhysicalMaterial color="#e8ecf0" metalness={0.7} roughness={0.28} clearcoat={0.35} />
+            </mesh>
+            <mesh position={[0, -fh / 2 + 0.004, 0.005]}>
+              <boxGeometry args={[fw, 0.008, 0.006]} />
+              <meshPhysicalMaterial color="#e8ecf0" metalness={0.7} roughness={0.28} clearcoat={0.35} />
+            </mesh>
+          </>
+        )}
+      </group>
+    )
+  }
+  if (look.caseId === '4000d') {
+    return (
+      <group position={[0, 0, box.d / 2 - 0.01]}>
+        <mesh {...onCase}>
+          <boxGeometry args={[fw - 0.01, fh - 0.01, 0.01]} />
+          <meshStandardMaterial map={triangles} roughness={0.62} metalness={0.35} />
+        </mesh>
+        {(
+          [
+            [0, fh / 2 - 0.005, fw, 0.01],
+            [0, -fh / 2 + 0.005, fw, 0.01],
+            [fw / 2 - 0.005, 0, 0.01, fh],
+            [-fw / 2 + 0.005, 0, 0.01, fh],
+          ] as const
+        ).map(([x, y, w, h], i) => (
+          <mesh key={i} position={[x, y, 0.005]}>
+            <boxGeometry args={[w, h, 0.008]} />
+            <meshPhysicalMaterial color="#aeb6be" metalness={0.72} roughness={0.28} />
+          </mesh>
+        ))}
+      </group>
     )
   }
   const rim = look.light ? '#d9d2c6' : '#8e98a2'
@@ -468,9 +548,9 @@ function Front({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
         </mesh>
       ))}
       {look.caseId === 'meshify3xl' &&
-        [-0.5, 0.5].map((tilt) => (
+        [-0.55, -0.18, 0.18, 0.55].map((tilt) => (
           <mesh key={tilt} position={[0, 0, 0.006]} rotation={[0, 0, tilt]}>
-            <boxGeometry args={[0.014, fh * 0.72, 0.006]} />
+            <boxGeometry args={[0.012, fh * 0.78, 0.006]} />
             <meshPhysicalMaterial color={rim} metalness={0.7} roughness={0.3} />
           </mesh>
         ))}
@@ -576,119 +656,213 @@ function Graphics({
   const style = { ...paint, thick: THREE.MathUtils.clamp(look.gpuThick * 0.0011, 0.042, 0.075), fans: look.gpuFans }
   const length = Math.min((look.gpuMm / 450) * box.d, box.d * 0.92)
   const poke = look.gpuMm > look.gpuMax
-  {
-    const cardH = look.gpuThick >= 65 ? 0.124 : look.gpuThick >= 50 ? 0.112 : 0.104
-    const cy = -box.h / 2 + 0.208
-    const cz = -box.d / 2 + 0.055 + length / 2
-    const cx = -box.w / 2 + 0.02 + cardH / 2
-    return (
-      <group position={[cx, cy, cz]} {...onPick}>
-        <RoundedBox args={[cardH - 0.006, 0.005, length - 0.004]} position={[0, style.thick / 2 - 0.002, 0]} radius={0.002}>
-          <meshPhysicalMaterial
-            color={style.cross ? style.shroud : '#17191d'}
-            metalness={style.cross ? 0.78 : 0.62}
-            roughness={style.cross ? 0.3 : 0.36}
-            clearcoat={0.4}
-            clearcoatRoughness={0.3}
-            emissive={poke ? '#5a3a28' : '#000000'}
-            emissiveIntensity={poke ? 0.3 : 0}
-          />
-        </RoundedBox>
-        <mesh position={[-cardH * 0.22, style.thick * 0.16, 0]}>
-          <boxGeometry args={[cardH * 0.5, 0.003, length - 0.016]} />
-          <meshStandardMaterial color="#12291b" roughness={0.85} />
+  const family = look.gpuId === 'rtx5090'
+    ? 'astral'
+    : style.cross
+      ? 'fe'
+      : look.maker === 'amd'
+        ? 'pulse'
+        : look.maker === 'intel'
+          ? 'arc'
+          : look.gpuId === 'rtx5070ti'
+            ? 'gaming'
+            : 'ventus'
+  const cardH = look.gpuThick >= 65 ? 0.124 : look.gpuThick >= 50 ? 0.112 : 0.104
+  const cy = -box.h / 2 + 0.208
+  const cz = -box.d / 2 + 0.055 + length / 2
+  const cx = -box.w / 2 + 0.02 + cardH / 2
+  const under = Math.min(style.fans, 3)
+  const edgeColor = family === 'fe' ? '#c9ced4' : family === 'astral' ? '#c9a06a' : family === 'gaming' ? '#8a939c' : family === 'arc' ? '#39424c' : '#22262c'
+  return (
+    <group position={[cx, cy, cz]} {...onPick}>
+      <RoundedBox args={[cardH - 0.006, 0.005, length - 0.004]} position={[0, style.thick / 2 - 0.002, 0]} radius={0.002}>
+        <meshPhysicalMaterial
+          color={family === 'fe' || family === 'ventus' ? '#c9ced4' : '#17191d'}
+          metalness={0.72}
+          roughness={0.32}
+          clearcoat={0.4}
+          clearcoatRoughness={0.3}
+          emissive={poke ? '#5a3a28' : '#000000'}
+          emissiveIntensity={poke ? 0.3 : 0}
+        />
+      </RoundedBox>
+      <mesh position={[-cardH * 0.22, style.thick * 0.16, 0]}>
+        <boxGeometry args={[cardH * 0.5, 0.003, length - 0.016]} />
+        <meshStandardMaterial color="#12291b" roughness={0.85} />
+      </mesh>
+      <RoundedBox args={[cardH - 0.01, style.thick * 0.78, length - 0.01]} position={[0, -0.002, 0.002]} radius={family === 'astral' ? 0.01 : 0.007} castShadow>
+        <meshPhysicalMaterial color={style.shroud} metalness={style.metal} roughness={style.rough} clearcoat={style.cross ? 0.5 : 0.22} clearcoatRoughness={0.3} envMapIntensity={1} />
+      </RoundedBox>
+      <mesh position={[cardH / 2 - 0.002, 0, 0]}>
+        <boxGeometry args={[0.004, style.thick * 0.6, length - 0.014]} />
+        <meshPhysicalMaterial color={edgeColor} metalness={0.7} roughness={0.3} clearcoat={0.3} />
+      </mesh>
+      {Array.from({ length: 6 }, (_, i) => (
+        <mesh key={i} position={[cardH / 2 + 0.0005, 0.004, -length * 0.36 + i * length * 0.13]}>
+          <boxGeometry args={[0.0016, style.thick * 0.42, 0.006]} />
+          <meshStandardMaterial color="#0c0e10" roughness={0.7} />
         </mesh>
-        <RoundedBox args={[cardH - 0.01, style.thick * 0.78, length - 0.01]} position={[0, -0.002, 0.002]} radius={0.007} castShadow>
-          <meshPhysicalMaterial color={style.shroud} metalness={style.metal} roughness={style.rough} clearcoat={style.cross ? 0.5 : 0.22} clearcoatRoughness={0.3} envMapIntensity={1} />
-        </RoundedBox>
-        <mesh position={[cardH / 2 - 0.002, 0, 0]}>
-          <boxGeometry args={[0.004, style.thick * 0.6, length - 0.014]} />
-          <meshPhysicalMaterial color={style.cross ? '#c9ced4' : '#22262c'} metalness={0.7} roughness={0.3} clearcoat={0.3} />
-        </mesh>
-        {Array.from({ length: 6 }, (_, i) => (
-          <mesh key={i} position={[cardH / 2 + 0.0005, 0.004, -length * 0.36 + i * length * 0.13]}>
-            <boxGeometry args={[0.0016, style.thick * 0.42, 0.006]} />
-            <meshStandardMaterial color="#0c0e10" roughness={0.7} />
-          </mesh>
-        ))}
-        {style.cross ? (
+      ))}
+
+      {family === 'fe' && (
+        <>
           <group position={[0, style.thick / 2 + 0.003, length * 0.27]} rotation={[0, 0, Math.PI / 2]}>
             <Rotor radius={0.037} blade={style.blade} ring={style.ring} hub={style.hub} cross spinning={spinning} speed={1.4} />
           </group>
-        ) : (
-          <group position={[0, style.thick / 2 + 0.0012, length * 0.27]}>
-            <mesh>
-              <boxGeometry args={[cardH * 0.6, 0.0016, length * 0.2]} />
-              <meshStandardMaterial color="#0e1013" metalness={0.4} roughness={0.5} />
-            </mesh>
-            {Array.from({ length: 4 }, (_, i) => (
-              <mesh key={i} position={[0, 0.0008, -length * 0.07 + i * length * 0.045]}>
-                <boxGeometry args={[cardH * 0.56, 0.0012, 0.004]} />
-                <meshStandardMaterial color="#3c434b" metalness={0.6} roughness={0.35} />
-              </mesh>
-            ))}
-          </group>
-        )}
-        <mesh position={[cardH * 0.18, style.thick / 2 + 0.001, 0]}>
-          <boxGeometry args={[0.0018, 0.002, length * 0.6]} />
-          <meshStandardMaterial color={style.accent} roughness={0.4} metalness={0.3} emissive={style.accent} emissiveIntensity={look.gpuId === 'rtx5090' ? 0.4 : 0} />
-        </mesh>
-        <group position={[0, 0.01, -length / 2 - 0.002]}>
-          <mesh>
-            <boxGeometry args={[cardH - 0.02, 0.088, 0.004]} />
-            <meshPhysicalMaterial color="#c5ced6" metalness={0.82} roughness={0.24} clearcoat={0.3} />
-          </mesh>
-          {[-0.02, 0.018].map((yy) => (
-            <mesh key={yy} position={[0.004, yy, -0.003]}>
-              <boxGeometry args={[cardH * 0.52, 0.013, 0.002]} />
-              <meshStandardMaterial color="#0a0c0e" roughness={0.7} />
+          {[Math.PI / 4, -Math.PI / 4].map((tilt) => (
+            <mesh key={tilt} position={[0, style.thick / 2 + 0.0025, -length * 0.22]} rotation={[0, tilt, 0]}>
+              <boxGeometry args={[cardH * 0.62, 0.0022, 0.005]} />
+              <meshPhysicalMaterial color="#e8ecf0" metalness={0.8} roughness={0.26} clearcoat={0.4} />
             </mesh>
           ))}
-        </group>
-        {Array.from({ length: 4 }, (_, i) => (
-          <mesh key={i} position={[cardH * 0.28, style.thick / 2 + 0.004, -length * 0.32 + i * length * 0.2]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.0032, 0.0032, 0.003, 8]} />
-            <meshStandardMaterial color="#aeb6be" metalness={0.82} roughness={0.24} />
+          <mesh position={[cardH / 2 + 0.001, 0, -length * 0.05]}>
+            <boxGeometry args={[0.0016, style.thick * 0.3, length * 0.4]} />
+            <meshStandardMaterial color="#2a2e33" metalness={0.6} roughness={0.4} />
           </mesh>
-        ))}
-        <mesh position={[0.008, style.thick / 2 + 0.007, length * 0.14]}>
-          <boxGeometry args={[0.02, 0.01, 0.03]} />
-          <meshStandardMaterial color="#0e1012" metalness={0.3} roughness={0.5} />
-        </mesh>
-        <Tube from={[0.008, style.thick / 2 + 0.012, length * 0.14]} to={[-cardH / 2 + 0.014, 0.125, length * 0.38]} radius={0.0046} bend={0.01} />
-        <Tube from={[0.014, style.thick / 2 + 0.012, length * 0.12]} to={[-cardH / 2 + 0.02, 0.122, length * 0.37]} radius={0.0046} bend={0.01} />
-        {look.gpuMm > 280 && (
-          <mesh position={[0.012, -(style.thick / 2 + 0.046), length / 2 - 0.024]}>
-            <boxGeometry args={[0.012, 0.092, 0.01]} />
-            <meshStandardMaterial color="#14171b" metalness={0.55} roughness={0.4} />
-          </mesh>
-        )}
-        {style.fans === 4 && (
+        </>
+      )}
+
+      {family === 'astral' && (
+        <>
           <group position={[0, style.thick / 2 + 0.003, -length * 0.34]} rotation={[0, 0, Math.PI / 2]}>
             <Rotor radius={0.034} blade={style.blade} ring={style.ring} hub={style.hub} spinning={spinning} speed={1.5} />
           </group>
-        )}
-        {Array.from({ length: Math.min(style.fans, 3) }, (_, i) => {
-          const under = Math.min(style.fans, 3)
-          const radius = Math.min(0.041, (length / under) * 0.31)
-          const zFan = -length / 2 + length * ((i + 1) / (under + 1))
-          return (
-            <group key={i} position={[0, -style.thick / 2 - 0.004, zFan]} rotation={[0, 0, -Math.PI / 2]}>
-              <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.01, 0, 0]}>
-                <circleGeometry args={[radius * 1.05, 40]} />
-                <meshStandardMaterial color="#060708" roughness={0.95} />
-              </mesh>
-              <mesh rotation={[0, Math.PI / 2, 0]} position={[0.006, 0, 0]}>
-                <torusGeometry args={[radius * 1.06, 0.005, 10, 42]} />
-                <meshPhysicalMaterial color={style.shroud} metalness={Math.min(0.85, style.metal + 0.15)} roughness={0.28} clearcoat={0.3} />
-              </mesh>
-              <Rotor radius={radius} blade={style.blade} ring={style.ring} hub={style.hub} cross={style.cross} spinning={spinning} speed={1.4 + i * 0.1} />
-            </group>
-          )
-        })}
+          {[-0.3, 0.3].map((zz) => (
+            <mesh key={zz} position={[cardH * 0.18, style.thick / 2 + 0.0012, length * zz]}>
+              <boxGeometry args={[0.0016, 0.0016, length * 0.3]} />
+              <meshStandardMaterial color="#c9a06a" metalness={0.8} roughness={0.25} />
+            </mesh>
+          ))}
+          {[-1, 1].map((side) => (
+            <mesh key={side} position={[side * cardH * 0.42, style.thick / 2 - 0.004, 0]}>
+              <boxGeometry args={[0.006, 0.008, length - 0.02]} />
+              <meshPhysicalMaterial color="#1e2023" metalness={0.65} roughness={0.32} clearcoat={0.3} />
+            </mesh>
+          ))}
+          <mesh position={[0, style.thick / 2 + 0.0012, length * 0.18]}>
+            <boxGeometry args={[cardH * 0.6, 0.0016, length * 0.22]} />
+            <meshStandardMaterial color="#0e1013" metalness={0.4} roughness={0.5} />
+          </mesh>
+          <mesh position={[cardH / 2 + 0.001, 0.006, length * 0.1]}>
+            <boxGeometry args={[0.0016, 0.004, length * 0.5]} />
+            <meshStandardMaterial color="#e10600" emissive="#e10600" emissiveIntensity={0.5} roughness={0.4} />
+          </mesh>
+        </>
+      )}
+
+      {(family === 'ventus' || family === 'pulse' || family === 'gaming') && (
+        <group position={[0, style.thick / 2 + 0.0012, length * 0.27]}>
+          <mesh>
+            <boxGeometry args={[cardH * 0.6, 0.0016, length * 0.2]} />
+            <meshStandardMaterial color="#0e1013" metalness={0.4} roughness={0.5} />
+          </mesh>
+          {Array.from({ length: 4 }, (_, i) => (
+            <mesh key={i} position={[0, 0.0008, -length * 0.07 + i * length * 0.045]}>
+              <boxGeometry args={[cardH * 0.56, 0.0012, 0.004]} />
+              <meshStandardMaterial color="#3c434b" metalness={0.6} roughness={0.35} />
+            </mesh>
+          ))}
+        </group>
+      )}
+
+      {family === 'pulse' && (
+        <mesh position={[cardH * 0.3, style.thick / 2 + 0.0012, 0]}>
+          <boxGeometry args={[0.002, 0.0018, length * 0.82]} />
+          <meshStandardMaterial color="#e10600" roughness={0.45} metalness={0.3} />
+        </mesh>
+      )}
+      {family === 'gaming' && (
+        <>
+          <mesh position={[cardH / 2 + 0.001, 0, 0]}>
+            <boxGeometry args={[0.0016, style.thick * 0.34, length * 0.55]} />
+            <meshPhysicalMaterial color="#c5ced6" metalness={0.8} roughness={0.26} clearcoat={0.35} />
+          </mesh>
+          <mesh position={[0, -style.thick * 0.1, length / 2 - 0.012]} rotation={[0, 0.5, 0]}>
+            <boxGeometry args={[cardH - 0.016, style.thick * 0.6, 0.02]} />
+            <meshPhysicalMaterial color="#262b33" metalness={0.6} roughness={0.35} clearcoat={0.3} />
+          </mesh>
+        </>
+      )}
+      {family === 'ventus' && (
+        <mesh position={[cardH * 0.3, style.thick / 2 + 0.0012, 0]}>
+          <boxGeometry args={[0.002, 0.0018, length * 0.7]} />
+          <meshStandardMaterial color="#8a939c" metalness={0.6} roughness={0.35} />
+        </mesh>
+      )}
+      {family === 'arc' && (
+        <mesh position={[cardH * 0.24, style.thick / 2 + 0.001, 0]}>
+          <boxGeometry args={[0.0018, 0.002, length * 0.62]} />
+          <meshStandardMaterial color="#4da3ff" roughness={0.4} metalness={0.3} emissive="#4da3ff" emissiveIntensity={look.gpuId === 'arc-a770' || look.gpuId === 'arc-a750' ? 0.45 : 0.15} />
+        </mesh>
+      )}
+      {family !== 'fe' && family !== 'astral' && family !== 'arc' && (
+        <mesh position={[cardH * 0.18, style.thick / 2 + 0.001, 0]}>
+          <boxGeometry args={[0.0018, 0.002, length * 0.6]} />
+          <meshStandardMaterial color={style.accent} roughness={0.4} metalness={0.3} />
+        </mesh>
+      )}
+
+      <group position={[0, 0.01, -length / 2 - 0.002]}>
+        <mesh>
+          <boxGeometry args={[cardH - 0.02, 0.088, 0.004]} />
+          <meshPhysicalMaterial color="#c5ced6" metalness={0.82} roughness={0.24} clearcoat={0.3} />
+        </mesh>
+        {[-0.02, 0.018].map((yy) => (
+          <mesh key={yy} position={[0.004, yy, -0.003]}>
+            <boxGeometry args={[cardH * 0.52, 0.013, 0.002]} />
+            <meshStandardMaterial color="#0a0c0e" roughness={0.7} />
+          </mesh>
+        ))}
       </group>
-    )
-  }
+      {Array.from({ length: 4 }, (_, i) => (
+        <mesh key={i} position={[cardH * 0.28, style.thick / 2 + 0.004, -length * 0.32 + i * length * 0.2]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.0032, 0.0032, 0.003, 8]} />
+          <meshStandardMaterial color="#aeb6be" metalness={0.82} roughness={0.24} />
+        </mesh>
+      ))}
+      <mesh position={[0.008, style.thick / 2 + 0.007, length * 0.14]}>
+        <boxGeometry args={[0.02, 0.01, 0.03]} />
+        <meshStandardMaterial color="#0e1012" metalness={0.3} roughness={0.5} />
+      </mesh>
+      <Tube from={[0.008, style.thick / 2 + 0.012, length * 0.14]} to={[-cardH / 2 + 0.014, 0.125, length * 0.38]} radius={0.0046} bend={0.01} />
+      <Tube from={[0.014, style.thick / 2 + 0.012, length * 0.12]} to={[-cardH / 2 + 0.02, 0.122, length * 0.37]} radius={0.0046} bend={0.01} />
+      {look.gpuMm > 280 && (
+        <mesh position={[0.012, -(style.thick / 2 + 0.046), length / 2 - 0.024]}>
+          <boxGeometry args={[0.012, 0.092, 0.01]} />
+          <meshStandardMaterial color="#14171b" metalness={0.55} roughness={0.4} />
+        </mesh>
+      )}
+      {Array.from({ length: under }, (_, i) => {
+        const radius = Math.min(0.041, (length / under) * 0.31)
+        const zFan = -length / 2 + length * ((i + 1) / (under + 1))
+        return (
+          <group key={i} position={[0, -style.thick / 2 - 0.004, zFan]} rotation={[0, 0, -Math.PI / 2]}>
+            <mesh rotation={[0, Math.PI / 2, 0]} position={[-0.01, 0, 0]}>
+              <circleGeometry args={[radius * 1.05, 40]} />
+              <meshStandardMaterial color="#060708" roughness={0.95} />
+            </mesh>
+            <mesh rotation={[0, Math.PI / 2, 0]} position={[0.006, 0, 0]}>
+              <torusGeometry args={[radius * 1.06, 0.005, 10, 42]} />
+              <meshPhysicalMaterial color={style.shroud} metalness={Math.min(0.85, style.metal + 0.15)} roughness={0.28} clearcoat={0.3} />
+            </mesh>
+            {family === 'arc' && (
+              <mesh rotation={[0, Math.PI / 2, 0]} position={[0.009, 0, 0]}>
+                <torusGeometry args={[radius * 0.92, 0.0016, 8, 42]} />
+                <meshStandardMaterial color="#4da3ff" emissive="#4da3ff" emissiveIntensity={look.gpuId === 'arc-a770' || look.gpuId === 'arc-a750' ? 0.6 : 0.2} />
+              </mesh>
+            )}
+            {family === 'gaming' && (
+              <mesh rotation={[0, Math.PI / 2, 0]} position={[0.009, 0, 0]}>
+                <torusGeometry args={[radius * 0.94, 0.0016, 8, 42]} />
+                <meshStandardMaterial color="#dfe8ff" emissive="#dfe8ff" emissiveIntensity={0.3} />
+              </mesh>
+            )}
+            <Rotor radius={radius} blade={style.blade} ring={style.ring} hub={style.hub} cross={style.cross} spinning={spinning} speed={1.4 + i * 0.1} />
+          </group>
+        )
+      })}
+    </group>
+  )
 }
 
 function Cooler({
@@ -727,6 +901,19 @@ function Cooler({
               <boxGeometry args={[0.058, 0.006, thick + 0.004]} />
               <meshPhysicalMaterial color={air.cap} metalness={air.dark ? 0.4 : 0.75} roughness={0.3} />
             </mesh>
+            {Array.from({ length: 5 }, (_, i) => (
+              <mesh key={i} position={[-0.02 + i * 0.01, 0.062, 0]} rotation={[0, 0, 0]}>
+                <cylinderGeometry args={[0.0028, 0.0028, 0.004, 10]} />
+                <meshStandardMaterial color={air.dark ? '#3a3e44' : '#d8dde3'} metalness={0.85} roughness={0.22} />
+              </mesh>
+            ))}
+            {look.coolId === 'darkrock5' &&
+              [-0.012, 0, 0.012].map((z) => (
+                <mesh key={z} position={[0, 0.0615, z]}>
+                  <boxGeometry args={[0.044, 0.0012, 0.004]} />
+                  <meshStandardMaterial color="#2e3237" metalness={0.5} roughness={0.4} />
+                </mesh>
+              ))}
             {look.coolId === 'ak620' &&
               Array.from({ length: 5 }, (_, i) => (
                 <mesh key={i} position={[0, 0.0615, -thick / 2 + 0.005 + i * (thick / 5)]}>
@@ -738,7 +925,7 @@ function Cooler({
         ))}
         {Array.from({ length: air.fans }, (_, i) => (
           <group key={i} position={[0.004, 0, air.single ? 0.036 : i === 0 ? 0.082 : 0.002]} rotation={[0, -Math.PI / 2, 0]}>
-            <SquareFan size={0.118} frame={air.frame} blade={air.blade} glow={null} spinning={spinning} />
+            <SquareFan size={look.coolId === 'd15g2' ? 0.13 : 0.118} frame={air.frame} blade={air.blade} glow={null} spinning={spinning} />
           </group>
         ))}
         <mesh position={[0, -0.062, -0.002]}>
@@ -995,6 +1182,41 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
           <meshStandardMaterial color="#c9ccd0" metalness={0.7} roughness={0.28} />
         </mesh>
       ))}
+      <group position={[-box.w / 2 + 0.016, 0.005, -0.03]} {...pick('cpu')}>
+        {(
+          [
+            [0.041, 0, 0.005, 0.088],
+            [-0.041, 0, 0.005, 0.088],
+            [0, 0.041, 0.088, 0.005],
+            [0, -0.041, 0.088, 0.005],
+          ] as const
+        ).map(([y, z, sy, sz], i) => (
+          <mesh key={i} position={[0, y, z]}>
+            <boxGeometry args={[0.004, sy, sz]} />
+            <meshStandardMaterial color="#c9ccd0" metalness={0.85} roughness={0.22} />
+          </mesh>
+        ))}
+        <mesh position={[0.001, 0, 0]}>
+          <boxGeometry args={[0.003, 0.046, 0.046]} />
+          <meshStandardMaterial color="#b9bec6" metalness={0.9} roughness={0.18} />
+        </mesh>
+      </group>
+      <mesh position={[-box.w / 2 + 0.017, -box.h / 2 + 0.155, 0.01]} {...pick('gpu')}>
+        <boxGeometry args={[0.008, 0.011, box.d * 0.52]} />
+        <meshStandardMaterial color="#0b0d10" metalness={0.4} roughness={0.55} />
+      </mesh>
+      {[-0.028, 0.028].map((z) => (
+        <mesh key={z} position={[-box.w / 2 + 0.024, box.h * 0.29, -box.d / 2 + 0.045 + (z + 0.028) * 0.4]}>
+          <cylinderGeometry args={[0.0028, 0.0028, 0.016, 8]} />
+          <meshStandardMaterial color="#c9a06a" metalness={0.8} roughness={0.25} />
+        </mesh>
+      ))}
+      <Tube
+        from={[-0.03, -box.h / 2 + 0.09, -box.d * 0.32]}
+        to={[-box.w / 2 + 0.04, box.h * 0.26, -box.d * 0.3]}
+        radius={0.0052}
+        bend={-0.012}
+      />
       <GlassDoor open={open} box={box} />
       <Cooler look={look} box={box} spinning={motion} onPick={pick('cool')} />
       <Memory look={look} box={box} onPick={pick('ram')} />
