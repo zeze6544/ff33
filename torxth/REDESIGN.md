@@ -48,10 +48,11 @@ spec-sheet energy — the design comes from layout and real numbers
   stock + compare-at shown, 44px add buttons.
 - **Product** — sticky buy panel, stock/warranty/pickup facts, full specs,
   "build one like this" link, related cards.
-- **Build** — same 3D engine and catalog. New chrome: fitted-parts list
-  (click a slot to edit it), itemised estimate (parts, board, Windows,
-  labour), readable meters, grid picker that works by tap, warnings in
-  amber, brief sent as a pre-filled email (mailto) plus call option.
+- **Build** — workshop docket (no 3D case viewer) on the same parts
+  catalog. Fitted-parts list (click a slot to edit it), itemised
+  estimate (parts, board, Windows, labour), readable meters, grid
+  picker that works by tap, warnings in amber, brief sent as a
+  pre-filled email (mailto) plus call option.
 - **Services** — price-at-a-glance, four services with turnaround,
   process, booking form that opens a pre-filled email.
 - **About / Contact / Checkout** — same honesty pass: forms compose an

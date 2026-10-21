@@ -184,7 +184,7 @@ export function BuildPage() {
     ...fittedRows.map(({ slot: s, part }) => `${s.label}: ${part!.brand} ${part!.name} — ${formatAUD(part!.price)}`),
     `${WINDOWS.name} — ${formatAUD(WINDOWS.price)}`,
     `${LABOUR.name} — ${formatAUD(LABOUR.price)}`,
-    `Estimated total: ${formatAUD(fittedTotal)} (AUD, trade estimate — confirmed before ordering)`,
+    `Estimated total: ${formatAUD(fittedTotal)} AUD inc. GST (trade estimate — confirmed before ordering)`,
     `Estimated system draw: about ${drawOf(fitted)}W · Recommended PSU: ${recommendedPsu(drawOf(fitted))}W+`,
     ...(note.trim() ? ['', `Note: ${note.trim()}`] : []),
   ]
@@ -225,7 +225,7 @@ export function BuildPage() {
                 {formatAUD(Math.abs(previewTotal - fittedTotal))} if you fit the {trying?.name ?? 'part'}
               </p>
             ) : (
-              <p className="mt-1 text-xs text-fog">Includes board, Windows & assembly — itemised below.</p>
+              <p className="mt-1 text-xs text-fog">AUD · inc. GST · board, Windows & assembly itemised below.</p>
             )}
           </div>
         </div>
@@ -335,7 +335,7 @@ export function BuildPage() {
                   <dd className="font-mono tabular-nums">{formatAUD(fittedTotal)}</dd>
                 </div>
               </dl>
-              <p className="mt-3 text-xs leading-relaxed text-fog">Trade estimate in AUD — we confirm the exact price before ordering parts.</p>
+              <p className="mt-3 text-xs leading-relaxed text-fog">Trade estimate in AUD inclusive of GST — we confirm the exact price before ordering parts.</p>
             </section>
           </aside>
         </div>

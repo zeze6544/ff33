@@ -27,14 +27,15 @@ export function DocketPage() {
       '',
       'Order:',
       ...lines.map((l) => `- ${l.product.name} × ${l.quantity} — ${formatAUD(l.lineTotal)}`),
-      `Subtotal: ${formatAUD(subtotal)} (to be confirmed)`,
+      `Subtotal: ${formatAUD(subtotal)} AUD inc. GST (to be confirmed)`,
+      '',
+      'Prices quoted AUD inclusive of GST; final total confirmed before payment.',
       '',
       `Note: ${data.get('note') || '—'}`,
     ]
     const href = `mailto:${company.email}?subject=${encodeURIComponent('Shop order — Torxth')}&body=${encodeURIComponent(body.join('\n'))}`
     setMailto(href)
     setDone(true)
-    clear()
     window.location.href = href
   }
 
@@ -45,14 +46,20 @@ export function DocketPage() {
           <CheckCircle2 className="mx-auto h-10 w-10 text-ok" aria-hidden />
           <h1 className="mt-4 text-4xl">Your order email is ready.</h1>
           <p className="mt-3 leading-relaxed text-mute">
-            It should have opened in your mail app — press send there and we will confirm stock and the final total before any payment. Need it today? Ring{' '}
+            It should have opened in your mail app — press send there and we will confirm availability and the final total before any payment. Need it today? Ring{' '}
             <a className="font-semibold text-blue" href={company.phoneHref}>{company.phone}</a>.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <a href={mailto} className="btn-primary">
               <Mail className="h-4 w-4" aria-hidden /> Open the email again
             </a>
-            <Link to="/shop" className="btn-ghost">Keep shopping</Link>
+            <Link
+              to="/shop"
+              className="btn-ghost"
+              onClick={() => clear()}
+            >
+              Keep shopping
+            </Link>
           </div>
         </div>
       </div>
@@ -135,7 +142,10 @@ export function DocketPage() {
             <span className="font-medium">Subtotal</span>
             <span className="font-mono text-2xl tabular-nums">{formatAUD(subtotal)}</span>
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-mute">Confirmed before payment. Pickup at 61 Dorset Rd, Ferntree Gully, or local delivery by arrangement.</p>
+          <p className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-mute">AUD · inc. GST</p>
+          <p className="mt-2 text-xs leading-relaxed text-mute">
+            Prices include GST. Confirmed before payment. Pickup at 61 Dorset Rd, Ferntree Gully, or local delivery quoted with your order.
+          </p>
           <a href={company.phoneHref} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue">
             <Phone className="h-4 w-4" aria-hidden /> Questions? {company.phone}
           </a>

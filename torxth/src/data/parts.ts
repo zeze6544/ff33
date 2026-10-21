@@ -54,7 +54,8 @@ export type BoardPart = Base & {
   slot: 'board'
   socket: 'AM5' | 'LGA1851'
   chipset: string
-  wifi: boolean
+  /** Onboard wireless — false, or the real standard. */
+  wifi: false | '6E' | '7'
   scheme: 'black' | 'silver' | 'white' | 'gold'
 }
 export type RamPart = Base & { slot: 'ram'; color: string; glow: string | null; tall: number; gb: number; sticks: number }
@@ -131,18 +132,18 @@ export const catalog: CatalogPart[] = [
   { slot: 'cool', id: 'galahad360', brand: 'Lian Li', name: 'Galahad II Trinity Performance 360', price: 289, blurb: 'A performance-tuned 360 with an infinity-mirror pump and daisy-chained fans.', kind: 'aio', rad: 360, pump: 'mirror', quiet: 76 },
 
   // ---------------------------------------------------------- Motherboards — AMD (AM5)
-  { slot: 'board', id: 'prime-b850', brand: 'ASUS', name: 'PRIME B850-PLUS WiFi', price: 329, blurb: 'The honest AM5 board: Wi-Fi 6E, 2.5G LAN, three M.2 slots, money left for the card.', socket: 'AM5', chipset: 'B850', wifi: true, scheme: 'silver' },
-  { slot: 'board', id: 'tomahawk-b850', brand: 'MSI', name: 'MAG B850 TOMAHAWK MAX WIFI', price: 429, blurb: 'Wi-Fi 7, 5G LAN and a proper VRM heatsink. Our usual Ridge board.', socket: 'AM5', chipset: 'B850', wifi: true, scheme: 'black' },
-  { slot: 'board', id: 'gamingx-x870', brand: 'Gigabyte', name: 'X870 GAMING X WIFI7', price: 479, blurb: 'X870 with Wi-Fi 7 and quick-release M.2 latches. Easy board to live with.', socket: 'AM5', chipset: 'X870', wifi: true, scheme: 'black' },
-  { slot: 'board', id: 'carbon-x870e', brand: 'MSI', name: 'MPG X870E CARBON WIFI', price: 749, blurb: 'Carbon-trimmed flagship-lite: dual LAN, USB4, and VRMs that shrug at a 9950X3D.', socket: 'AM5', chipset: 'X870E', wifi: true, scheme: 'black' },
-  { slot: 'board', id: 'hero-x870e', brand: 'ASUS', name: 'ROG Crosshair X870E Hero', price: 1099, blurb: 'The halo AM5 board. Every header, every lane, polished gold trim.', socket: 'AM5', chipset: 'X870E', wifi: true, scheme: 'gold' },
+  { slot: 'board', id: 'prime-b850', brand: 'ASUS', name: 'PRIME B850-PLUS WiFi', price: 329, blurb: 'The honest AM5 board: Wi-Fi 6E, 2.5G LAN, three M.2 slots, money left for the card.', socket: 'AM5', chipset: 'B850', wifi: '6E', scheme: 'silver' },
+  { slot: 'board', id: 'tomahawk-b850', brand: 'MSI', name: 'MAG B850 TOMAHAWK MAX WIFI', price: 429, blurb: 'Wi-Fi 7, 5G LAN and a proper VRM heatsink. Our usual Ridge board.', socket: 'AM5', chipset: 'B850', wifi: '7', scheme: 'black' },
+  { slot: 'board', id: 'gamingx-x870', brand: 'Gigabyte', name: 'X870 GAMING X WIFI7', price: 479, blurb: 'X870 with Wi-Fi 7 and quick-release M.2 latches. Easy board to live with.', socket: 'AM5', chipset: 'X870', wifi: '7', scheme: 'black' },
+  { slot: 'board', id: 'carbon-x870e', brand: 'MSI', name: 'MPG X870E CARBON WIFI', price: 749, blurb: 'Carbon-trimmed flagship-lite: dual LAN, USB4, and VRMs that shrug at a 9950X3D.', socket: 'AM5', chipset: 'X870E', wifi: '7', scheme: 'black' },
+  { slot: 'board', id: 'hero-x870e', brand: 'ASUS', name: 'ROG Crosshair X870E Hero', price: 1099, blurb: 'The halo AM5 board. Every header, every lane, polished gold trim.', socket: 'AM5', chipset: 'X870E', wifi: '7', scheme: 'gold' },
 
   // ---------------------------------------------------------- Motherboards — Intel (LGA1851)
-  { slot: 'board', id: 'tuf-z890', brand: 'ASUS', name: 'TUF Gaming Z890-PLUS WIFI', price: 499, blurb: 'The durable Intel board: Wi-Fi 7, Thunderbolt 4, military-grade components.', socket: 'LGA1851', chipset: 'Z890', wifi: true, scheme: 'black' },
-  { slot: 'board', id: 'tomahawk-z890', brand: 'MSI', name: 'MAG Z890 TOMAHAWK WIFI', price: 549, blurb: 'Olive-black, Wi-Fi 7, 5G LAN and EZ-release everything. Sensible flagship money.', socket: 'LGA1851', chipset: 'Z890', wifi: true, scheme: 'black' },
-  { slot: 'board', id: 'aorus-elite-z890', brand: 'Gigabyte', name: 'Z890 AORUS Elite WIFI7', price: 529, blurb: 'The white-build board: pale armour, Wi-Fi 7, quick-release GPU latch.', socket: 'LGA1851', chipset: 'Z890', wifi: true, scheme: 'white' },
-  { slot: 'board', id: 'strix-z890e', brand: 'ASUS', name: 'ROG Strix Z890-E Gaming WiFi', price: 799, blurb: 'Seven M.2 slots and ROG polish. For storage-heavy Intel builds.', socket: 'LGA1851', chipset: 'Z890', wifi: true, scheme: 'silver' },
-  { slot: 'board', id: 'master-z890', brand: 'Gigabyte', name: 'Z890 AORUS Master', price: 949, blurb: 'The top AORUS: 10G LAN, ESS DAC, VRMs sized for sustained all-core work.', socket: 'LGA1851', chipset: 'Z890', wifi: true, scheme: 'black' },
+  { slot: 'board', id: 'tuf-z890', brand: 'ASUS', name: 'TUF Gaming Z890-PLUS WIFI', price: 499, blurb: 'The durable Intel board: Wi-Fi 7, Thunderbolt 4, military-grade components.', socket: 'LGA1851', chipset: 'Z890', wifi: '7', scheme: 'black' },
+  { slot: 'board', id: 'tomahawk-z890', brand: 'MSI', name: 'MAG Z890 TOMAHAWK WIFI', price: 549, blurb: 'Olive-black, Wi-Fi 7, 5G LAN and EZ-release everything. Sensible flagship money.', socket: 'LGA1851', chipset: 'Z890', wifi: '7', scheme: 'black' },
+  { slot: 'board', id: 'aorus-elite-z890', brand: 'Gigabyte', name: 'Z890 AORUS Elite WIFI7', price: 529, blurb: 'The white-build board: pale armour, Wi-Fi 7, quick-release GPU latch.', socket: 'LGA1851', chipset: 'Z890', wifi: '7', scheme: 'white' },
+  { slot: 'board', id: 'strix-z890e', brand: 'ASUS', name: 'ROG Strix Z890-E Gaming WiFi', price: 799, blurb: 'Seven M.2 slots and ROG polish. For storage-heavy Intel builds.', socket: 'LGA1851', chipset: 'Z890', wifi: '7', scheme: 'silver' },
+  { slot: 'board', id: 'master-z890', brand: 'Gigabyte', name: 'Z890 AORUS Master', price: 949, blurb: 'The top AORUS: 10G LAN, ESS DAC, VRMs sized for sustained all-core work.', socket: 'LGA1851', chipset: 'Z890', wifi: '7', scheme: 'black' },
 
   // ---------------------------------------------------------- RAM (price is the 32GB kit)
   { slot: 'ram', id: 'flare-x5', brand: 'G.Skill', name: 'Flare X5 DDR5-6000 CL30', price: 189, blurb: 'Low black heatspreaders, EXPO tuned for Ryzen. The kit we fit unless you ask for lights.', color: '#1b1c1e', glow: null, tall: 0.068, gb: 32, sticks: 2 },
@@ -597,7 +598,7 @@ export function specLine(part: CatalogPart) {
     case 'cool':
       return part.kind === 'air' ? `${part.height}mm · ${part.towers === 2 ? 'twin tower' : 'single tower'}` : `${part.rad}mm radiator · AIO`
     case 'board':
-      return `${part.chipset} · ${part.socket}${part.wifi ? ' · Wi-Fi 7' : ''}`
+      return `${part.chipset} · ${part.socket}${part.wifi ? ` · Wi-Fi ${part.wifi}` : ''}`
     case 'ram':
       return 'DDR5-6000 · capacity below'
     case 'gpu':
