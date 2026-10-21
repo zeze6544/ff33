@@ -1,5 +1,5 @@
 # Keeps lost.pink / Vercel production current with the latest Cursor agent branch.
-# Vercel production tracks `main`; this job fast-forwards main to the tip of the
+# Vercel production tracks `main`; this job points main at the tip of the
 # most recently updated open PR (or newest cursor/* branch) every ten minutes.
 name: Auto production redeploy
 
@@ -43,11 +43,16 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # Do not re-enter from the push this job itself makes to main.
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_name }}" = "main" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "Source branch: $BRANCH"
 
-      - name: Fast-forward main and push
+      - name: Point main at the agent tip
         if: steps.src.outputs.skip != 'true'
         env:
           BRANCH: ${{ steps.src.outputs.branch }}
@@ -62,12 +67,8 @@ jobs:
             echo "main already at $SRC_SHA — Vercel is current."
             exit 0
           fi
-          git checkout -B main origin/main
-          if git merge-base --is-ancestor origin/main "origin/$BRANCH"; then
-            git merge --ff-only "origin/$BRANCH"
-          else
-            # Diverged histories (e.g. main has unrelated commits): take the agent tip.
-            git reset --hard "origin/$BRANCH"
-          fi
-          git push origin main
+          git checkout -B main "origin/$BRANCH"
+          # Production tip is the agent tip. Force-with-lease covers the case
+          # where main and the agent branch diverged on the same workflow file.
+          git push --force-with-lease=main:"$MAIN_SHA" origin main
           echo "Pushed main → $(git rev-parse HEAD). Vercel production redeploy will follow."
