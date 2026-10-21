@@ -242,8 +242,8 @@ function fanBlade(radius: number) {
   return geom
 }
 
-function fanFrame(size: number) {
-  const key = Math.round(size * 10000)
+function fanFrame(size: number, deep = false) {
+  const key = Math.round(size * 10000) + (deep ? 7_000_000 : 0)
   const cached = frameCache.get(key)
   if (cached) return cached
   const half = size / 2
@@ -261,7 +261,7 @@ function fanFrame(size: number) {
   const hole = new THREE.Path()
   hole.absarc(0, 0, size * 0.455, 0, Math.PI * 2, true)
   shape.holes.push(hole)
-  const depth = Math.max(0.018, size * 0.18)
+  const depth = deep ? size * 0.3 : Math.max(0.018, size * 0.18)
   const geom = new THREE.ExtrudeGeometry(shape, {
     depth,
     bevelEnabled: true,
@@ -368,6 +368,8 @@ function SquareFan({
   blade,
   glow,
   screen,
+  mirror,
+  deep,
   spinning,
 }: {
   size: number
@@ -375,9 +377,11 @@ function SquareFan({
   blade: string
   glow: string | null
   screen?: boolean
+  mirror?: boolean
+  deep?: boolean
   spinning: boolean
 }) {
-  const frameGeom = useMemo(() => fanFrame(size), [size])
+  const frameGeom = useMemo(() => fanFrame(size, deep), [size, deep])
   return (
     <group>
       <mesh geometry={frameGeom} castShadow>
@@ -400,6 +404,12 @@ function SquareFan({
         <mesh position={[0.013, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
           <planeGeometry args={[size * 0.3, size * 0.3]} />
           <meshStandardMaterial color="#9fd0f5" emissive="#8ec9f2" emissiveIntensity={0.75} roughness={0.3} />
+        </mesh>
+      )}
+      {mirror && (
+        <mesh position={[0.012, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <circleGeometry args={[size * 0.17, 28]} />
+          <meshPhysicalMaterial color="#e6eef6" metalness={1} roughness={0.06} clearcoat={1} envMapIntensity={1.6} />
         </mesh>
       )}
     </group>
@@ -547,6 +557,19 @@ function Front({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
           <meshPhysicalMaterial color={rim} metalness={0.7} roughness={0.3} />
         </mesh>
       ))}
+      {look.caseId === 'lancool' &&
+        [-0.11, 0.11].map((y) => (
+          <group key={y} position={[0, y, -0.004]}>
+            <mesh>
+              <circleGeometry args={[0.056, 28]} />
+              <meshStandardMaterial color="#0a0c0e" roughness={0.9} />
+            </mesh>
+            <mesh>
+              <torusGeometry args={[0.05, 0.0035, 8, 32]} />
+              <meshStandardMaterial color="#1e242a" metalness={0.5} roughness={0.45} />
+            </mesh>
+          </group>
+        ))}
       {look.caseId === 'meshify3xl' &&
         [-0.55, -0.18, 0.18, 0.55].map((tilt) => (
           <mesh key={tilt} position={[0, 0, 0.006]} rotation={[0, 0, tilt]}>
@@ -597,11 +620,13 @@ function Shell({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
         <boxGeometry args={[box.w - 0.03, 0.004, box.d - 0.08]} />
         <meshStandardMaterial color={look.light ? '#e4ddd2' : '#101418'} roughness={0.86} />
       </mesh>
-      {([-1, 1] as const).map((side) => (
-        <RoundedBox key={side} args={[0.016, box.h - 0.008, 0.018]} radius={0.004} position={[side * (box.w / 2 - 0.011), 0, box.d / 2 - 0.008]} {...onCase}>
-          {mat(edge, 0.62, 0.28)}
-        </RoundedBox>
-      ))}
+      {([-1, 1] as const)
+        .filter((side) => !(look.caseId === 'h9' && side === 1))
+        .map((side) => (
+          <RoundedBox key={side} args={[0.016, box.h - 0.008, 0.018]} radius={0.004} position={[side * (box.w / 2 - 0.011), 0, box.d / 2 - 0.008]} {...onCase}>
+            {mat(edge, 0.62, 0.28)}
+          </RoundedBox>
+        ))}
       {([-1, 1] as const).map((side) => (
         <RoundedBox key={side} args={[box.w - 0.028, 0.016, 0.018]} radius={0.004} position={[0, side * (box.h / 2 - 0.012), box.d / 2 - 0.008]}>
           {mat(edge, 0.62, 0.28)}
@@ -1112,16 +1137,16 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
   const box = chassisOf(look.caseId)
   const board = useMemo(() => boardTexture(look.socket === 'LGA1851', look.scheme), [look.socket, look.scheme])
   const pick = (name: Slot) => handlers(name, onSlot)
-  const fanProfiles: Record<string, { frame: string; blade: string; glow: string | null; screen?: boolean }> = {
+  const fanProfiles: Record<string, { frame: string; blade: string; glow: string | null; screen?: boolean; mirror?: boolean; deep?: boolean }> = {
     stock: { frame: '#22282e', blade: '#5c6772', glow: null },
     p12: { frame: '#141518', blade: '#2e343b', glow: null },
     a12x25: { frame: '#d6c2a4', blade: '#7a5a40', glow: null },
     sw4: { frame: '#101214', blade: '#1e2126', glow: null },
-    slinf: { frame: '#141618', blade: '#22262c', glow: '#7ec8ee' },
+    slinf: { frame: '#141618', blade: '#22262c', glow: '#7ec8ee', mirror: true },
     qx120: { frame: '#17191d', blade: '#262b33', glow: '#cfe4ff' },
     tllcd: { frame: '#141518', blade: '#22262c', glow: '#a8c8ff', screen: true },
     f120core: { frame: '#17191d', blade: '#262b33', glow: '#ffd9a8' },
-    d30: { frame: '#17191d', blade: '#262b33', glow: '#ffb3d9' },
+    d30: { frame: '#17191d', blade: '#262b33', glow: '#ffb3d9', deep: true },
     swafan: { frame: '#17191d', blade: '#262b33', glow: '#b3ffd9' },
   }
   const fanProfile = fanProfiles[look.fanId] ?? fanProfiles.stock
@@ -1285,7 +1310,7 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         </mesh>
       )}
       <group position={[0.015, box.h * 0.18, -box.d / 2 + 0.028]} rotation={[0, Math.PI / 2, 0]} {...pick('fans')}>
-        <SquareFan size={box.h > 0.4 ? 0.1 : 0.08} frame={fan.frame} blade={fan.blade} glow={fan.glow} screen={fan.screen} spinning={motion} />
+        <SquareFan size={box.h > 0.4 ? 0.1 : 0.08} frame={fan.frame} blade={fan.blade} glow={fan.glow} screen={fan.screen} mirror={fan.mirror} deep={fan.deep} spinning={motion} />
       </group>
       <group position={[-box.w / 2 + 0.045, box.h * 0.31, -box.d / 2 + 0.014]}>
         <mesh>
@@ -1342,7 +1367,7 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
           rotation={[0, -Math.PI / 2, 0]}
           {...pick('fans')}
         >
-          <SquareFan size={look.fanSize === 140 ? 0.125 : 0.11} frame={fan.frame} blade={fan.blade} glow={fan.glow} screen={fan.screen} spinning={motion} />
+          <SquareFan size={look.fanSize === 140 ? 0.125 : 0.11} frame={fan.frame} blade={fan.blade} glow={fan.glow} screen={fan.screen} mirror={fan.mirror} deep={fan.deep} spinning={motion} />
         </group>
         )
       })}
