@@ -9,9 +9,7 @@ import { ProductVisual } from './components/ui'
 function Wordmark({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-2.5" aria-label="Torxth Technology — home">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-blue">
-        <img src="/images/logo-t.svg" alt="" className="h-6 w-6 brightness-0 invert" />
-      </span>
+      <img src="/images/logo-symbol.png" alt="" className="h-10 w-10 shrink-0" />
       <span className="leading-none">
         <span className={`block text-lg font-bold uppercase tracking-[0.08em] ${light ? 'text-white' : 'text-ink'}`}>Torxth</span>
         <span className="mt-0.5 block text-[0.6rem] font-semibold uppercase tracking-[0.32em] text-blue">Technology</span>
