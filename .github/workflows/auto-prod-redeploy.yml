@@ -1,6 +1,6 @@
 # Keeps lost.pink / Vercel production current with the latest Cursor agent branch.
-# Vercel production tracks `main`; this job points main at the tip of the
-# most recently updated open PR (or newest cursor/* branch) every ten minutes.
+# 1) Points `main` at the tip of the newest open PR (or newest cursor/* branch)
+# 2) Redeploys the `torxth/` app to Vercel production when VERCEL_TOKEN is set
 name: Auto production redeploy
 
 on:
@@ -22,6 +22,8 @@ permissions:
 jobs:
   sync-main:
     runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.tip.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,16 +45,12 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          # Do not re-enter from the push this job itself makes to main.
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_name }}" = "main" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "Source branch: $BRANCH"
 
       - name: Point main at the agent tip
+        id: tip
         if: steps.src.outputs.skip != 'true'
         env:
           BRANCH: ${{ steps.src.outputs.branch }}
@@ -63,12 +61,55 @@ jobs:
           git fetch origin "$BRANCH" main
           SRC_SHA="$(git rev-parse "origin/$BRANCH")"
           MAIN_SHA="$(git rev-parse origin/main)"
+          echo "sha=$SRC_SHA" >> "$GITHUB_OUTPUT"
           if [ "$SRC_SHA" = "$MAIN_SHA" ]; then
-            echo "main already at $SRC_SHA — Vercel is current."
+            echo "main already at $SRC_SHA"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git checkout -B main "origin/$BRANCH"
-          # Production tip is the agent tip. Force-with-lease covers the case
-          # where main and the agent branch diverged on the same workflow file.
           git push --force-with-lease=main:"$MAIN_SHA" origin main
-          echo "Pushed main → $(git rev-parse HEAD). Vercel production redeploy will follow."
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "Pushed main → $SRC_SHA"
+
+  vercel-prod:
+    needs: sync-main
+    if: needs.sync-main.outputs.sha != ''
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: torxth
+    steps:
+      - name: Checkout production tip
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: torxth/package-lock.json
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Vercel production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "::warning::VERCEL_TOKEN is not set. Main was synced; add the three Vercel secrets so this job can push production every ten minutes."
+            echo "Required repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
+            exit 0
+          fi
+          npm install --global vercel@latest
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
