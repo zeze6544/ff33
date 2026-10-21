@@ -434,7 +434,7 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
   const pick = (name: Slot) => handlers(name, onSlot)
   const fanProfiles: Record<string, { frame: string; blade: string; glow: string | null; screen?: boolean; mirror?: boolean; deep?: boolean }> = {
     stock: { frame: '#2a3038', blade: '#5c6772', glow: null },
-    p12: { frame: '#0e1012', blade: '#1a1e24', glow: null },
+    p12: { frame: '#0e1012', blade: '#161a20', glow: null },
     a12x25: { frame: '#d6c2a4', blade: '#7a5a40', glow: null },
     sw4: { frame: '#0a0c0e', blade: '#14181c', glow: null },
     slinf: { frame: '#101214', blade: '#1a1e24', glow: '#7ec8ee', mirror: true },
@@ -729,6 +729,7 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
           mirror={fan.mirror}
           deep={fan.deep}
           spinning={motion}
+          kind={look.fanId}
         />
       </group>
       <group position={[-box.w / 2 + 0.045, box.h * 0.31, -box.d / 2 + 0.014]}>
@@ -753,17 +754,20 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
           <meshStandardMaterial color="#c5ced6" metalness={0.78} roughness={0.26} />
         </mesh>
       ))}
+      {/* 24-pin + EPS — thin sleeved runs, tucked behind the tray, not diagonal poles */}
       <Tube
-        from={[-0.012, -box.h / 2 + 0.088, box.d * 0.24]}
-        to={[-box.w / 2 + 0.032, -0.028, box.d * 0.27]}
-        radius={0.0062}
-        bend={0.01}
+        from={[-0.01, -box.h / 2 + 0.072, box.d * 0.22]}
+        to={[-box.w / 2 + 0.028, -0.02, box.d * 0.26]}
+        radius={0.004}
+        bend={0.022}
+        color="#1a1c20"
       />
       <Tube
-        from={[-0.004, -box.h / 2 + 0.088, box.d * 0.225]}
-        to={[-box.w / 2 + 0.04, -0.03, box.d * 0.255]}
-        radius={0.0062}
-        bend={0.01}
+        from={[-0.004, -box.h / 2 + 0.072, box.d * 0.2]}
+        to={[-box.w / 2 + 0.034, -0.024, box.d * 0.24]}
+        radius={0.0036}
+        bend={0.018}
+        color="#121416"
       />
       {[-0.055, -0.1].map((y) => (
         <mesh key={y} position={[-box.w / 2 + 0.055, y, box.d * 0.245]} rotation={[0, 0.5, 0]}>
@@ -772,23 +776,19 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
         </mesh>
       ))}
       <Tube
-        from={[-box.w / 2 + 0.03, -box.h / 2 + 0.09, -box.d * 0.3]}
-        to={[-box.w / 2 + 0.04, box.h * 0.2, -box.d * 0.28]}
-        radius={0.0055}
-        bend={-0.008}
-      />
-      <Tube
-        from={[0.015, box.h * 0.18 - 0.05, -box.d / 2 + 0.03]}
-        to={[-box.w / 2 + 0.05, -box.h * 0.3, -box.d * 0.2]}
-        radius={0.0028}
-        bend={0.02}
+        from={[-box.w / 2 + 0.028, -box.h / 2 + 0.078, -box.d * 0.28]}
+        to={[-box.w / 2 + 0.036, box.h * 0.22, -box.d * 0.3]}
+        radius={0.0034}
+        bend={-0.014}
+        color="#1a1c20"
       />
       {look.sataOn && (
         <Tube
           from={[0.03, -box.h / 2 + 0.095, box.d * 0.16]}
           to={[-box.w / 2 + 0.045, -box.h * 0.18, box.d * 0.22]}
-          radius={0.0026}
+          radius={0.0024}
           bend={0.012}
+          color="#2a3038"
         />
       )}
       {Array.from({ length: look.fanSize === 140 ? Math.min(look.fanCount, 2) : Math.min(look.fanCount, 3) }, (_, i) => {
@@ -809,6 +809,7 @@ function Pc({ look, slot, onSlot, open, motion }: { look: Look; slot: Slot; onSl
             mirror={fan.mirror}
             deep={fan.deep}
             spinning={motion}
+            kind={look.fanId}
           />
         </group>
         )
@@ -830,11 +831,12 @@ function studioWash() {
 }
 
 function Studio() {
+  // Keep fill low so black P12s and dark FE shrouds stay black on phone screens.
   return (
     <Environment resolution={256}>
-      <Lightformer intensity={1.5} position={[2.6, 1.8, 2.2]} scale={[6, 4, 1]} color="#fff6ec" />
-      <Lightformer intensity={0.55} position={[-2.6, 1.4, -1.2]} scale={[5, 3, 1]} color="#b7c9da" />
-      <Lightformer intensity={0.4} position={[0, 3.4, 0.2]} scale={[5, 2.5, 1]} color="#ffffff" />
+      <Lightformer intensity={0.85} position={[2.6, 1.8, 2.2]} scale={[6, 4, 1]} color="#fff6ec" />
+      <Lightformer intensity={0.35} position={[-2.6, 1.4, -1.2]} scale={[5, 3, 1]} color="#b7c9da" />
+      <Lightformer intensity={0.22} position={[0, 3.4, 0.2]} scale={[5, 2.5, 1]} color="#ffffff" />
     </Environment>
   )
 }
@@ -861,29 +863,29 @@ export function CaseScene({
       dpr={[1, 1.75]}
       gl={{ antialias: true, preserveDrawingBuffer: true, toneMapping: THREE.ACESFilmicToneMapping }}
       onCreated={({ gl }) => {
-        gl.toneMappingExposure = 1.06
+        gl.toneMappingExposure = 0.9
       }}
       shadows
     >
       <primitive attach="background" object={wash} />
       <SoftShadows size={12} samples={12} focus={0.4} />
       <Studio />
-      <ambientLight intensity={0.28} />
+      <ambientLight intensity={0.16} />
       <spotLight
         position={[1.8, 2.2, 2.1]}
         angle={0.62}
         penumbra={1}
-        intensity={12}
+        intensity={7.2}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-bias={-0.0004}
         color="#fff4e8"
       />
-      <spotLight position={[0.9, 0.35, 0.7]} angle={0.9} penumbra={1} intensity={3.2} color="#fff8f2" />
-      <spotLight position={[-2.2, 1.5, -1.1]} angle={0.5} penumbra={1} intensity={4.5} color="#b9cce0" />
-      <pointLight position={[0.07, 0.04, 0.03]} intensity={look.stripGlow ? 1.8 : 1.3} distance={1.25} decay={2} color={look.stripGlow ?? '#fff6ee'} />
-      <directionalLight position={[-0.4, 0.8, -1.6]} intensity={0.35} color="#d5e2ee" />
+      <spotLight position={[0.9, 0.35, 0.7]} angle={0.9} penumbra={1} intensity={1.8} color="#fff8f2" />
+      <spotLight position={[-2.2, 1.5, -1.1]} angle={0.5} penumbra={1} intensity={2.6} color="#b9cce0" />
+      <pointLight position={[0.07, 0.04, 0.03]} intensity={look.stripGlow ? 1.4 : 0.85} distance={1.25} decay={2} color={look.stripGlow ?? '#fff6ee'} />
+      <directionalLight position={[-0.4, 0.8, -1.6]} intensity={0.22} color="#d5e2ee" />
       <Pc look={look} slot={slot} onSlot={onSlot} open={open} motion={motion} />
       <ContactShadows position={[0, -box.h / 2 - 0.019, 0]} opacity={0.34} scale={2.4} blur={2.4} far={0.8} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -box.h / 2 - 0.02, 0]}>

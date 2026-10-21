@@ -134,7 +134,7 @@ Peripherals live outside the case (no 3D model yet). Status: ☐ todo · ▣ sta
 | id | part | status |
 |---|---|---|
 | stock | Included case fans | ✅ |
-| p12 | Arctic P12 PWM PST | ✅ |
+| p12 | Arctic P12 PWM PST | ✅ 5-blade pressure rotor, ARCTIC hub sticker, open corner ears |
 | a12x25 | Noctua NF-A12x25 PWM | ✅ |
 | sw4 | be quiet! Silent Wings 4 | ✅ |
 | slinf | Lian Li UNI FAN SL-INF 120 | ✅ |

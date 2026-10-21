@@ -219,22 +219,35 @@ export function Cooler({
           <meshStandardMaterial color="#3a444e" metalness={0.55} roughness={0.38} />
         </mesh>
       ))}
-      {/* Roof fans */}
+      {/* Roof fans — LF3 ships real P12s (matte black, 5-blade); other AIOs keep RGB rings */}
       {Array.from({ length: count }, (_, i) => (
         <group key={i} position={[0.005, box.h / 2 - 0.072, -span / 2 + (i + 0.5) * (span / count)]} rotation={[0, 0, -Math.PI / 2]}>
           <SquareFan
             size={0.098}
-            frame={isH150 ? '#17191d' : '#20242a'}
-            blade="#59636e"
-            glow={look.pump === 'block' ? null : isH150 ? '#cfe4ff' : '#a8c8ff'}
+            frame={isLf3 ? '#0e1012' : isH150 ? '#17191d' : '#20242a'}
+            blade={isLf3 ? '#1a1e24' : '#59636e'}
+            glow={isLf3 || look.pump === 'block' ? null : isH150 ? '#cfe4ff' : '#a8c8ff'}
             spinning={spinning}
+            kind={isLf3 ? 'p12' : 'stock'}
           />
         </group>
       ))}
-      {/* Sleeving-dark coolant lines — only two, distinct from power cables */}
+      {/* Thick sleeved coolant lines — rubber-black, soft S-bend to the rad */}
       <group>
-        <Tube from={[-box.w / 2 + 0.058, 0.028, -0.012]} to={[-0.01, box.h / 2 - 0.068, span * 0.32]} radius={0.0072} bend={0.018} />
-        <Tube from={[-box.w / 2 + 0.052, 0.016, -0.036]} to={[-0.01, box.h / 2 - 0.068, span * 0.18]} radius={0.0072} bend={0.01} />
+        <Tube
+          from={[-box.w / 2 + 0.058, 0.028, -0.012]}
+          to={[-0.01, box.h / 2 - 0.068, span * 0.32]}
+          radius={0.0078}
+          bend={0.028}
+          color="#0a0c0e"
+        />
+        <Tube
+          from={[-box.w / 2 + 0.052, 0.016, -0.036]}
+          to={[-0.01, box.h / 2 - 0.068, span * 0.18]}
+          radius={0.0078}
+          bend={0.02}
+          color="#0a0c0e"
+        />
       </group>
     </group>
   )
