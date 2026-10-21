@@ -1,21 +1,30 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { Check, Copy, Mail, Phone, TriangleAlert } from 'lucide-react'
+import { Check, Copy, Mail, Minus, Phone, Plus, TriangleAlert } from 'lucide-react'
 import { company } from '../data/company'
 import { formatAUD } from '../data/products'
 import {
   LABOUR,
+  NVME_SIZES,
+  OPTIONAL_SLOTS,
+  PSU_TIERS,
+  RAM_SIZES,
   WINDOWS,
   appearance,
-  boardFor,
   clash,
+  drawOf,
   issues,
+  nvmeCaps,
   partsIn,
+  ramPrice,
+  recommendedPsu,
   resolve,
   score,
   slots,
   specLine,
   totalOf,
   tunes,
+  type CatalogPart,
+  type Cfg,
   type PickMap,
   type Slot,
 } from '../data/parts'
@@ -25,22 +34,55 @@ const CaseView = lazy(() => import('../builder/case-view').then((mod) => ({ defa
 
 const ridge = tunes.find((tune) => tune.id === 'ridge')!
 
+const GROUPS: { label: string; slots: Slot[] }[] = [
+  { label: 'Core parts', slots: ['cpu', 'cool', 'board', 'ram', 'gpu'] },
+  { label: 'Storage', slots: ['nvme', 'sata', 'hdd'] },
+  { label: 'Case & power', slots: ['case', 'psu'] },
+  { label: 'Cooling & light', slots: ['fans', 'strip', 'hub'] },
+  { label: 'Expansion', slots: ['wifi', 'net', 'capture', 'sound'] },
+  { label: 'Peripherals', slots: ['monitor', 'keyboard', 'mouse', 'headset', 'mic', 'webcam'] },
+]
+
+const CASE_FILTERS = [
+  { id: 'all', label: 'All cases' },
+  { id: 'long', label: 'Long cards 400mm+' },
+  { id: 'rad', label: '360mm radiator' },
+  { id: 'eatx', label: 'E-ATX boards' },
+  { id: 'glass', label: 'Glass front' },
+] as const
+
+function effPrice(part: CatalogPart, cfg: Cfg): number {
+  if (part.slot === 'ram') return ramPrice(part, cfg.ramGb)
+  if (part.slot === 'nvme') {
+    const caps = nvmeCaps(part)
+    const tb = caps.includes(cfg.nvmeTb) ? cfg.nvmeTb : caps[caps.length - 1]
+    return part.caps[String(tb)] ?? part.price
+  }
+  if (part.slot === 'fans') return part.id === 'stock' ? 0 : part.price * cfg.fanQty
+  return part.price
+}
+
 export function BuildPage() {
   useMeta(
     'Build your PC',
     'Configure a custom PC with real cases, chips and graphics cards. Clearance and power checked as you build, priced in AUD.',
   )
   const [pick, setPick] = useState<PickMap>({ ...ridge.pick })
+  const [cfg, setCfg] = useState<Cfg>({ ...ridge.cfg })
   const [slot, setSlot] = useState<Slot>('gpu')
   const [hover, setHover] = useState<string | null>(null)
   const [tuneId, setTuneId] = useState<string | null>('ridge')
   const [open, setOpen] = useState(true)
   const [note, setNote] = useState('')
   const [copied, setCopied] = useState(false)
+  const [coolKind, setCoolKind] = useState<'all' | 'air' | 'aio'>('all')
+  const [gpuMaker, setGpuMaker] = useState<'all' | 'nvidia' | 'amd' | 'intel'>('all')
+  const [caseFilter, setCaseFilter] = useState<(typeof CASE_FILTERS)[number]['id']>('all')
+  const [psuMin, setPsuMin] = useState(0)
 
-  const fitted = resolve(pick)
+  const fitted = resolve(pick, cfg)
   const previewPick = hover ? { ...pick, [slot]: hover } : pick
-  const preview = resolve(previewPick)
+  const preview = resolve(previewPick, cfg)
   const look = appearance(preview)
   const fittedScore = score(fitted)
   const previewScore = score(preview)
@@ -48,10 +90,39 @@ export function BuildPage() {
   const previewTotal = totalOf(preview)
   const shown = useTally(previewTotal)
   const warnings = issues(preview)
-  const board = boardFor(preview.cpu.socket)
-  const trying = hover && hover !== pick[slot] ? partsIn(slot).find((part) => part.id === hover) : undefined
+  const trying = hover && hover !== pick[slot] && hover !== 'none' ? partsIn(slot).find((part) => part.id === hover) : undefined
   const active = preview[slot]
-  const partsSubtotal = slots.reduce((sum, s) => sum + fitted[s.id].price, 0)
+  const draw = drawOf(preview)
+  const recommended = recommendedPsu(draw)
+  const totalTb = preview.nvme.tb + (preview.sata?.tb ?? 0) + (preview.hdd?.tb ?? 0)
+  const partsSubtotal = fittedTotal - WINDOWS.price - LABOUR.price
+
+  const boardHiddenWifi = fitted.board.wifi
+  const visibleTabs = GROUPS.map((group) => ({
+    ...group,
+    slots: group.slots.filter((s) => !(s === 'wifi' && boardHiddenWifi)),
+  })).filter((group) => group.slots.length > 0)
+
+  function visibleParts(): CatalogPart[] {
+    let list: CatalogPart[] = partsIn(slot)
+    if (slot === 'board') list = list.filter((p) => p.slot === 'board' && p.socket === fitted.cpu.socket)
+    if (slot === 'cool' && coolKind !== 'all') list = list.filter((p) => p.slot === 'cool' && p.kind === coolKind)
+    if (slot === 'gpu' && gpuMaker !== 'all') list = list.filter((p) => p.slot === 'gpu' && p.maker === gpuMaker)
+    if (slot === 'psu' && psuMin > 0) list = list.filter((p) => p.slot === 'psu' && p.watts >= psuMin)
+    if (slot === 'case' && caseFilter !== 'all') {
+      list = list.filter((p) => {
+        if (p.slot !== 'case') return false
+        if (caseFilter === 'long') return p.gpuMax >= 400
+        if (caseFilter === 'rad') return p.radMax >= 360
+        if (caseFilter === 'eatx') return p.eatx
+        if (caseFilter === 'glass') return p.front === 'glass'
+        return true
+      })
+    }
+    return list
+  }
+  const shownParts = visibleParts()
+  const isOptional = OPTIONAL_SLOTS.includes(slot)
 
   function chooseSlot(next: Slot) {
     setSlot(next)
@@ -65,13 +136,43 @@ export function BuildPage() {
   }
 
   function fit(id: string) {
-    setPick((current) => ({ ...current, [slot]: id }))
+    setPick((current) => {
+      const next = { ...current, [slot]: id }
+      if (slot === 'cpu') {
+        const cpu = partsIn('cpu').find((p) => p.id === id)
+        const board = partsIn('board').find((p) => p.id === current.board)
+        if (cpu && board && cpu.socket !== board.socket) {
+          const swap = partsIn('board').find((p) => p.socket === cpu.socket)
+          if (swap) next.board = swap.id
+        }
+      }
+      if (slot === 'board') {
+        const board = partsIn('board').find((p) => p.id === id)
+        if (board?.wifi) next.wifi = 'none'
+      }
+      return next
+    })
     setHover(null)
     setTuneId(null)
   }
 
+  function fitCfg(patch: Partial<Cfg>) {
+    setCfg((current) => ({ ...current, ...patch }))
+    setTuneId(null)
+  }
+
+  function applyTune(id: string) {
+    const tune = tunes.find((t) => t.id === id)
+    if (!tune) return
+    setPick({ ...tune.pick })
+    setCfg({ ...tune.cfg })
+    setHover(null)
+    setTuneId(id)
+    setOpen(true)
+  }
+
   function browse(direction: 1 | -1) {
-    const list = partsIn(slot)
+    const list = shownParts
     const current = hover ?? pick[slot]
     const index = list.findIndex((part) => part.id === current)
     const next = list[index + direction]
@@ -80,12 +181,16 @@ export function BuildPage() {
     document.getElementById(`part-${next.id}`)?.focus()
   }
 
+  const fittedRows = slots
+    .map((s) => ({ slot: s, part: fitted[s.id] }))
+    .filter((row) => row.part !== null)
+
   const briefLines = [
-    ...slots.map((s) => `${s.label}: ${fitted[s.id].brand} ${fitted[s.id].name} — ${formatAUD(fitted[s.id].price)}`),
-    `Motherboard: ${board.brand} ${board.name} — ${formatAUD(board.price)}`,
+    ...fittedRows.map(({ slot: s, part }) => `${s.label}: ${part!.brand} ${part!.name} — ${formatAUD(part!.price)}`),
     `${WINDOWS.name} — ${formatAUD(WINDOWS.price)}`,
     `${LABOUR.name} — ${formatAUD(LABOUR.price)}`,
     `Estimated total: ${formatAUD(fittedTotal)} (AUD, trade estimate — confirmed before ordering)`,
+    `Estimated system draw: about ${drawOf(fitted)}W · Recommended PSU: ${recommendedPsu(drawOf(fitted))}W+`,
     ...(note.trim() ? ['', `Note: ${note.trim()}`] : []),
   ]
   const mailto = `mailto:${company.email}?subject=${encodeURIComponent(`PC build brief — ${formatAUD(fittedTotal)}`)}&body=${encodeURIComponent(briefLines.join('\n'))}`
@@ -100,6 +205,9 @@ export function BuildPage() {
     }
   }
 
+  const chip = (on: boolean) =>
+    `min-h-9 rounded-full px-3.5 text-xs font-semibold ${on ? 'bg-white text-ink' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`
+
   return (
     <div className="bench-editor bg-ink text-white">
       <div className="wrap pb-16 pt-10 lg:pt-14">
@@ -108,7 +216,7 @@ export function BuildPage() {
             <p className="eyebrow">PC builder · Ferntree Gully</p>
             <h1 className="mt-3 max-w-2xl text-4xl text-white sm:text-5xl">Build it on screen. We build it on the bench.</h1>
             <p className="mt-4 max-w-xl leading-relaxed text-fog">
-              Real cases, processors and graphics cards. Hover or tap a part to try it in the case, select it to fit it. If a card is too long, a cooler too tall or the power supply too small, the builder tells you before we order anything.
+              The real parts list: processors, boards, cards, cases and cooling we actually fit. Hover or tap a part to try it in the case, select it to fit it. Clearances, radiator room and power headroom are checked as you go.
             </p>
           </div>
           <div className="rounded-xl border border-line-dark bg-panel px-5 py-4 lg:min-w-72">
@@ -133,12 +241,7 @@ export function BuildPage() {
               key={tune.id}
               type="button"
               aria-pressed={tuneId === tune.id}
-              onClick={() => {
-                setPick({ ...tune.pick })
-                setHover(null)
-                setTuneId(tune.id)
-                setOpen(true)
-              }}
+              onClick={() => applyTune(tune.id)}
               className={`min-h-11 rounded-lg px-4 text-left ${tuneId === tune.id ? 'bg-blue text-white' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
             >
               <span className="block text-sm font-semibold">{tune.name}</span>
@@ -169,8 +272,8 @@ export function BuildPage() {
               onSlot={chooseSlot}
               open={open}
               onToggle={() => setOpen((value) => !value)}
-              kicker={trying ? `Trying · ${slots.find((s) => s.id === slot)?.label}` : `Fitted · ${slots.find((s) => s.id === slot)?.label}`}
-              title={active.brand + ' ' + active.name}
+              kicker={trying || hover === 'none' ? `Trying · ${slots.find((s) => s.id === slot)?.label}` : `Fitted · ${slots.find((s) => s.id === slot)?.label}`}
+              title={active ? `${active.brand} ${active.name}` : 'Not fitted'}
             />
           </Suspense>
 
@@ -181,10 +284,26 @@ export function BuildPage() {
                 <Meter label="Gaming" now={fittedScore.play} next={previewScore.play} caption={previewScore.playWord} />
                 <Meter label="Quiet" now={fittedScore.quiet} next={previewScore.quiet} caption={previewScore.quietWord} />
                 <Meter label="Power headroom" now={fittedScore.head} next={previewScore.head} caption={`${previewScore.draw}W draw · ${preview.psu.watts}W supply`} />
-                <Meter label="Memory & storage" now={fittedScore.room} next={previewScore.room} caption={`${preview.ram.gb}GB RAM · ${preview.storage.tb}TB`} />
+                <Meter label="Memory & storage" now={fittedScore.room} next={previewScore.room} caption={`${preview.ram.gb}GB RAM · ${totalTb}TB`} />
+              </div>
+              <div className="mt-5 rounded-lg bg-ink-2 px-3.5 py-3 text-sm leading-relaxed">
+                <p className="flex items-baseline justify-between gap-2">
+                  <span className="text-fog">Estimated system draw</span>
+                  <span className="font-mono tabular-nums">≈ {draw}W</span>
+                </p>
+                <p className="mt-1 flex items-baseline justify-between gap-2">
+                  <span className="text-fog">Recommended PSU</span>
+                  <span className="font-mono tabular-nums text-sky">{recommended}W+</span>
+                </p>
+                <p className="mt-1 flex items-baseline justify-between gap-2">
+                  <span className="text-fog">Fitted supply</span>
+                  <span className={`font-mono tabular-nums ${preview.psu.watts >= recommended ? 'text-emerald-300' : 'text-amber-200'}`}>
+                    {preview.psu.watts}W {preview.psu.watts >= recommended ? '· healthy' : '· step up'}
+                  </span>
+                </p>
               </div>
               <p className="mt-4 text-xs leading-relaxed text-fog">
-                Bench ratings, not lab benchmarks. Draw is rated CPU + GPU TDP plus 80W for the board and drives, before transient spikes.
+                Bench ratings, not lab benchmarks. Draw is rated CPU + GPU TDP plus 80W for the board and drives, before transient spikes. Recommended allows roughly a third again for those spikes.
               </p>
             </section>
 
@@ -193,6 +312,7 @@ export function BuildPage() {
               <ul className="mt-3 divide-y divide-line-dark/70">
                 {slots.map((s) => {
                   const part = fitted[s.id]
+                  if (!part && OPTIONAL_SLOTS.includes(s.id)) return null
                   return (
                     <li key={s.id}>
                       <button
@@ -204,23 +324,15 @@ export function BuildPage() {
                         <span>
                           <span className="block font-mono text-[0.6rem] uppercase tracking-[0.16em] text-fog">{s.label}</span>
                           <span className="mt-0.5 block text-sm font-medium leading-snug text-white">
-                            {part.brand} {part.name}
+                            {part ? `${part.brand} ${part.name}` : 'Not fitted'}
+                            {s.id === 'fans' && part && fitted.fans.id !== 'stock' ? ` ×${fitted.fans.count}` : ''}
                           </span>
                         </span>
-                        <span className="shrink-0 font-mono text-sm tabular-nums">{part.price === 0 ? 'Included' : formatAUD(part.price)}</span>
+                        <span className="shrink-0 font-mono text-sm tabular-nums">{part ? (part.price === 0 ? 'Included' : formatAUD(part.price)) : '—'}</span>
                       </button>
                     </li>
                   )
                 })}
-                <li className="flex items-baseline justify-between gap-3 py-2.5">
-                  <span>
-                    <span className="block font-mono text-[0.6rem] uppercase tracking-[0.16em] text-fog">Motherboard</span>
-                    <span className="mt-0.5 block text-sm font-medium leading-snug">
-                      {board.brand} {board.name}
-                    </span>
-                  </span>
-                  <span className="shrink-0 font-mono text-sm tabular-nums">{formatAUD(board.price)}</span>
-                </li>
               </ul>
               <dl className="mt-3 space-y-1.5 border-t border-line-dark pt-4 text-sm">
                 <div className="flex justify-between"><dt className="text-fog">Parts</dt><dd className="font-mono tabular-nums">{formatAUD(partsSubtotal)}</dd></div>
@@ -231,7 +343,7 @@ export function BuildPage() {
                   <dd className="font-mono tabular-nums">{formatAUD(fittedTotal)}</dd>
                 </div>
               </dl>
-              <p className="mt-3 text-xs leading-relaxed text-fog">Socket picks the board: AM5 or LGA1851. Trade estimate in AUD — we confirm the exact price before ordering parts.</p>
+              <p className="mt-3 text-xs leading-relaxed text-fog">Trade estimate in AUD — we confirm the exact price before ordering parts.</p>
             </section>
           </aside>
         </div>
@@ -244,30 +356,144 @@ export function BuildPage() {
                 {trying ? `Trying ${trying.brand} ${trying.name} — select to fit it.` : 'Hover or focus to preview in the case. Select to fit. Arrow keys move through the list.'}
               </p>
             </div>
-            <p className="font-mono text-xs tabular-nums text-fog">{partsIn(slot).length} options</p>
+            <p className="font-mono text-xs tabular-nums text-fog">{shownParts.length} options</p>
           </div>
 
-          <div className="mt-5 flex gap-1.5 overflow-x-auto pb-1" role="tablist" aria-label="Part categories">
-            {slots.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={slot === item.id}
-                onClick={() => chooseSlot(item.id)}
-                className={`min-h-11 shrink-0 rounded-lg px-4 text-sm font-medium ${slot === item.id ? 'bg-white text-ink' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
-              >
-                {item.label}
-              </button>
+          <div className="mt-5 space-y-2.5">
+            {visibleTabs.map((group) => (
+              <div key={group.label} className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label={group.label}>
+                <span className="mr-1 w-24 shrink-0 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-fog">{group.label}</span>
+                {group.slots.map((item) => {
+                  const s = slots.find((x) => x.id === item)!
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      role="tab"
+                      aria-selected={slot === item}
+                      onClick={() => chooseSlot(item)}
+                      className={`min-h-10 shrink-0 rounded-lg px-3.5 text-sm font-medium ${slot === item ? 'bg-white text-ink' : 'border border-line-dark text-fog hover:border-sky hover:text-white'}`}
+                    >
+                      {s.label}
+                    </button>
+                  )
+                })}
+              </div>
             ))}
           </div>
 
+          {slot === 'board' && (
+            <p className="mt-4 rounded-lg border border-line-dark bg-panel px-3.5 py-2.5 text-sm text-fog">
+              Showing {fitted.cpu.socket === 'AM5' ? 'AMD AM5' : 'Intel LGA1851'} boards for the {fitted.cpu.brand} {fitted.cpu.name}. Pick a processor from the other platform and the board list follows it.
+              {boardHiddenWifi && ' Every board here carries Wi-Fi, so the separate Wi-Fi card stays on the shelf.'}
+            </p>
+          )}
+
+          {slot === 'cool' && (
+            <div className="mt-4 flex flex-wrap gap-1.5" role="group" aria-label="Cooler type">
+              {([['all', 'All coolers'], ['air', 'Air'], ['aio', 'Liquid (AIO)']] as const).map(([id, label]) => (
+                <button key={id} type="button" aria-pressed={coolKind === id} onClick={() => setCoolKind(id)} className={chip(coolKind === id)}>{label}</button>
+              ))}
+            </div>
+          )}
+
+          {slot === 'gpu' && (
+            <div className="mt-4 flex flex-wrap gap-1.5" role="group" aria-label="GPU maker">
+              {([['all', 'All cards'], ['nvidia', 'NVIDIA'], ['amd', 'AMD'], ['intel', 'Intel Arc']] as const).map(([id, label]) => (
+                <button key={id} type="button" aria-pressed={gpuMaker === id} onClick={() => setGpuMaker(id)} className={chip(gpuMaker === id)}>{label}</button>
+              ))}
+            </div>
+          )}
+
+          {slot === 'case' && (
+            <div className="mt-4 flex flex-wrap gap-1.5" role="group" aria-label="Case filters">
+              {CASE_FILTERS.map((f) => (
+                <button key={f.id} type="button" aria-pressed={caseFilter === f.id} onClick={() => setCaseFilter(f.id)} className={chip(caseFilter === f.id)}>{f.label}</button>
+              ))}
+            </div>
+          )}
+
+          {slot === 'psu' && (
+            <div className="mt-4 flex flex-wrap items-center gap-1.5" role="group" aria-label="Minimum wattage">
+              <button type="button" aria-pressed={psuMin === 0} onClick={() => setPsuMin(0)} className={chip(psuMin === 0)}>All wattages</button>
+              {PSU_TIERS.map((tier) => (
+                <button key={tier} type="button" aria-pressed={psuMin === tier} onClick={() => setPsuMin(tier)} className={chip(psuMin === tier)}>{tier}W+</button>
+              ))}
+              <span className="ml-2 text-xs text-fog">This build draws ≈{draw}W — {recommended}W+ recommended.</span>
+            </div>
+          )}
+
+          {slot === 'ram' && (
+            <div className="mt-4 flex flex-wrap items-center gap-1.5" role="group" aria-label="Memory capacity">
+              <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-fog">Capacity</span>
+              {RAM_SIZES.map((gb) => (
+                <button key={gb} type="button" aria-pressed={cfg.ramGb === gb} onClick={() => fitCfg({ ramGb: gb })} className={chip(cfg.ramGb === gb)}>{gb}GB</button>
+              ))}
+              <span className="ml-2 text-xs text-fog">{cfg.ramGb >= 96 ? 'Four sticks' : 'Two sticks'} · DDR5-6000</span>
+            </div>
+          )}
+
+          {slot === 'nvme' && (
+            <div className="mt-4 flex flex-wrap items-center gap-1.5" role="group" aria-label="NVMe capacity">
+              <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-fog">Capacity</span>
+              {nvmeCaps(preview.nvme).map((tb) => (
+                <button key={tb} type="button" aria-pressed={preview.nvme.tb === tb} onClick={() => fitCfg({ nvmeTb: tb })} className={chip(preview.nvme.tb === tb)}>
+                  {tb < 1 ? `${tb * 1000}GB` : `${tb}TB`}
+                </button>
+              ))}
+              <span className="ml-2 text-xs text-fog">Capacities follow the selected drive.</span>
+            </div>
+          )}
+          {slot === 'nvme' && NVME_SIZES.length > nvmeCaps(preview.nvme).length && (
+            <p className="mt-2 text-xs text-fog">The {preview.nvme.brand} {preview.nvme.name.replace(/ \d+(TB|GB)$/, '')} tops out at {nvmeCaps(preview.nvme)[nvmeCaps(preview.nvme).length - 1]}TB.</p>
+          )}
+
+          {slot === 'fans' && fitted.fans.id !== 'stock' && (
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <div className="flex items-center gap-1.5" role="group" aria-label="Fan size">
+                <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-fog">Size</span>
+                {preview.fans.sizes.map((size) => (
+                  <button key={size} type="button" aria-pressed={preview.fans.size === size} onClick={() => fitCfg({ fanSize: size })} className={chip(preview.fans.size === size)}>{size}mm</button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2" role="group" aria-label="Fan quantity">
+                <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-fog">Quantity</span>
+                <button type="button" aria-label="One fewer fan" onClick={() => fitCfg({ fanQty: Math.max(1, cfg.fanQty - 1) })} className="grid h-9 w-9 place-items-center rounded-full border border-line-dark hover:border-sky"><Minus className="h-4 w-4" /></button>
+                <span className="min-w-6 text-center font-mono tabular-nums">{cfg.fanQty}</span>
+                <button type="button" aria-label="One more fan" onClick={() => fitCfg({ fanQty: Math.min(10, cfg.fanQty + 1) })} className="grid h-9 w-9 place-items-center rounded-full border border-line-dark hover:border-sky"><Plus className="h-4 w-4" /></button>
+                <span className="text-xs text-fog">Case fits {preview.case.fanMax}</span>
+              </div>
+              <div className="flex items-center gap-1.5" role="group" aria-label="Fan lighting">
+                <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-fog">Lighting</span>
+                <span className={chip(preview.fans.rgb)}>{preview.fans.rgb ? 'RGB fitted' : 'No lighting'}</span>
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 grid gap-3 pb-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" onMouseLeave={() => setHover(null)}>
-            {partsIn(slot).map((part) => {
+            {isOptional && (
+              <button
+                type="button"
+                aria-pressed={pick[slot] === 'none'}
+                onMouseEnter={() => setHover('none')}
+                onFocus={() => setHover('none')}
+                onClick={() => fit('none')}
+                className={`rounded-xl border border-dashed p-4 text-left transition-colors ${
+                  pick[slot] === 'none' ? 'border-sky bg-blue/20' : 'border-line-dark bg-panel hover:border-white/35'
+                }`}
+              >
+                <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-sky">Optional</span>
+                <span className="mt-2.5 block text-lg font-semibold leading-snug text-white">Not fitted</span>
+                <span className="mt-1.5 block text-sm leading-relaxed text-fog">Leave this slot empty. Plenty of builds do.</span>
+                <span className="mt-4 block border-t border-line-dark/70 pt-3 font-mono text-lg tabular-nums">$0</span>
+              </button>
+            )}
+            {shownParts.map((part) => {
               const on = pick[slot] === part.id
               const over = hover === part.id
-              const problem = clash(part, fitted)
-              const delta = part.price - fitted[slot].price
+              const problem = clash(part, fitted, cfg)
+              const price = effPrice(part, cfg)
+              const delta = price - effPrice(fitted[slot] ?? part, cfg)
               return (
                 <button
                   key={part.id}
@@ -299,11 +525,16 @@ export function BuildPage() {
                       </span>
                     )}
                   </span>
-                  <span className="mt-2.5 block text-lg font-semibold leading-snug text-white">{part.name}</span>
+                  <span className="mt-2.5 block text-lg font-semibold leading-snug text-white">
+                    {part.name}
+                    {part.slot === 'ram' ? ` ${cfg.ramGb}GB` : ''}
+                    {part.slot === 'nvme' ? ` ${(() => { const caps = nvmeCaps(part); const tb = caps.includes(cfg.nvmeTb) ? cfg.nvmeTb : caps[caps.length - 1]; return tb < 1 ? `${tb * 1000}GB` : `${tb}TB` })()}` : ''}
+                    {part.slot === 'fans' && part.id !== 'stock' ? ` ×${cfg.fanQty}` : ''}
+                  </span>
                   <span className="mt-1.5 block font-mono text-[0.68rem] leading-relaxed text-fog">{specLine(part)}</span>
                   <span className="mt-2 block text-sm leading-relaxed text-fog">{part.blurb}</span>
                   <span className="mt-4 flex items-baseline justify-between gap-2 border-t border-line-dark/70 pt-3">
-                    <span className="font-mono text-lg tabular-nums">{part.price === 0 ? 'Included' : formatAUD(part.price)}</span>
+                    <span className="font-mono text-lg tabular-nums">{price === 0 ? 'Included' : formatAUD(price)}</span>
                     {!on && delta !== 0 && (
                       <span className="font-mono text-xs tabular-nums text-sky">
                         {delta > 0 ? '+' : '−'}

@@ -235,7 +235,7 @@ export function HomePage() {
 function ConfiguratorTeaser() {
   const [tuneId, setTuneId] = useState('ridge')
   const tune = tunes.find((t) => t.id === tuneId) ?? tunes[0]
-  const build = resolve(tune.pick)
+  const build = resolve(tune.pick, tune.cfg)
   const points = score(build)
   return (
     <section className="bg-ink py-16 text-white lg:py-20">
@@ -276,7 +276,7 @@ function ConfiguratorTeaser() {
               ['Processor', `${build.cpu.brand} ${build.cpu.name}`],
               ['Graphics', `${build.gpu.brand} ${build.gpu.name}`],
               ['Memory', `${build.ram.brand} ${build.ram.name}`],
-              ['Storage', `${build.storage.brand} ${build.storage.name}`],
+              ['Storage', `${build.nvme.brand} ${build.nvme.name}`],
             ].map(([label, value]) => (
               <div key={label} className="flex items-baseline justify-between gap-4 border-b border-line-dark/70 pb-2.5">
                 <dt className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-fog">{label}</dt>
