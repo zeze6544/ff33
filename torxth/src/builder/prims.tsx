@@ -13,7 +13,8 @@ export function useMotion() {
 export function chassisOf(id: string): Chassis {
   switch (id) {
     case 'lancool':
-      return { h: 0.5, d: 0.45, w: 0.22 }
+      // Lian Li: 456 H × 455.6 D × 219 W (mm)
+      return { h: 0.456, d: 0.456, w: 0.219 }
     case '4000d':
       return { h: 0.51, d: 0.47, w: 0.23 }
     case 'h9':

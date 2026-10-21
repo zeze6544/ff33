@@ -318,19 +318,26 @@ function Front({ box, look, onCase }: { box: Chassis; look: Look; onCase: Return
           <meshPhysicalMaterial color={rim} metalness={0.7} roughness={0.3} />
         </mesh>
       ))}
+      {/* Lancool 207: magnet mesh front frames two stock 140×30 mm ARGB intakes (Lian Li spec). */}
       {look.caseId === 'lancool' &&
-        [-0.11, 0.11].map((y) => (
-          <group key={y} position={[0, y, -0.004]}>
-            <mesh>
-              <circleGeometry args={[0.056, 28]} />
-              <meshStandardMaterial color="#0a0c0e" roughness={0.9} />
-            </mesh>
-            <mesh>
-              <torusGeometry args={[0.05, 0.0035, 8, 32]} />
-              <meshStandardMaterial color="#1e242a" metalness={0.5} roughness={0.45} />
-            </mesh>
+        [-0.095, 0.095].map((y) => (
+          <group key={y} position={[0, y, -0.018]} rotation={[0, Math.PI / 2, 0]}>
+            <SquareFan
+              size={0.128}
+              frame="#12151a"
+              blade="#1e242c"
+              glow="#7ec8ee"
+              spinning
+              kind="stock"
+            />
           </group>
         ))}
+      {look.caseId === 'lancool' && (
+        <mesh position={[0, -fh / 2 + 0.028, 0.006]}>
+          <boxGeometry args={[fw * 0.42, 0.01, 0.003]} />
+          <meshStandardMaterial color="#c5ccd2" metalness={0.75} roughness={0.28} />
+        </mesh>
+      )}
       {look.caseId === 'meshify3xl' &&
         [-0.55, -0.18, 0.18, 0.55].map((tilt) => (
           <mesh key={tilt} position={[0, 0, 0.006]} rotation={[0, 0, tilt]}>
