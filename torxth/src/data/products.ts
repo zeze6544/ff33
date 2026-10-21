@@ -1,4 +1,4 @@
-import { resolve, totalOf, tunes, type Resolved } from './parts'
+import { resolve, totalOf, tunes, WINDOWS, type Resolved } from './parts'
 
 export type ProductCategory =
   | 'gaming'
@@ -75,7 +75,8 @@ const summitTune = tuneOf('summit')
 const summitBuild = resolve(summitTune.pick, summitTune.cfg)
 const summitPrice = totalOf(summitBuild)
 
-const REPRESENTATIVE_TOWER = 'Representative workshop photo — not a unique SKU shoot.'
+const REPRESENTATIVE_RIDGE = 'Representative workshop photo of a mid-tower mesh case (Lancool-class). Not a unique SKU shoot.'
+const REPRESENTATIVE_SUMMIT = 'Representative workshop photo — Summit ships in an H9 Flow dual-chamber case; finish confirmed on order.'
 const REPRESENTATIVE_OFFICE = 'Representative desktop photo — finishes vary by build.'
 const REPRESENTATIVE_LAPTOP = 'Representative laptop photo — exact model confirmed on order.'
 
@@ -89,7 +90,7 @@ export const products: Product[] = [
     price: ridgePrice,
     badge: 'Best seller',
     image: '/images/product-gaming-pc.jpg',
-    imageNote: REPRESENTATIVE_TOWER,
+    imageNote: REPRESENTATIVE_RIDGE,
     summary: '1440p gaming rig — same bill of materials as the Ridge preset in the builder.',
     description:
       'The Ridge is the mid-range gaming build we assemble most often at 61 Dorset Rd. Specs and price match the Ridge preset in the PC builder (parts, Windows and labour). Cable-managed, stress-tested, and backed by a 12-month parts & labour warranty.',
@@ -153,7 +154,7 @@ export const products: Product[] = [
     price: summitPrice,
     badge: 'Creator',
     image: '/images/product-gaming-pc.jpg',
-    imageNote: REPRESENTATIVE_TOWER,
+    imageNote: REPRESENTATIVE_SUMMIT,
     summary: '4K and long jobs — same bill of materials as the Summit preset in the builder.',
     description:
       'Summit is for creators and enthusiasts who push resolution, frame rate and render times. Specs and price match the Summit preset in the PC builder (parts, Windows and labour). We validate with extended stress tests before delivery.',
@@ -234,8 +235,8 @@ export const products: Product[] = [
     name: 'Torxth Gen4 2TB NVMe',
     shortName: '2TB NVMe',
     category: 'components',
-    price: 189,
-    image: '/images/product-peripherals.jpg',
+    price: 219,
+    image: '',
     summary: 'Fast Gen4 SSD — we can install and clone your drive in-store.',
     description:
       'High-endurance Gen4 NVMe drive we recommend for upgrades. Bring your laptop or desktop and we will clone, migrate and verify — usually same day.',
@@ -254,8 +255,8 @@ export const products: Product[] = [
     name: 'DDR5 32GB Upgrade Kit',
     shortName: '32GB DDR5',
     category: 'components',
-    price: 159,
-    image: '/images/product-office-pc.jpg',
+    price: 179,
+    image: '',
     summary: 'Matched 2×16GB DDR5 kit, tested in our workshop.',
     description:
       'Stop swapping. A clean 32GB kit resolves most “my PC feels slow” tickets we see. We can install and enable EXPO/XMP while you wait.',
@@ -273,8 +274,8 @@ export const products: Product[] = [
     name: 'Windows 11 Pro Licence',
     shortName: 'Win 11 Pro',
     category: 'software',
-    price: 199,
-    image: '/images/product-laptop.jpg',
+    price: WINDOWS.price,
+    image: '',
     summary: 'Genuine Windows 11 Pro with clean install available.',
     description:
       'Retail Windows 11 Pro licence. We can perform a clean install, driver setup and basic hardening as an add-on service.',
@@ -293,7 +294,7 @@ export const products: Product[] = [
     shortName: 'Security',
     category: 'software',
     price: 79,
-    image: '/images/service-repair.jpg',
+    image: '',
     summary: 'Annual protection pack with setup and education.',
     description:
       'We install, configure and walk you through a reputable security suite — plus password manager basics and phishing tips tailored to how you actually use your PC.',

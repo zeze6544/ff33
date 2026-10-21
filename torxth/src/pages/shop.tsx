@@ -58,9 +58,9 @@ export function ShopPage() {
       <Eyebrow>The shop</Eyebrow>
       <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl sm:text-5xl">Machines & parts, ready to go</h1>
+          <h1 className="text-4xl sm:text-5xl">Machines & parts, priced honestly</h1>
           <p className="mt-3 max-w-xl leading-relaxed text-mute">
-            Built or checked in Ferntree Gully. Add to cart and we confirm stock and the total before you pay — pickup on Dorset Rd or local delivery.
+            Built to order, ordered in, or occasionally on the floor in Ferntree Gully. Add to cart and we confirm availability and the total before you pay — pickup on Dorset Rd or local delivery by quote.
           </p>
         </div>
         <p className="font-mono text-sm tabular-nums text-mute" aria-live="polite">

@@ -58,7 +58,7 @@ export function HomePage() {
               Custom PCs, repairs & upgrades — done in Ferntree Gully.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-fog">
-              Buy a machine that is ready today, spec one part by part with a builder that checks the fit, or bring in the computer you already own. You deal with the person doing the work.
+              Order a machine from the shop, spec one part by part with a builder that checks the fit, or bring in the computer you already own. Most systems are built or ordered in — you deal with the person doing the work.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/build" className="btn-primary">
@@ -66,7 +66,7 @@ export function HomePage() {
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
               <Link to="/shop" className="btn-ghost-light">
-                Shop ready machines
+                Browse the shop
               </Link>
               <a href={company.phoneHref} className="btn-ghost-light">
                 <Phone className="h-4 w-4" aria-hidden />
@@ -75,8 +75,8 @@ export function HomePage() {
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-line-dark pt-6">
               <div>
-                <dt className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-fog">Builds from</dt>
-                <dd className="mt-1 font-mono text-xl tabular-nums">{formatAUD(899)}</dd>
+                <dt className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-fog">Machines from</dt>
+                <dd className="mt-1 font-mono text-xl tabular-nums">{formatAUD(fromPrice('office'))}</dd>
               </div>
               <div>
                 <dt className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-fog">Repairs from</dt>
@@ -145,9 +145,9 @@ export function HomePage() {
 
       <section className="wrap py-16 lg:py-20">
         <SectionHead
-          eyebrow="Ready to take home"
-          title="Machines on the shelf"
-          intro="Built or checked here, priced in AUD, confirmed with you before payment."
+          eyebrow="From the shop"
+          title="Featured machines & kits"
+          intro="Priced in AUD inc. GST. Built to order or ordered in — we confirm availability before payment."
           action={{ to: '/shop', label: 'See all 12 products' }}
         />
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

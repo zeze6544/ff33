@@ -11,6 +11,7 @@ export const company = {
   /** Live public host for this deploy (sitemap / robots match). Brand email stays on torxth.technology. */
   siteUrl: 'https://lost.pink',
   siteHost: 'lost.pink',
+  siteNote: 'Temporary public host while the Torxth site is in preview.',
   address: {
     line1: '61 Dorset Rd',
     suburb: 'Ferntree Gully',

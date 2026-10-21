@@ -51,7 +51,7 @@ export const services: Service[] = [
     summary: 'Gaming, creator and workstation PCs designed around your budget.',
     description:
       'Tell us how you play, work or create. We specify parts, order quality components, assemble with care, and deliver a machine that is quiet, cool and ready on day one — with cable management you will want to show people.',
-    fromPrice: 149,
+    fromPrice: 180,
     turnaround: 'Built and burn-in tested before pickup',
     highlights: [
       'Parts selection matched to your goals',

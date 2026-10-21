@@ -32,7 +32,7 @@ export function AboutPage() {
               Torxth Technology is a small computer business in South East Melbourne, at the foot of the Dandenongs. Our customers are gamers chasing frames, people working from a spare room, and households that just want the printer to behave.
             </p>
             <p>
-              The shop floor has machines you can take home today. The bench behind it handles the rest — virus cleanups, drive and memory upgrades, and builds specced to a budget instead of a brochure.
+              The shop floor is where we quote, diagnose and hand over machines. The bench behind it handles the rest — virus cleanups, drive and memory upgrades, and builds specced to a budget instead of a brochure. Certified refurbs may be ready for pickup; custom builds are assembled to order.
             </p>
             <p className="font-medium text-ink">You will talk to the person doing the work. That is the whole pitch.</p>
           </div>

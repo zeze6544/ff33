@@ -149,9 +149,12 @@ export function Shell() {
                 <Mail className="h-4 w-4 text-sky" aria-hidden />
                 {company.email}
               </a>
-              <a href={company.siteUrl} className="inline-flex items-center gap-2 font-mono text-sky hover:text-white">
-                {company.siteHost}
-              </a>
+              <p className="text-fog">
+                This site:{' '}
+                <a href={company.siteUrl} className="font-mono text-sky hover:text-white">
+                  {company.siteHost}
+                </a>
+              </p>
             </div>
           </div>
           <nav aria-label="Shop">
