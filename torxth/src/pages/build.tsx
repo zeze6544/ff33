@@ -1,6 +1,7 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, Copy, Mail, Minus, Phone, Plus, TriangleAlert } from 'lucide-react'
+import { BuildBoard } from '../builder/build-board'
 import { company } from '../data/company'
 import { formatAUD } from '../data/products'
 import {
@@ -10,7 +11,6 @@ import {
   PSU_TIERS,
   RAM_SIZES,
   WINDOWS,
-  appearance,
   clash,
   drawOf,
   issues,
@@ -30,8 +30,6 @@ import {
   type Slot,
 } from '../data/parts'
 import { useMeta } from '../meta'
-
-const CaseView = lazy(() => import('../builder/case-view').then((mod) => ({ default: mod.CaseView })))
 
 const ridge = tunes.find((tune) => tune.id === 'ridge')!
 
@@ -73,7 +71,6 @@ export function BuildPage() {
   const [slot, setSlot] = useState<Slot>('gpu')
   const [hover, setHover] = useState<string | null>(null)
   const [tuneId, setTuneId] = useState<string | null>('ridge')
-  const [open, setOpen] = useState(true)
   const [note, setNote] = useState('')
   const [copied, setCopied] = useState(false)
   const [coolKind, setCoolKind] = useState<'all' | 'air' | 'aio'>('all')
@@ -84,7 +81,6 @@ export function BuildPage() {
   const fitted = resolve(pick, cfg)
   const previewPick = hover ? { ...pick, [slot]: hover } : pick
   const preview = resolve(previewPick, cfg)
-  const look = appearance(preview)
   const fittedScore = score(fitted)
   const previewScore = score(preview)
   const fittedTotal = totalOf(fitted)
@@ -128,7 +124,6 @@ export function BuildPage() {
   function chooseSlot(next: Slot) {
     setSlot(next)
     setHover(null)
-    setOpen(true)
   }
 
   function editSlot(next: Slot) {
@@ -169,7 +164,6 @@ export function BuildPage() {
     setCfg({ ...tune.cfg })
     setHover(null)
     setTuneId(id)
-    setOpen(true)
   }
 
   function browse(direction: 1 | -1) {
@@ -215,9 +209,9 @@ export function BuildPage() {
         <div className="grid items-end gap-6 lg:grid-cols-[1fr_auto]">
           <div>
             <p className="eyebrow">PC builder · Ferntree Gully</p>
-            <h1 className="mt-3 max-w-2xl text-3xl text-white min-[420px]:text-4xl sm:text-5xl">Build it on screen. We build it on the bench.</h1>
+            <h1 className="mt-3 max-w-2xl text-3xl text-white min-[420px]:text-4xl sm:text-5xl">Spec the docket. We build it on the bench.</h1>
             <p className="mt-4 max-w-xl leading-relaxed text-fog">
-              The real parts list: processors, boards, cards, cases and cooling we actually fit. Hover or tap a part to try it in the case, select it to fit it. Clearances, radiator room and power headroom are checked as you go.
+              The parts we actually fit — priced in AUD, with clearance and power checked as you go. No fake 3D case. Pick a starting point, edit each slot, send the brief.
             </p>
           </div>
           <div className="rounded-xl border border-line-dark bg-panel px-4 py-3.5 sm:px-5 sm:py-4 lg:min-w-72">
@@ -266,17 +260,14 @@ export function BuildPage() {
         )}
 
         <div className="mt-8 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <Suspense fallback={<div className="h-[min(70vh,640px)] animate-pulse rounded-xl bg-panel" aria-label="Loading 3D case viewer" />}>
-            <CaseView
-              look={look}
-              slot={slot}
-              onSlot={chooseSlot}
-              open={open}
-              onToggle={() => setOpen((value) => !value)}
-              kicker={trying || hover === 'none' ? `Trying · ${slots.find((s) => s.id === slot)?.label}` : `Fitted · ${slots.find((s) => s.id === slot)?.label}`}
-              title={active ? `${active.brand} ${active.name}` : 'Not fitted'}
-            />
-          </Suspense>
+          <BuildBoard
+            build={preview}
+            slot={slot}
+            onSlot={chooseSlot}
+            kicker={trying || hover === 'none' ? `Trying · ${slots.find((s) => s.id === slot)?.label}` : `Fitted · ${slots.find((s) => s.id === slot)?.label}`}
+            title={active ? `${active.brand} ${active.name}` : 'Not fitted'}
+            trying={Boolean(trying || hover === 'none')}
+          />
 
           <aside className="space-y-6 xl:sticky xl:top-24">
             <section aria-label="Performance estimates" className="rounded-xl border border-line-dark bg-panel p-4 sm:p-5">
@@ -354,7 +345,7 @@ export function BuildPage() {
             <div>
               <h2 className="text-2xl sm:text-3xl">Choose the {slots.find((s) => s.id === slot)?.label.toLowerCase()}</h2>
               <p className="mt-1.5 text-sm text-fog">
-                {trying ? `Trying ${trying.brand} ${trying.name} — select to fit it.` : 'Hover or focus to preview in the case. Select to fit. Arrow keys move through the list.'}
+                {trying ? `Trying ${trying.brand} ${trying.name} — select to fit it.` : 'Hover or focus to preview on the docket. Select to fit. Arrow keys move through the list.'}
               </p>
             </div>
             <p className="font-mono text-xs tabular-nums text-fog">{shownParts.length} options</p>
