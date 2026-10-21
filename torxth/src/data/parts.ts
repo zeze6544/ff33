@@ -507,8 +507,16 @@ export type Look = {
   ramGlow: string | null
   ramId: string
   sataOn: boolean
+  sataId: string | null
   hddOn: boolean
+  hddId: string | null
+  nvmeId: string
+  psuId: string
+  psuWatts: number
+  hubId: string | null
+  stripId: string | null
   expOn: boolean
+  expId: string | null
   stripGlow: string | null
   fanId: string
   fanCount: number
@@ -518,11 +526,13 @@ export type Look = {
   caseId: string
   coolId: string
   boardId: string
+  cpuId: string
   scheme: 'black' | 'silver' | 'white' | 'gold'
   socket: 'AM5' | 'LGA1851'
 }
 
 export function appearance(build: Resolved): Look {
+  const exp = build.capture ?? build.sound ?? build.net ?? build.wifi
   return {
     tint: build.case.tint,
     light: build.case.light,
@@ -542,8 +552,16 @@ export function appearance(build: Resolved): Look {
     ramGlow: build.ram.glow,
     ramId: build.ram.id,
     sataOn: build.sata !== null,
+    sataId: build.sata?.id ?? null,
     hddOn: build.hdd !== null,
-    expOn: build.net !== null || build.capture !== null || build.sound !== null || build.wifi !== null,
+    hddId: build.hdd?.id ?? null,
+    nvmeId: build.nvme.id,
+    psuId: build.psu.id,
+    psuWatts: build.psu.watts,
+    hubId: build.hub?.id ?? null,
+    stripId: build.strip?.id ?? null,
+    expOn: exp !== null,
+    expId: exp?.id ?? null,
     stripGlow: build.strip?.glow ?? null,
     fanId: build.fans.id,
     fanCount: build.fans.count,
@@ -553,6 +571,7 @@ export function appearance(build: Resolved): Look {
     caseId: build.case.id,
     coolId: build.cool.id,
     boardId: build.board.id,
+    cpuId: build.cpu.id,
     scheme: build.board.scheme,
     socket: build.cpu.socket,
   }
