@@ -43,6 +43,9 @@ export function MachinePage() {
       <div className="mt-6 grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <ProductVisual product={product} className="aspect-[4/3] w-full rounded-xl" />
+          {product.imageNote && product.category !== 'components' && product.category !== 'software' && (
+            <p className="mt-2 text-xs leading-snug text-mute">{product.imageNote}</p>
+          )}
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <Fact icon={ShieldCheck} title={warranty} text="Handled by this shop, not a call centre." />
             <Fact icon={Store} title="Pickup in Ferntree Gully" text="61 Dorset Rd — call ahead and it will be ready." />
@@ -53,7 +56,7 @@ export function MachinePage() {
         <div>
           <div className="flex items-center justify-between gap-3">
             <Eyebrow>{categoryLabels[product.category]}</Eyebrow>
-            <StockPill inStock={product.inStock} />
+            <StockPill availability={product.availability} />
           </div>
           <h1 className="mt-2 text-4xl sm:text-5xl">{product.name}</h1>
           <div className="mt-3">

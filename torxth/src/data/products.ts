@@ -1,3 +1,5 @@
+import { resolve, totalOf, tunes, type Resolved } from './parts'
+
 export type ProductCategory =
   | 'gaming'
   | 'office'
@@ -5,6 +7,9 @@ export type ProductCategory =
   | 'peripherals'
   | 'components'
   | 'software'
+
+/** Workshop stock honesty — not a live warehouse feed. */
+export type ProductAvailability = 'in_shop' | 'built_to_order' | 'order_in'
 
 export type Product = {
   id: string
@@ -16,10 +21,12 @@ export type Product = {
   compareAt?: number
   badge?: string
   image: string
+  /** Shown under shared / category photos so we never claim a unique SKU shot. */
+  imageNote?: string
   summary: string
   description: string
   specs: { label: string; value: string }[]
-  inStock: boolean
+  availability: ProductAvailability
   featured?: boolean
 }
 
@@ -32,29 +39,62 @@ export const categoryLabels: Record<ProductCategory, string> = {
   software: 'Software',
 }
 
+export const availabilityLabels: Record<ProductAvailability, string> = {
+  in_shop: 'In the shop',
+  built_to_order: 'Built to order',
+  order_in: 'Order in',
+}
+
+function tuneOf(id: string) {
+  const tune = tunes.find((t) => t.id === id)
+  if (!tune) throw new Error(`Missing builder tune: ${id}`)
+  return tune
+}
+
+function specsFromBuild(build: Resolved): { label: string; value: string }[] {
+  const cool =
+    build.cool.kind === 'aio'
+      ? `${build.cool.rad}mm AIO · ${build.cool.brand} ${build.cool.name}`
+      : `${build.cool.brand} ${build.cool.name}`
+  return [
+    { label: 'CPU', value: `${build.cpu.brand} ${build.cpu.name}` },
+    { label: 'GPU', value: `${build.gpu.brand} ${build.gpu.name}` },
+    { label: 'RAM', value: `${build.ram.gb}GB DDR5` },
+    { label: 'Storage', value: `${build.nvme.brand} ${build.nvme.name}` },
+    { label: 'Cooling', value: cool },
+    { label: 'PSU', value: `${build.psu.brand} ${build.psu.name}` },
+    { label: 'Case', value: `${build.case.brand} ${build.case.name}` },
+  ]
+}
+
+const ridgeTune = tuneOf('ridge')
+const ridgeBuild = resolve(ridgeTune.pick, ridgeTune.cfg)
+const ridgePrice = totalOf(ridgeBuild)
+
+const summitTune = tuneOf('summit')
+const summitBuild = resolve(summitTune.pick, summitTune.cfg)
+const summitPrice = totalOf(summitBuild)
+
+const REPRESENTATIVE_TOWER = 'Representative workshop photo — not a unique SKU shoot.'
+const REPRESENTATIVE_OFFICE = 'Representative desktop photo — finishes vary by build.'
+const REPRESENTATIVE_LAPTOP = 'Representative laptop photo — exact model confirmed on order.'
+
 export const products: Product[] = [
   {
-    id: 'tx-ridge-5800',
+    id: 'tx-ridge',
     slug: 'ridge-gaming-tower',
     name: 'Ridge Gaming Tower',
     shortName: 'Ridge',
     category: 'gaming',
-    price: 2499,
-    compareAt: 2699,
+    price: ridgePrice,
     badge: 'Best seller',
     image: '/images/product-gaming-pc.jpg',
-    summary: '1440p gaming rig tuned for quiet airflow and long sessions.',
+    imageNote: REPRESENTATIVE_TOWER,
+    summary: '1440p gaming rig — same bill of materials as the Ridge preset in the builder.',
     description:
-      'The Ridge is our flagship mid-range gaming build — assembled, stress-tested and tuned in Ferntree Gully. Balanced for 1440p esports and modern titles with headroom for upgrades. Every Ridge ships with Windows 11 Pro, cable management done properly, and a 12-month parts & labour warranty.',
-    specs: [
-      { label: 'CPU', value: 'AMD Ryzen 7 7800X3D' },
-      { label: 'GPU', value: 'GeForce RTX 4070 Super 12GB' },
-      { label: 'RAM', value: '32GB DDR5-6000' },
-      { label: 'Storage', value: '2TB NVMe Gen4 SSD' },
-      { label: 'Cooling', value: '360mm AIO + quiet fans' },
-      { label: 'PSU', value: '850W 80+ Gold modular' },
-    ],
-    inStock: true,
+      'The Ridge is the mid-range gaming build we assemble most often at 61 Dorset Rd. Specs and price match the Ridge preset in the PC builder (parts, Windows and labour). Cable-managed, stress-tested, and backed by a 12-month parts & labour warranty.',
+    specs: specsFromBuild(ridgeBuild),
+    availability: 'built_to_order',
     featured: true,
   },
   {
@@ -66,6 +106,7 @@ export const products: Product[] = [
     price: 1199,
     badge: 'Work ready',
     image: '/images/product-office-pc.jpg',
+    imageNote: REPRESENTATIVE_OFFICE,
     summary: 'Quiet, compact desktop for home offices and small business.',
     description:
       'Grove is built for people who need a reliable everyday machine — email, spreadsheets, video calls, light creative work. Compact footprint, whisper-quiet fans, and enough horsepower that it will not slow down when a dozen browser tabs open.',
@@ -77,7 +118,7 @@ export const products: Product[] = [
       { label: 'Form', value: 'Micro-ATX, low profile' },
       { label: 'OS', value: 'Windows 11 Pro' },
     ],
-    inStock: true,
+    availability: 'order_in',
     featured: true,
   },
   {
@@ -88,6 +129,7 @@ export const products: Product[] = [
     category: 'laptops',
     price: 1499,
     image: '/images/product-laptop.jpg',
+    imageNote: REPRESENTATIVE_LAPTOP,
     summary: 'Lightweight 15" laptop for work on the go across Melbourne.',
     description:
       'The Fern 15 is our go-to recommendation for professionals who move between home, café and office. Bright display, all-day battery, and ports that actually matter. We set it up with your accounts, printers and file transfer before you walk out the door.',
@@ -99,30 +141,24 @@ export const products: Product[] = [
       { label: 'Battery', value: 'Up to 14 hours' },
       { label: 'Weight', value: '1.6 kg' },
     ],
-    inStock: true,
+    availability: 'order_in',
     featured: true,
   },
   {
-    id: 'tx-summit-4090',
+    id: 'tx-summit',
     slug: 'summit-creator-rig',
     name: 'Summit Creator Rig',
     shortName: 'Summit',
     category: 'gaming',
-    price: 4299,
+    price: summitPrice,
     badge: 'Creator',
-    image: '/images/hero-workshop.jpg',
-    summary: '4K gaming and content creation without compromise.',
+    image: '/images/product-gaming-pc.jpg',
+    imageNote: REPRESENTATIVE_TOWER,
+    summary: '4K and long jobs — same bill of materials as the Summit preset in the builder.',
     description:
-      'Summit is for creators and enthusiasts who push resolution, frame rate and render times. We hand-pick components for thermal headroom, then validate with extended stress tests before delivery.',
-    specs: [
-      { label: 'CPU', value: 'AMD Ryzen 9 7950X' },
-      { label: 'GPU', value: 'GeForce RTX 4080 Super 16GB' },
-      { label: 'RAM', value: '64GB DDR5-6000' },
-      { label: 'Storage', value: '4TB NVMe (2+2)' },
-      { label: 'Cooling', value: 'Custom loop ready chassis' },
-      { label: 'PSU', value: '1000W 80+ Platinum' },
-    ],
-    inStock: true,
+      'Summit is for creators and enthusiasts who push resolution, frame rate and render times. Specs and price match the Summit preset in the PC builder (parts, Windows and labour). We validate with extended stress tests before delivery.',
+    specs: specsFromBuild(summitBuild),
+    availability: 'built_to_order',
   },
   {
     id: 'tx-trail-13',
@@ -132,6 +168,7 @@ export const products: Product[] = [
     category: 'laptops',
     price: 1799,
     image: '/images/product-laptop.jpg',
+    imageNote: REPRESENTATIVE_LAPTOP,
     summary: 'Ultra-portable 13" for students and remote workers.',
     description:
       'Trail 13 trades screen size for bag space. Ideal for Uni, commuting on the Belgrave line, or working from a café in the foothills. We can dual-boot Linux on request.',
@@ -143,7 +180,7 @@ export const products: Product[] = [
       { label: 'Battery', value: 'Up to 18 hours' },
       { label: 'Weight', value: '1.2 kg' },
     ],
-    inStock: true,
+    availability: 'order_in',
   },
   {
     id: 'tx-hearth-family',
@@ -153,6 +190,7 @@ export const products: Product[] = [
     category: 'office',
     price: 899,
     image: '/images/product-office-pc.jpg',
+    imageNote: REPRESENTATIVE_OFFICE,
     summary: 'Affordable all-rounder for homework, streaming and browsing.',
     description:
       'Not everyone needs a racing machine. Hearth is our honest family desktop — solid parts, no fluff, easy to upgrade later when kids grow into gaming.',
@@ -164,7 +202,7 @@ export const products: Product[] = [
       { label: 'OS', value: 'Windows 11 Home' },
       { label: 'Warranty', value: '12 months parts & labour' },
     ],
-    inStock: true,
+    availability: 'order_in',
     featured: true,
   },
   {
@@ -176,6 +214,7 @@ export const products: Product[] = [
     price: 249,
     badge: 'Bundle',
     image: '/images/product-peripherals.jpg',
+    imageNote: 'Representative peripherals photo — exact finish confirmed on order.',
     summary: 'Mechanical keyboard + wireless mouse matched pair.',
     description:
       'A tactile mechanical keyboard and precise wireless mouse in matched black. Hot-swap switches on the board so you can retune the feel later.',
@@ -186,7 +225,7 @@ export const products: Product[] = [
       { label: 'Connectivity', value: '2.4GHz + Bluetooth' },
       { label: 'Layout', value: 'ANSI AU/US' },
     ],
-    inStock: true,
+    availability: 'order_in',
     featured: true,
   },
   {
@@ -207,7 +246,7 @@ export const products: Product[] = [
       { label: 'Form', value: 'M.2 2280' },
       { label: 'Install', value: 'Optional same-day service' },
     ],
-    inStock: true,
+    availability: 'order_in',
   },
   {
     id: 'tx-ram-32',
@@ -226,7 +265,7 @@ export const products: Product[] = [
       { label: 'Latency', value: 'CL30' },
       { label: 'Profile', value: 'EXPO / XMP ready' },
     ],
-    inStock: true,
+    availability: 'order_in',
   },
   {
     id: 'tx-win11-pro',
@@ -245,7 +284,7 @@ export const products: Product[] = [
       { label: 'Devices', value: '1 PC' },
       { label: 'Language', value: 'English (AU)' },
     ],
-    inStock: true,
+    availability: 'order_in',
   },
   {
     id: 'tx-security-suite',
@@ -263,7 +302,7 @@ export const products: Product[] = [
       { label: 'Devices', value: 'Up to 3' },
       { label: 'Includes', value: 'Setup + 30-min clinic' },
     ],
-    inStock: true,
+    availability: 'order_in',
   },
   {
     id: 'tx-refurb-i7',
@@ -275,6 +314,7 @@ export const products: Product[] = [
     compareAt: 799,
     badge: 'Value',
     image: '/images/product-office-pc.jpg',
+    imageNote: REPRESENTATIVE_OFFICE,
     summary: 'Workshop-refurbished i7 desktop with fresh SSD and warranty.',
     description:
       'Fully stripped, cleaned, re-pasted and upgraded. New SSD, fresh thermal paste, updated BIOS and a 90-day warranty. Honest value without the landfill guilt.',
@@ -285,7 +325,7 @@ export const products: Product[] = [
       { label: 'OS', value: 'Windows 11 Pro' },
       { label: 'Warranty', value: '90 days' },
     ],
-    inStock: true,
+    availability: 'in_shop',
   },
 ]
 

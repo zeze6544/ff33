@@ -144,6 +144,15 @@ export function Shell() {
               <Phone className="h-4 w-4 text-sky" aria-hidden />
               {company.phone}
             </a>
+            <div className="mt-3 flex flex-col gap-1.5 text-sm">
+              <a href={company.emailHref} className="inline-flex items-center gap-2 hover:text-white">
+                <Mail className="h-4 w-4 text-sky" aria-hidden />
+                {company.email}
+              </a>
+              <a href={company.siteUrl} className="inline-flex items-center gap-2 font-mono text-sky hover:text-white">
+                {company.siteHost}
+              </a>
+            </div>
           </div>
           <nav aria-label="Shop">
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-sky">Buy</p>
@@ -279,8 +288,9 @@ function CartDrawer() {
               <span className="text-mute">Subtotal</span>
               <span className="font-mono text-2xl font-medium tabular-nums">{formatAUD(subtotal)}</span>
             </div>
+            <p className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-mute">AUD · inc. GST</p>
             <p className="mt-2 text-xs leading-relaxed text-mute">
-              Pickup at 61 Dorset Rd, or local delivery. We confirm stock and the total with you before any payment.
+              Pickup at 61 Dorset Rd, or local delivery. We confirm availability and the total with you before any payment.
             </p>
             <Link to="/checkout" onClick={closeCart} className="btn-primary mt-4 w-full">
               Continue to checkout

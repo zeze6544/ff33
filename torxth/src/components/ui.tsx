@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, CheckCircle2, HardDrive, MemoryStick, Monitor, ShieldCheck } from 'lucide-react'
-import { formatAUD, type Product } from '../data/products'
+import { ArrowRight, CheckCircle2, HardDrive, Keyboard, MemoryStick, Monitor, ShieldCheck } from 'lucide-react'
+import { availabilityLabels, formatAUD, type Product, type ProductAvailability } from '../data/products'
 import { useCart } from '../hooks/useCart'
 
 export function Eyebrow({ children, light = false }: { children: string; light?: boolean }) {
@@ -44,26 +44,43 @@ export function SectionHead({
   )
 }
 
-export function StockPill({ inStock }: { inStock: boolean }) {
-  return inStock ? (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-okbg px-2.5 py-1 text-xs font-semibold text-ok">
-      <span className="h-1.5 w-1.5 rounded-full bg-ok" aria-hidden />
-      In the shop
-    </span>
-  ) : (
+export function StockPill({ availability }: { availability: ProductAvailability }) {
+  if (availability === 'in_shop') {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-okbg px-2.5 py-1 text-xs font-semibold text-ok">
+        <span className="h-1.5 w-1.5 rounded-full bg-ok" aria-hidden />
+        {availabilityLabels.in_shop}
+      </span>
+    )
+  }
+  if (availability === 'built_to_order') {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-sky/15 px-2.5 py-1 text-xs font-semibold text-blue">
+        <span className="h-1.5 w-1.5 rounded-full bg-blue" aria-hidden />
+        {availabilityLabels.built_to_order}
+      </span>
+    )
+  }
+  return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-warnbg px-2.5 py-1 text-xs font-semibold text-warn">
-      Order in
+      <span className="h-1.5 w-1.5 rounded-full bg-warn" aria-hidden />
+      {availabilityLabels.order_in}
     </span>
   )
 }
 
 export function Price({ value, compareAt, large = false }: { value: number; compareAt?: number; large?: boolean }) {
   return (
-    <span className="inline-flex flex-wrap items-baseline gap-x-2">
-      <span className={`font-mono font-medium tabular-nums ${large ? 'text-3xl' : 'text-lg'}`}>{formatAUD(value)}</span>
-      {compareAt && compareAt > value && (
-        <span className="font-mono text-sm tabular-nums text-mute line-through">{formatAUD(compareAt)}</span>
-      )}
+    <span className="inline-flex flex-col items-start gap-0.5">
+      <span className="inline-flex flex-wrap items-baseline gap-x-2">
+        <span className={`font-mono font-medium tabular-nums ${large ? 'text-3xl' : 'text-lg'}`}>{formatAUD(value)}</span>
+        {compareAt && compareAt > value && (
+          <span className="font-mono text-sm tabular-nums text-mute line-through">{formatAUD(compareAt)}</span>
+        )}
+      </span>
+      <span className={`font-mono uppercase tracking-[0.12em] text-mute ${large ? 'text-[0.7rem]' : 'text-[0.6rem]'}`}>
+        AUD · inc. GST
+      </span>
     </span>
   )
 }
@@ -72,7 +89,13 @@ export function Price({ value, compareAt, large = false }: { value: number; comp
 export function ProductVisual({ product, className = '' }: { product: Product; className?: string }) {
   if (product.category === 'components' || product.category === 'software') {
     const Icon =
-      product.category === 'software' ? (product.id.includes('security') ? ShieldCheck : Monitor) : product.id.includes('ram') ? MemoryStick : HardDrive
+      product.category === 'software'
+        ? product.id.includes('security')
+          ? ShieldCheck
+          : Monitor
+        : product.id.includes('ram')
+          ? MemoryStick
+          : HardDrive
     return (
       <div className={`spec-grid relative flex items-center justify-center overflow-hidden bg-ink-2 ${className}`} role="img" aria-label={product.name}>
         <div className="flex flex-col items-center gap-3 px-4 text-center">
@@ -80,6 +103,16 @@ export function ProductVisual({ product, className = '' }: { product: Product; c
           <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-fog">
             {product.specs[0] ? `${product.specs[0].label} · ${product.specs[0].value}` : product.shortName}
           </span>
+        </div>
+      </div>
+    )
+  }
+  if (product.category === 'peripherals' && product.id !== 'tx-copper-kit') {
+    return (
+      <div className={`spec-grid relative flex items-center justify-center overflow-hidden bg-ink-2 ${className}`} role="img" aria-label={product.name}>
+        <div className="flex flex-col items-center gap-3 px-4 text-center">
+          <Keyboard className="h-12 w-12 text-sky" strokeWidth={1.25} aria-hidden />
+          <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-fog">{product.shortName}</span>
         </div>
       </div>
     )
@@ -94,10 +127,13 @@ export function ProductCard({ product }: { product: Product }) {
       <Link to={`/shop/${product.slug}`} className="block overflow-hidden bg-ink-2" aria-label={product.name}>
         <ProductVisual product={product} className="aspect-[16/10] w-full transition duration-500 group-hover:scale-[1.03]" />
       </Link>
+      {product.imageNote && product.category !== 'components' && product.category !== 'software' && (
+        <p className="border-b border-line bg-paper px-5 py-2 text-[0.7rem] leading-snug text-mute">{product.imageNote}</p>
+      )}
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center justify-between gap-2">
           <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-blue">{product.badge ?? product.shortName}</p>
-          <StockPill inStock={product.inStock} />
+          <StockPill availability={product.availability} />
         </div>
         <Link to={`/shop/${product.slug}`}>
           <h3 className="mt-2 text-xl leading-snug group-hover:text-blue">{product.name}</h3>

@@ -244,7 +244,7 @@ function ConfiguratorTeaser() {
           <Eyebrow light>PC builder</Eyebrow>
           <h2 className="mt-2 text-3xl sm:text-4xl">Spec it before you spend it.</h2>
           <p className="mt-3 max-w-lg leading-relaxed text-fog">
-            Pick real cases, chips and cards and watch the machine change. The builder checks graphics-card length, cooler height, radiator size and power headroom as you go — the same checks we run at the bench.
+            Pick real cases, chips and cards on a workshop docket priced in AUD. The builder checks graphics-card length, cooler height, radiator size and power headroom as you go — the same checks we run at the bench.
           </p>
           <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Example builds">
             {tunes.map((t) => (

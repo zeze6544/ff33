@@ -27,7 +27,9 @@ export function DocketPage() {
       '',
       'Order:',
       ...lines.map((l) => `- ${l.product.name} × ${l.quantity} — ${formatAUD(l.lineTotal)}`),
-      `Subtotal: ${formatAUD(subtotal)} (to be confirmed)`,
+      `Subtotal: ${formatAUD(subtotal)} AUD inc. GST (to be confirmed)`,
+      '',
+      'Prices quoted AUD inclusive of GST; final total confirmed before payment.',
       '',
       `Note: ${data.get('note') || '—'}`,
     ]
@@ -135,7 +137,10 @@ export function DocketPage() {
             <span className="font-medium">Subtotal</span>
             <span className="font-mono text-2xl tabular-nums">{formatAUD(subtotal)}</span>
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-mute">Confirmed before payment. Pickup at 61 Dorset Rd, Ferntree Gully, or local delivery by arrangement.</p>
+          <p className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-mute">AUD · inc. GST</p>
+          <p className="mt-2 text-xs leading-relaxed text-mute">
+            Prices include GST. Confirmed before payment. Pickup at 61 Dorset Rd, Ferntree Gully, or local delivery by arrangement.
+          </p>
           <a href={company.phoneHref} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue">
             <Phone className="h-4 w-4" aria-hidden /> Questions? {company.phone}
           </a>

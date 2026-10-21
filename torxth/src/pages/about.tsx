@@ -11,7 +11,7 @@ const pillars = [
   },
   {
     title: 'Built and tested here',
-    text: 'Custom PCs are assembled at 61 Dorset Rd, cable-managed, updated, and run under load before pickup. You can watch a build take shape in the online builder before we order a part.',
+    text: 'Custom PCs are assembled at 61 Dorset Rd, cable-managed, updated, and run under load before pickup. Spec a priced brief in the online builder — with fitment checks — before we order a part.',
   },
   {
     title: 'Backed after you leave',

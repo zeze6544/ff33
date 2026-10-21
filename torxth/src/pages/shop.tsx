@@ -23,13 +23,13 @@ export function ShopPage() {
   const cat: Cat = isCat(params.get('cat')) ? (params.get('cat') as ProductCategory) : 'all'
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<Sort>('featured')
-  const [inStockOnly, setInStockOnly] = useState(false)
+  const [inShopOnly, setInShopOnly] = useState(false)
 
   const list = useMemo(() => {
     const query = q.trim().toLowerCase()
     const rows = products.filter((p) => {
       if (cat !== 'all' && p.category !== cat) return false
-      if (inStockOnly && !p.inStock) return false
+      if (inShopOnly && p.availability !== 'in_shop') return false
       if (!query) return true
       return [p.name, p.shortName, categoryLabels[p.category], p.summary, ...p.specs.map((s) => `${s.label} ${s.value}`)]
         .join(' ')
@@ -51,7 +51,7 @@ export function ShopPage() {
       sorted.sort((a, b) => rank(a) - rank(b))
     }
     return sorted
-  }, [cat, q, sort, inStockOnly])
+  }, [cat, q, sort, inShopOnly])
 
   return (
     <div className="wrap py-10 lg:py-14">
@@ -89,7 +89,7 @@ export function ShopPage() {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, spec or use…" className="input pl-9" />
         </label>
         <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm">
-          <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} className="h-4 w-4 accent-[#0070b0]" />
+          <input type="checkbox" checked={inShopOnly} onChange={(e) => setInShopOnly(e.target.checked)} className="h-4 w-4 accent-[#0070b0]" />
           In the shop only
         </label>
         <label className="ml-auto inline-flex items-center gap-2 text-sm text-mute">

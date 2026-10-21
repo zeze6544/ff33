@@ -8,6 +8,9 @@ export const company = {
   phoneHref: 'tel:+61408551753',
   email: 'hello@torxth.technology',
   emailHref: 'mailto:hello@torxth.technology',
+  /** Live public host for this deploy (sitemap / robots match). Brand email stays on torxth.technology. */
+  siteUrl: 'https://lost.pink',
+  siteHost: 'lost.pink',
   address: {
     line1: '61 Dorset Rd',
     suburb: 'Ferntree Gully',
